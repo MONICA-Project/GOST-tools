@@ -80,8 +80,7 @@ def init_default_parser():
 def init_test_parser():
     parser = common_commands_parser()
     parser.description = "Process user-defined testing oriented GOST operations"
-    parser.add_argument("--create", nargs='*', help="create n items of type t "
-                                                    "with random names in test_files/<type>"
-                                                  "(ex: --create num 2 type Sensors"
-                        , default=False)
+    parser.add_argument("--create", nargs='*', default=False, help="Creates n items of type t "
+                                                                   "with random names in test_files/<type> "
+                                                                   "(ex: --create num 2 type Sensors")
     return parser
