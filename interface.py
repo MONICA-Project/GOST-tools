@@ -4,13 +4,15 @@ from evaluator import EvaluatorClass
 
 
 def main():
+    """Creates a command evaluator, reads the argv input and if
+    specified with the --interactive option starts a loop of
+    requests"""
     evaluator = EvaluatorClass(args=sys.argv[1:])
-    evaluator.init(first_time=True)
     evaluator.evaluate()
 
+
     while True:
-        evaluator.init()
-        new_command = shlex.split(input("insert command : "))
+        new_command = shlex.split(input("(" + evaluator.environment["mode"] + " mode) insert command : "))
         evaluator.evaluate(new_command)
 
 

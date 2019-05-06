@@ -29,7 +29,7 @@ def common_commands_parser():
                                                          "usable with multiple values at once "
                                                          "(ex: -p id <newId> name <newName>)")
 
-    parser.add_argument("-s", "--select_items", nargs='*', help="select_items from the items found with --get"
+    parser.add_argument("-s", "--select", nargs='*', help="select_items from the items found with --get"
                                                                 "those in which FIELD has the selected VALUE,"
                                                                 "usable with multiple values at once "
                                                                 "(ex: -s id <newId> name <newName>)")
@@ -81,6 +81,9 @@ def init_test_parser():
     parser = common_commands_parser()
     parser.description = "Process user-defined testing oriented GOST operations"
     parser.add_argument("--create", nargs='*', default=False, help="Creates n items of type t "
-                                                                   "with random names in test_files/<type> "
-                                                                   "(ex: --create num 2 type Sensors")
+                                                                   "in test_files/<type>\n"
+                                                                   "you can define field values for created records\n"
+                                                                   "otherwise default value will be used"
+                                                                   "(ex: --create num 2 type Sensors\n"
+                                                                   "description newDesc)")
     return parser

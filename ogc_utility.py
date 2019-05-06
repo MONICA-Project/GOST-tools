@@ -22,10 +22,7 @@ def send_json(string_to_jsonify = None, ogc_name=None, sending_address=None, req
     if not sending_address:
         sending_address = "http://" + connection_config.get_address_from_file() + "/v1.0/" + ogc_name
     if string_to_jsonify:
-        if isinstance(string_to_jsonify, dict):
-            load = string_to_jsonify
-        else:
-            load = json.dumps(string_to_jsonify)
+        load = json.dumps(string_to_jsonify)
     else:
         load = ""
     headers = {'Content-type': 'application/json'}
@@ -95,19 +92,20 @@ def add_item(req, type, spec = None):
 
 
 def patch_item(options_dict, identifier, ogc_type, environment):
-    """add an item from request "req" of type "type" with specs "spec"
+    """patch the item identified by 'identifier' with the fields
+    provided with 'options_dict'
     """
     GOST_address = "http://" + environment["GOST_address"] + "/v1.0/"
     address = f"{GOST_address}{ogc_type}({check_id(identifier)})"
-    send_json(options_dict, sending_address=address, request_type = 'PATCH')
+    return send_json(options_dict, sending_address=address, request_type='PATCH')
 
 
-def addDataStream(req, spec):
+def add_data_stream(req, spec):
     content = req.get_json()
-    conditionsResults = checkConditions(spec, content)
+    conditions_results = checkConditions(spec, content)
 
-    if errorExists(conditionsResults):
-        return make_response(jsonify(error="missing conditions " + str(conditionsResults)), 400)
+    if errorExists(conditions_results):
+        return make_response(jsonify(error="missing conditions " + str(conditions_results)), 400)
 
     else:
         destinationAddress = f"{connection_config.GOST_address}Things({content.get('thingId')})/Datastreams"
@@ -173,7 +171,8 @@ def get_info(options_dict, ogc_name, identifier = None):
 
 def all_matching_fields(item, options_dict):
     for key in options_dict:
-        if not(item[key] == options_dict[key]):
+
+        if not(str(item[key]) == str(options_dict[key])):
             return False
     return True
 

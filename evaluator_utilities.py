@@ -38,9 +38,9 @@ def get(args, environment):
 def select_items(args, environment):
     if environment["critical_failures"]:
         return environment
-    if args.select_items:
+    if args.select:
         select_rules = args_to_dict(args.select)
-        for x in environment["selected_items"]:
+        for x in environment["selected_items"].copy():
             if not all_matching_fields(x, select_rules):
                 environment["selected_items"].remove(x)
     return environment
@@ -84,7 +84,9 @@ def patch(args, environment):
     if args.patch:
         for x in environment["selected_items"]:
             if not ("error" in x) and ("@iot.id" in x):
-                patch_item(args_to_dict(args.patch), str(x.get("@iot.id")), args.ogc, environment)
+                patches = args_to_dict(args.patch)
+                environment["results"].append(patch_item(patches, str(x.get("@iot.id")),
+                                                         args.ogc, environment).json())
     return environment
 
 
@@ -208,9 +210,15 @@ def show_results(args, environment):
         return environment
 
     if environment["selected_items"]:
-        print("results:")
+        print("selected items:")
         pp = pprint.PrettyPrinter(indent=4)
         for x in environment["selected_items"]:
+            pp.pprint(x)
+
+    if environment["results"]:
+        print("results:")
+        pp = pprint.PrettyPrinter(indent=4)
+        for x in environment["results"]:
             pp.pprint(x)
     return environment
 
@@ -225,7 +233,8 @@ def clear_environment(args, environment):
     temp_address = environment["GOST_address"]
     temp_mode = environment["mode"]
     environment = {"GOST_address": temp_address, "non_critical_failures": [],
-                   "critical_failures": [], "selected_items": [], "mode": temp_mode}
+                   "results": [],"critical_failures": [],
+                   "selected_items": [], "mode": temp_mode}
     return environment
 
 
@@ -233,7 +242,8 @@ def clear_test_environment(args, environment):
     temp_address = environment["GOST_address"]
     temp_mode = environment["mode"]
     environment = {"GOST_address": temp_address, "non_critical_failures": [],
-                   "critical_failures": [], "selected_items": [], "mode": temp_mode}
+                   "results" : [], "critical_failures": [],
+                   "selected_items": [], "mode": temp_mode}
     return environment
 
 
