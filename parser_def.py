@@ -68,6 +68,13 @@ def common_commands_parser():
     parser.add_argument("--load", nargs='*', help="loads records from file"
 
                         , default=False)
+
+    parser.add_argument("--create", nargs='*', default=False, help="Creates n items of type t "
+                                                                   "in test_files/<type>\n"
+                                                                   "you can define field values for created records\n"
+                                                                   "otherwise default value will be used"
+                                                                   "(ex: --create num 2 type Sensors\n"
+                                                                   "description newDesc)")
     return parser
 
 
@@ -80,10 +87,15 @@ def init_default_parser():
 def init_test_parser():
     parser = common_commands_parser()
     parser.description = "Process user-defined testing oriented GOST operations"
-    parser.add_argument("--create", nargs='*', default=False, help="Creates n items of type t "
-                                                                   "in test_files/<type>\n"
-                                                                   "you can define field values for created records\n"
-                                                                   "otherwise default value will be used"
-                                                                   "(ex: --create num 2 type Sensors\n"
-                                                                   "description newDesc)")
+
+    parser.add_argument("--session", help="with 'start' argument "
+                                          "starts a test session, and all created items will be"
+                                          "saved in an env variable. With 'clear' all those items will be"
+                                          "deleted"
+                                           ,
+                        default=False)
+    parser.add_argument("--clear_session", help="delete all the records created from the beginning of "
+                                                "current test session",
+                        action="store_true")
+
     return parser

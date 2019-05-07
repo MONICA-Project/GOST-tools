@@ -16,13 +16,18 @@ def get_id_list(dict_list):
     return values_array
 
 
-def send_json(string_to_jsonify = None, ogc_name=None, sending_address=None, request_type='POST'):
-    """ sends a POST request with json body, ogcName is the name in OGC data model
+def send_json(provided_load=None, ogc_name=None, sending_address=None, request_type='POST'):
+    """ sends a http request with json body, ogcName is the name in OGC data model. The
+    default request type is POST, sending address if not provided is derived from
+    ogc type
     """
     if not sending_address:
         sending_address = "http://" + connection_config.get_address_from_file() + "/v1.0/" + ogc_name
-    if string_to_jsonify:
-        load = json.dumps(string_to_jsonify)
+    if provided_load:
+        if isinstance(provided_load, str):
+            load = json.dumps(provided_load)
+        else:
+            load = provided_load
     else:
         load = ""
     headers = {'Content-type': 'application/json'}
@@ -74,6 +79,7 @@ def add_item(req, type, spec = None):
             spec = get_specs(type)
 
         conditions_results = checkConditions(spec, content)
+
         if errorExists(conditions_results):
             return make_response(jsonify(error="missing conditions " + str(conditions_results)), 400)
         else:
@@ -155,18 +161,6 @@ def add_observation(req, client) :
     datastream_id = content.get('Datastream').get('@iot.id')
     topic = "GOST/Datastreams("+str(datastream_id)+")/Observations"
     return client.publish(topic=topic, payload=str(content), qos=2)
-
-
-def get_info(options_dict, ogc_name, identifier = None):
-    if not identifier:
-        found_item = (get_all(ogc_name).json())['value']
-    else:
-        found_item = [get_item(identifier, ogc_name)]
-        return found_item
-    result = []
-    for item in found_item:
-        result.append(all_matching_fields(item, options_dict))
-    return result
 
 
 def all_matching_fields(item, options_dict):

@@ -10,7 +10,6 @@ def main():
     evaluator = EvaluatorClass(args=sys.argv[1:])
     evaluator.evaluate()
 
-
     while True:
         new_command = shlex.split(input("(" + evaluator.environment["mode"] + " mode) insert command : "))
         evaluator.evaluate(new_command)

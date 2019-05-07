@@ -3,6 +3,7 @@ import pprint
 from json import JSONDecoder, JSONDecodeError
 import re
 from test_utility import create_records_file
+from environments import default_env
 
 
 def get_info(args, environment):
@@ -225,25 +226,15 @@ def show_results(args, environment):
 
 def create_records(args, environment):
     if args.create:
-        create_records_file(args_to_dict(args.create))
+        errors = create_records_file(args_to_dict(args.create))[1]
+        environment["non_critical_failures"].append(errors)
     return environment
 
 
 def clear_environment(args, environment):
     temp_address = environment["GOST_address"]
     temp_mode = environment["mode"]
-    environment = {"GOST_address": temp_address, "non_critical_failures": [],
-                   "results": [],"critical_failures": [],
-                   "selected_items": [], "mode": temp_mode}
-    return environment
-
-
-def clear_test_environment(args, environment):
-    temp_address = environment["GOST_address"]
-    temp_mode = environment["mode"]
-    environment = {"GOST_address": temp_address, "non_critical_failures": [],
-                   "results" : [], "critical_failures": [],
-                   "selected_items": [], "mode": temp_mode}
+    environment = default_env(GOST_address=temp_address, mode=temp_mode)
     return environment
 
 

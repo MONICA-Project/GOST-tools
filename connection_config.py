@@ -1,10 +1,13 @@
 import os
 import subprocess
 
-address_file_path = 'config_files/GOST_address.txt'
+address_file_path = 'GOST-CLI/config_files/GOST_address.txt'
 
 
 def get_address_from_file():
+    """reads and returns the address saved in address_file_path"""
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    print(dir_path)
     with open(address_file_path) as fp:
         new_address = fp.readline()
         return new_address

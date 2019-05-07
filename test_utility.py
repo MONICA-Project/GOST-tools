@@ -5,6 +5,8 @@ import string
 
 
 def create_records_file(args):
+    errors = []
+    created_name_list = []
     if "file" in args:
         file_name = args["file"]
     else:
@@ -14,9 +16,14 @@ def create_records_file(args):
 
     for x in range(int(args["num"])):
         item = create_random_item(args)
-        my_file.write(item)
+        if "error" in item:
+            errors.append(item["error"])
+        else:
+            my_file.write(item)
+            created_name_list.append(item)
 
     my_file.close()
+    return [created_name_list, errors]
 
 
 def create_random_item(args):
@@ -37,6 +44,8 @@ def create_random_sensor(args):
 
 def create_random_observation(args):
     random_obs_value = random.randint(1,100)
+    if "Datasream" not in args:
+        return {"error": "missing datastream"}
     return json.dumps({
         "result": user_defined_or_default(args, "result"),
         "Datastream": {
