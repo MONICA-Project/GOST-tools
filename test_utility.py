@@ -6,8 +6,7 @@ import string
 
 def create_records_file(args):
     """create records in default file or in a specified file, if provided"""
-    errors = []
-    created_name_list = []
+    result = {"created_name_list" : [],"errors" : []}
     if "file" in args:
         file_name = args["file"]
     else:
@@ -18,13 +17,15 @@ def create_records_file(args):
     for x in range(int(args["num"])):
         item = create_random_item(args)
         if "error" in item:
-            errors.append(item["error"])
+            result["errors"].append(item["error"])
         else:
             my_file.write(item)
-            created_name_list.append(item)
+            result["created_name_list"].append(json.loads(item))
 
     my_file.close()
-    return [created_name_list, errors]
+    print("Created a file in " + file_name
+          + " with " + str(len(result["created_name_list"])) + " " + args["type"])
+    return result
 
 
 def create_random_item(args):

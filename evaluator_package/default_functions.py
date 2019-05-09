@@ -49,10 +49,10 @@ def select_items(evaluator):
 def select_fields(evaluator):
     if not evaluator.environment["critical_failures"]:
 
-        if evaluator.args.fields:
+        if evaluator.args.show:
             for x in evaluator.environment["selected_items"]:
                 for field in x.copy():
-                    if not field in evaluator.args.fields:
+                    if field not in evaluator.args.show:
                         x.pop(field, None)
 
 
@@ -89,7 +89,6 @@ def post(evaluator):
             for file in evaluator.args.post:
                 with open(file) as json_file:
                     NOT_WHITESPACE = re.compile(r'[^\s]')
-
                     def decode_stacked(document, pos=0, decoder=JSONDecoder()):
                         while True:
                             match = NOT_WHITESPACE.search(document, pos)
@@ -138,7 +137,8 @@ def missing_ogc_type(evaluator):
                           or evaluator.args.patch or evaluator.args.post
         missing_ogc = needed_ogc_type and (not evaluator.args.ogc)
         if missing_ogc:
-            evaluator.environment["critical_failures"].append("This command needs an ogc type (--ogc <type name>)")
+            evaluator.environment["critical_failures"].append("This command needs an ogc type "
+                                                              "(--ogc <type name>)")
 
 
 def execute_and_exit(evaluator):
@@ -208,8 +208,12 @@ def show_results(evaluator):
 
 def create_records(evaluator):
     if evaluator.args.create:
-        errors = create_records_file(args_to_dict(evaluator.args.create))[1]
-        evaluator.environment["non_critical_failures"].append(errors)
+        result = create_records_file(args_to_dict(evaluator.args.create))
+        if result["errors"]:
+            evaluator.environment["non_critical_failures"] += result["errors"]
+        if evaluator.args.show:
+            if result["created_name_list"]:
+                evaluator.environment["results"] += result["created_name_list"]
 
 
 def read_file(evaluator):
