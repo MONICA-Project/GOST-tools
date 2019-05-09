@@ -179,11 +179,13 @@ def user_defined_address(evaluator):
 
 def show_failures(evaluator):
     if evaluator.environment["critical_failures"]:
-        print("critical_failures:")
+        print("critical_failures("
+                  + str(len(evaluator.environment["critical_failures"])) + "):")
         for x in evaluator.environment["critical_failures"]:
             print(x)
     if evaluator.environment["non_critical_failures"]:
-        print("non_critical_failures:")
+        print("non_critical_failures("
+                  + str(len(evaluator.environment["non_critical_failures"])) + "):")
         for x in evaluator.environment["non_critical_failures"]:
             print(x)
 
@@ -191,12 +193,14 @@ def show_failures(evaluator):
 def show_results(evaluator):
     if not evaluator.environment["critical_failures"]:
         if evaluator.environment["selected_items"]:
-            print("selected items:")
+            print("selected items ("
+                  + str(len(evaluator.environment["selected_items"])) + "):")
             pp = pprint.PrettyPrinter(indent=4)
             for x in evaluator.environment["selected_items"]:
                 pp.pprint(x)
         if evaluator.environment["results"]:
-            print("results:")
+            print("results("
+                  + str(len(evaluator.environment["results"])) + "):")
             pp = pprint.PrettyPrinter(indent=4)
             for x in evaluator.environment["results"]:
                 pp.pprint(x)
