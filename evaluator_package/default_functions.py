@@ -26,15 +26,13 @@ def get(evaluator):
             if evaluator.args.get:
                 if type(evaluator.args.get) is list:
                     for get_identifier in evaluator.args.get:
-                        evaluator.environment["selected_items"].append(get_item(get_identifier,
-                                                                                evaluator.args.ogc,
-                                                                                evaluator.environment))
+                        result = get_item(get_identifier, evaluator.args.ogc, evaluator.environment)
+                        append_result(evaluator, result, "selected_items")
 
                 if evaluator.args.identifier:
                     for current_identifier in evaluator.args.identifier:
-                        evaluator.environment["selected_items"].append(get_item(current_identifier,
-                                                                                evaluator.args.ogc,
-                                                                                evaluator.environment))
+                        result = get_item(current_identifier, evaluator.args.ogc, evaluator.environment)
+                        append_result(evaluator, result, "selected_items")
 
 
 def select_items(evaluator):
@@ -77,10 +75,11 @@ def patch(evaluator):
     if not evaluator.environment["critical_failures"]:
         if evaluator.args.patch:
             for x in evaluator.environment["selected_items"]:
-                if not ("error" in x) and ("@iot.id" in x):
+                if ("error" not in x) and ("@iot.id" in x):
                     patches = args_to_dict(evaluator.args.patch)
-                    evaluator.environment["results"].append(patch_item(patches, str(x.get("@iot.id")),
-                                                             evaluator.args.ogc, evaluator.environment).json())
+                    result = patch_item(patches, str(x.get("@iot.id")),
+                                                             evaluator.args.ogc, evaluator.environment).json()
+                    append_result(evaluator, result, "results")
 
 
 def post(evaluator):
@@ -248,3 +247,12 @@ def file_iterator(file_name):
     for request in requests_list:
         file_evaluator.evaluate(shlex.split(request))
     file.close()
+
+
+def append_result(evaluator, result, field_name):
+    """appends the result dict to 'fieldname' of evaluator, after having checked
+    if an error field exists, in wich case appends result to non_critical_failures"""
+    if "error" in result:
+        evaluator.environment["non_critical_failures"].append(result)
+    else:
+        evaluator.environment[field_name].append(result)
