@@ -29,17 +29,18 @@ def common_commands_parser():
                                                          "usable with multiple values at once "
                                                          "(ex: -p id <newId> name <newName>)")
 
-    parser.add_argument("-s", "--select", nargs='*', help="select_items from the items found with --get"
-                                                                "those in which FIELD has the selected VALUE,"
-                                                                "usable with multiple values at once "
-                                                                "(ex: -s id <newId> name <newName>)")
+    parser.add_argument("-s", "--select", nargs='*', help="selection of the items from those found with --get,"
+                                                          "before any further operation like delete or patch."
+                                                          "Choosen items are those in which FIELD "
+                                                          "has the selected VALUE,"
+                                                          "usable with multiple values at once "
+                                                          "(ex: -s id <definedId> name <definedName>)")
 
     parser.add_argument("--show", nargs='*', help="select from the results of elaborations"
-                                                              "the choosen fields, "
-                                                              "usable with multiple values at once "
-                                                              "Use 'all' to show all fields "
-
-                                                              "(ex: --show id name)", default=False)
+                                                  "the choosen fields, "
+                                                  "usable with multiple values at once "
+                                                  "Use 'all' to show all fields "
+                                                  "(ex: --show id name)", default=False)
 
     parser.add_argument("--viewget", nargs='*', help="select from the items found with --get"
                                                   "the selected fields, "
@@ -53,13 +54,14 @@ def common_commands_parser():
     parser.add_argument("--pingconnection", "--connectiontest", "--conntest",
                         help="sends a ping to test the connection", action="store_true")
 
-    parser.add_argument("-g", "--get", help="shows the IDs of the items of the currently "
+    parser.add_argument("-g", "--get", help="get the items of the currently "
                                             "selected ogc type,"
-                                            "by matching attributes\n"
-                                            "es('-g owner <name> description <desc>'.\n"
-                                            'Otherwise, if an identifier is definited, shows\n'
-                                            'the selected values of the item'
-                        , action="store_true")
+                                            "if one or more identifiers are definited,"
+                                            "or all the items of seleted type"
+                                            "if nothing is defined. "
+                                            "The results are saved for successive operations"
+                                            "like delete and patch",
+                                            action="store_true")
 
     parser.add_argument("--exit", help="exit from the program", action="store_true")
 

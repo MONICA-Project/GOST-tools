@@ -33,6 +33,8 @@ def create_random_item(args):
         return create_random_sensor(args)
     if args["type"] == "Observations":
         return create_random_observation(args)
+    else:
+        return {"error": "incorrect ogc type"}
 
 
 def create_random_sensor(args):
