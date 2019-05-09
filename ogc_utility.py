@@ -34,8 +34,7 @@ def send_json(provided_load=None, ogc_name=None, sending_address=None, request_t
     if request_type == 'POST':
         r = requests.post(sending_address, json=load, headers=headers)
     if request_type == 'PATCH':
-        r = requests.patch(sending_address, data=load, headers=headers)
-
+        r = requests.patch(sending_address, json=load, headers=headers)
     if request_type == 'GET':
         r = requests.get(sending_address, data=load, headers=headers)
     return r

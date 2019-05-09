@@ -5,6 +5,7 @@ import re
 from test_utility import create_records_file
 from environments import default_env
 import shlex
+import copy
 
 
 def get_info(evaluator):
@@ -48,7 +49,11 @@ def select_fields(evaluator):
     if not evaluator.environment["critical_failures"]:
 
         if evaluator.args.show:
-            for x in evaluator.environment["selected_items"]:
+            if not evaluator.environment["results"]:  # if the user has only made a get request, the results
+                                                      # are simply the selected items
+                evaluator.environment["results"] = \
+                    copy.deepcopy(evaluator.environment["selected_items"])
+            for x in evaluator.environment["results"]:
                 for field in x.copy():
                     if field not in evaluator.args.show:
                         x.pop(field, None)
@@ -78,7 +83,7 @@ def patch(evaluator):
                 if ("error" not in x) and ("@iot.id" in x):
                     patches = args_to_dict(evaluator.args.patch)
                     result = patch_item(patches, str(x.get("@iot.id")),
-                                                             evaluator.args.ogc, evaluator.environment).json()
+                                evaluator.args.ogc, evaluator.environment).json()
                     append_result(evaluator, result, "results")
 
 
@@ -191,10 +196,19 @@ def show_failures(evaluator):
 
 def show_results(evaluator):
     if not evaluator.environment["critical_failures"]:
-        if evaluator.environment["selected_items"]:
+        if evaluator.environment["selected_items"] and evaluator.args.viewget:
             print("selected items ("
                   + str(len(evaluator.environment["selected_items"])) + "):")
+
+            if "all" not in evaluator.args.viewget:
+
+                for x in evaluator.environment["selected_items"]:
+                    for field in x.copy():
+                        if field not in evaluator.args.viewget:
+                            x.pop(field, None)
+
             pp = pprint.PrettyPrinter(indent=4)
+
             for x in evaluator.environment["selected_items"]:
                 pp.pprint(x)
         if evaluator.environment["results"]:
@@ -250,8 +264,9 @@ def file_iterator(file_name):
 
 
 def append_result(evaluator, result, field_name):
-    """appends the result dict to 'fieldname' of evaluator, after having checked
-    if an error field exists, in wich case appends result to non_critical_failures"""
+    """appends the 'result' dict to 'field_name' of evaluator, after having checked
+    if an error field exists in 'result',
+    in which case the result is appended to 'non_critical_failures'"""
     if "error" in result:
         evaluator.environment["non_critical_failures"].append(result)
     else:

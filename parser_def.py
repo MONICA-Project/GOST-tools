@@ -34,10 +34,16 @@ def common_commands_parser():
                                                                 "usable with multiple values at once "
                                                                 "(ex: -s id <newId> name <newName>)")
 
-    parser.add_argument("--show", nargs='*', help="select from the items found with --get"
-                                                              "the selected fields, "
+    parser.add_argument("--show", nargs='*', help="select from the results of elaborations"
+                                                              "the choosen fields, "
                                                               "usable with multiple values at once "
                                                               "(ex: --show id name)", default=False)
+
+    parser.add_argument("--viewget", nargs='*', help="select from the items found with --get"
+                                                  "the selected fields, "
+                                                  "usable with multiple values at once."
+                                                  "Use 'all' to show all fields "
+                                                  "(ex: --viewget id name)", default=False)
 
     parser.add_argument("-G", "--GOSTaddress", "--address",
                         help="sets a new address (IP and port) for GOST")
