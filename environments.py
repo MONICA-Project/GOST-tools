@@ -11,6 +11,8 @@ def default_env(selected_items=None, results=None, critical_failures=None,
         critical_failures = []
     if non_critical_failures is None:
         non_critical_failures = []
+    if non_critical_failures is None:
+        non_critical_failures = []
 
     return {"selected_items": selected_items,
             "results": results,
@@ -34,7 +36,7 @@ def test_env(selected_items=None, results=None, critical_failures=None,
     if non_critical_failures is None:
         non_critical_failures = []
     if testing_items is None:
-        testing_items = []
+        testing_items = {"Sensors": [], "Things": []}
 
     return {"selected_items": selected_items,
             "results": results,

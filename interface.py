@@ -1,10 +1,10 @@
 import shlex
 import sys
-from evaluator import EvaluatorClass
+from evaluator_package.evaluator import EvaluatorClass
 
 
 def main():
-    """Creates a command evaluator, reads the argv input and if
+    """Creates a command evaluator_package, reads the argv input and if
     specified with the --interactive option starts a loop of
     requests"""
     evaluator = EvaluatorClass(args=sys.argv[1:])

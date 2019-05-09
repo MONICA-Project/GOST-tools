@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-address_file_path = 'GOST-CLI/config_files/GOST_address.txt'
+address_file_path = './config_files/GOST_address.txt'
 
 
 def get_address_from_file():

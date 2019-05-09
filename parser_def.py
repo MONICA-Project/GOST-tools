@@ -10,7 +10,7 @@ def common_commands_parser():
                         nargs='*', default=False)
 
     parser.add_argument("-f", "--file", help="choose a FILE from which to execute a list of commands",
-                        action="store", dest="file")
+                        action="store", dest="file", default=False)
 
     parser.add_argument("-t", "--ogc", "--type"
                         , help="OGC Model name of the type of the item to process")

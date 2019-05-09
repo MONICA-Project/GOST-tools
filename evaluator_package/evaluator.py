@@ -1,5 +1,5 @@
-from evaluator_utilities.evaluator_functions import *
-from evaluator_utilities.test_functions import *
+from evaluator_package.default_functions import *
+from evaluator_package.test_functions import *
 from parser_def import init_default_parser, init_test_parser
 from environments import default_env, test_env
 
@@ -7,8 +7,8 @@ from environments import default_env, test_env
 always_active = [get_info]
 
 # standard mode evaluations list
-first_initialization = [user_defined_address, saved_address, missing_ogc_type, ping]
-default_initialization = [user_defined_address, missing_ogc_type, ping]
+first_initialization = [user_defined_address, saved_address, missing_ogc_type, ping, read_file]
+default_initialization = [user_defined_address, missing_ogc_type, ping, read_file]
 
 getting_items = [get, select_items, select_fields]
 create = [create_records]
@@ -37,7 +37,8 @@ test_steps = [always_active, test_initialization, test_actions, test_ending]
 class EvaluatorClass:
     """reads a list of arguments and evaluates them"""
 
-    def __init__(self, args):
+    def __init__(self, args, reading_file=False):
+        self.reading_file = reading_file
         self.parser = init_default_parser()
         self.args = self.parser.parse_args(args)
         self.environment = default_env()
@@ -56,7 +57,7 @@ class EvaluatorClass:
             exit(0)
         for step in self.evaluation_steps:
             for function in step:
-                self.environment = function(self.args, self.environment)
+                function(self)
 
     def init(self, args):
         self.args = self.parser.parse_args(args)
