@@ -53,10 +53,11 @@ def select_fields(evaluator):
                                                       # are simply the selected items
                 evaluator.environment["results"] = \
                     copy.deepcopy(evaluator.environment["selected_items"])
-            for x in evaluator.environment["results"]:
-                for field in x.copy():
-                    if field not in evaluator.args.show:
-                        x.pop(field, None)
+            if "all" not in evaluator.args.show:
+                for x in evaluator.environment["results"]:
+                    for field in x.copy():
+                        if field not in evaluator.args.show:
+                            x.pop(field, None)
 
 
 def delete(evaluator):

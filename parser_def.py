@@ -37,6 +37,8 @@ def common_commands_parser():
     parser.add_argument("--show", nargs='*', help="select from the results of elaborations"
                                                               "the choosen fields, "
                                                               "usable with multiple values at once "
+                                                              "Use 'all' to show all fields "
+
                                                               "(ex: --show id name)", default=False)
 
     parser.add_argument("--viewget", nargs='*', help="select from the items found with --get"
