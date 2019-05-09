@@ -63,18 +63,17 @@ def select_fields(evaluator):
 def delete(evaluator):
     if not evaluator.environment["critical_failures"]:
         if evaluator.args.delete:
-            temp_list = []
             for x in evaluator.environment["selected_items"]:
                 try:
                     if "error" in x:
                         evaluator.environment["non_critical_failures"].append(x["error"])
                     elif "@iot.id" in x:
                         delete_item(x.get("@iot.id"), evaluator.args.ogc, evaluator.environment)
-                        temp_list.append("Deleted id: " + str(x.get("@iot.id")))
+                        result = "Deleted id: " + str(x.get("@iot.id"))
+                        append_result(evaluator, result, "results")
                 except AttributeError as attr:
                     print(attr)
                     pass
-            evaluator.environment["selected_items"] = temp_list
 
 
 def patch(evaluator):
@@ -110,10 +109,7 @@ def post(evaluator):
                     for obj in decode_stacked(json_file.read()):
                         result = add_item(obj, evaluator.args.ogc)
                         json_result = json.loads((result.data).decode('utf-8'))
-                        if "error" in json_result:
-                            evaluator.environment["non_critical_failures"].append(json_result["error"])
-                        else:
-                            evaluator.environment["selected_items"].append(json_result)
+                        append_result(evaluator, json_result, "results")
 
 
 def connection_test(evaluator):

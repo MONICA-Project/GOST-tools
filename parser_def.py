@@ -67,8 +67,8 @@ def common_commands_parser():
                                               "shell", action="store_true")
     parser.add_argument("--post", nargs='*', help="posts records from user defined file/s to"
                                                   "currently selected OGC type"
+                                                  "es('--post <file_name> -t <type>'"
                         , default=False)
-
 
     parser.add_argument("--create", nargs='*', default=False, help="Creates n items of type t "
                                                                    "in created_files/<type>,"
