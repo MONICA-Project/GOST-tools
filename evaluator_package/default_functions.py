@@ -42,7 +42,7 @@ def select_items(evaluator):
         if evaluator.args.select:
             select_rules = args_to_dict(evaluator.args.select)
             for x in evaluator.environment["selected_items"].copy():
-                if not evaluator.all_matching_fields(x, select_rules):
+                if not all_matching_fields(x, select_rules):
                     evaluator.environment["selected_items"].remove(x)
 
 

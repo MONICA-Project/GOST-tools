@@ -61,9 +61,6 @@ def common_commands_parser():
                                                   "currently selected OGC type"
                         , default=False)
 
-    parser.add_argument("--load", nargs='*', help="loads records from file"
-
-                        , default=False)
 
     parser.add_argument("--create", nargs='*', default=False, help="Creates n items of type t "
                                                                    "in created_files/<type>,"
