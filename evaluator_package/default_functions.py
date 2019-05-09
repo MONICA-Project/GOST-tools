@@ -171,11 +171,14 @@ def user_defined_address(evaluator):
     if not evaluator.environment["critical_failures"]:
 
         if evaluator.args.GOSTaddress:
-            if len(evaluator.args.GOSTaddress[0]) < 8:
+            if len(evaluator.args.GOSTaddress) < 8:
                 evaluator.environment["critical_failures"].append("error: invalid address")
             else:
-                evaluator.environment["GOST_address"] \
-                    = connection_config.set_GOST_address(evaluator.args.GOSTaddress[0])
+                valid_conn = connection_config.set_GOST_address(evaluator.args.GOSTaddress)
+                if not valid_conn:
+                    evaluator.environment["critical_failures"].append("error: address not working")
+                else:
+                    evaluator.environment["GOST_address"] = valid_conn
 
 
 def show_failures(evaluator):
