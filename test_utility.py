@@ -5,12 +5,13 @@ import string
 
 
 def create_records_file(args):
+    """create records in default file or in a specified file, if provided"""
     errors = []
     created_name_list = []
     if "file" in args:
         file_name = args["file"]
     else:
-        file_name = "test_files/" + args["type"]
+        file_name = "created_files/" + args["type"]
 
     my_file = open(file_name, "w")
 

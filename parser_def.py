@@ -45,10 +45,6 @@ def common_commands_parser():
     parser.add_argument("--pingconnection", "--connectiontest", "--conntest",
                         help="sends a ping to test the connection", action="store_true")
 
-    parser.add_argument("--configinfo",
-                        help="shows the current state of global variables:\n"
-                             "-GOST address", action="store_true")
-
     parser.add_argument("-g", "--get", help="shows the IDs of the items of the currently "
                                             "selected ogc type,"
                                             "by matching attributes\n"
@@ -70,7 +66,8 @@ def common_commands_parser():
                         , default=False)
 
     parser.add_argument("--create", nargs='*', default=False, help="Creates n items of type t "
-                                                                   "in test_files/<type>\n"
+                                                                   "in created_files/<type>,"
+                                                                   "or in the file defined with 'file <filename>\n"
                                                                    "you can define field values for created records\n"
                                                                    "otherwise default value will be used"
                                                                    "(ex: --create num 2 type Sensors\n"

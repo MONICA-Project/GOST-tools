@@ -35,6 +35,7 @@ def send_json(provided_load=None, ogc_name=None, sending_address=None, request_t
         r = requests.post(sending_address, json=load, headers=headers)
     if request_type == 'PATCH':
         r = requests.patch(sending_address, data=load, headers=headers)
+
     if request_type == 'GET':
         r = requests.get(sending_address, data=load, headers=headers)
     return r
@@ -103,7 +104,7 @@ def patch_item(options_dict, identifier, ogc_type, environment):
     """
     GOST_address = "http://" + environment["GOST_address"] + "/v1.0/"
     address = f"{GOST_address}{ogc_type}({check_id(identifier)})"
-    return send_json(options_dict, sending_address=address, request_type='PATCH')
+    return send_json(provided_load=options_dict, sending_address=address, request_type='PATCH')
 
 
 def add_data_stream(req, spec):
