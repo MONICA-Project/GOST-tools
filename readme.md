@@ -135,20 +135,28 @@ and name = "test_name":
 --get 1 -t Sensors -d
 ```
 
-ex 3
+Creating and storing 5 Sensors with default values to a file with path = "file_path":
 ```
-./scral.py -h
+--post num 5 type Sensors file file_path
 ```
 
+Creating and storing 5 Sensors with default values except the description, which will be
+ equal to "new_description", to a file with path = "file_path":
+```
+--post num 5 type Sensors description new_description file file_path
+```
 
-## Other information
-Insert here more relevant information.
+Posting all the Sensors stored in a txt file with path = "file_path":
+```
+--post file_path -t Sensors
+```
 
 
 ## Next steps
 GOST-CLI is still under active development. Several extensions will be available soon.
 
 * implementing a test mode
+* storing custom commands and tying them to a user account
 
 
 ## Contacts
