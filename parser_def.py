@@ -95,11 +95,5 @@ def init_test_parser():
     parser.add_argument("--session", help="with 'start' argument "
                                           "starts a test session, and all created items will be"
                                           "saved in an env variable. With 'clear' all those items will be"
-                                          "deleted"
-                                           ,
-                        default=False)
-    parser.add_argument("--clear_session", help="delete all the records created from the beginning of "
-                                                "current test session",
-                        action="store_true")
-
+                                          "deleted", default=False)
     return parser

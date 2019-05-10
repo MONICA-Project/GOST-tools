@@ -27,7 +27,7 @@ default_steps = [always_active, default_initialization, create, getting_items, m
                  failure_handling, default_ending]
 
 # test mode evaluations list
-test_initialization = [started_session, create_test_records, user_defined_address, ping]
+test_initialization = [started_session, create_test_records]
 test_actions = [post]
 test_ending = [clear_test_environment, exit_function]
 
@@ -87,6 +87,10 @@ class EvaluatorClass:
                 self.set_evaluation_steps(first_time_steps)
             elif changed_mode:
                 print("entered default mode")
+                self.environment = default_env()
+                self.set_evaluation_steps(default_steps)
+            elif self.evaluation_steps == first_time_steps:  # necessary to change evaluation steps if
+                                                             # default mode is selected before other modes
                 self.environment = default_env()
                 self.set_evaluation_steps(default_steps)
             self.parser = init_default_parser()
