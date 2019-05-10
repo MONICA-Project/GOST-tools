@@ -14,7 +14,7 @@ GOST-CLI requires Python 3 or greater (it was tested on Python 3.7 so it is sugg
 
 #### Clone the repository
 ```
-git clone https://git.pertforge.ismb.it/monica/scral-python-3
+git clone https://git.pertforge.ismb.it/Students-Projects/gost-cli.git
 ```
 
 #### Libraries
@@ -29,20 +29,31 @@ pip3 install -r requirements.txt
 
 ### How to use GOST-CLI
 ```
-        _____ _____ ____  ___    __
-       / ___// ____/ __ \/   |  / /
-       \__ \/ /   / /_/ / /| | / /
-      ___/ / /___/ _, _/ ___ |/ /___   Smart City Resource Adaptation Layer
+        _____ __________  ___    __                                     
+       / ___// ____/ __ \/   |  / /                                     
+       \__ \/ /   / /_/ / /| | / /                                      
+      ___/ / /___/ _, _/ ___ |/ /___   Smart City Resource Adaptation Layer                                 
      /____/\____/_/ |_/_/  |_/_____/   v2.0 - enhanced by Python 3
 
      (c) 2019, LINKS Foundation
      developed by Jacopo Foglietti & Luca Mannella
 
 
-Smart City Resource Adaptation Layer
+usage: SCRAL [-h] [-v] [-o OGC_FILE] [-c CONNECTION_FILE] [-p PILOT]
+
+GOST - Command Line Interface
 
 optional arguments:
   -h, --help            show this help message and exit
+  -v, --verbose         enable verbose mode
+  -o OGC_FILE, --ogc OGC_FILE
+                        the path of the OGC configuration file
+  -c CONNECTION_FILE, --conn CONNECTION_FILE
+                        the path of the connection configuration
+  -p PILOT, --pilot PILOT
+                        the name of the desired pilot
+
+example: start_module.py -v -f ./my_conf.conf -c external -p MOVIDA
   
 ```
 
@@ -78,12 +89,13 @@ GOST-CLI is still under active development. Several extensions will be available
 
 
 ## Contacts
-Feel free to contact [Jacopo Foglietti](http://ismb.it/jacopo.foglietti/) or [Luca Mannella](http://ismb.it/luca.mannella)
+Feel free to contact [Giacomo Robino](http://giacomo.robino.it), [Luca Mannella](http://ismb.it/luca.mannella) or [Jacopo Foglietti](http://ismb.it/jacopo.foglietti/)
 for any ideas, improvements, and questions.
 
 
 ## Licensing
-**Copyright © 2019 [Jacopo Foglietti](http://ismb.it/jacopo.foglietti/)
-and [Luca Mannella](http://ismb.it/luca.mannella) for [LINKS Foundation](http://linksfoundation.com/).**
+**Copyright © 2019 [Giacomo Robino](http://ismb.it/giacomo.robino/), [Luca Mannella](http://ismb.it/luca.mannella) 
+ and [Jacopo Foglietti](http://ismb.it/jacopo.foglietti/)
+ for [LINKS Foundation](http://linksfoundation.com/).**
 
 *GOST-CLI* is licensed under the 2-Clause BSD License ([BSD-2-Clause](https://opensource.org/licenses/BSD-2-Clause)).
