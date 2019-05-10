@@ -72,6 +72,11 @@ def common_commands_parser():
                                                   "es('--post <file_name> -t <type>'"
                         , default=False)
 
+    return parser
+
+
+def init_default_parser():
+    parser = common_commands_parser()
     parser.add_argument("--create", nargs='*', default=False, help="Creates n items of type t "
                                                                    "in created_files/<type>,"
                                                                    "or in the file defined with 'file <filename>\n"
@@ -79,11 +84,6 @@ def common_commands_parser():
                                                                    "otherwise default value will be used"
                                                                    "(ex: --create num 2 type Sensors\n"
                                                                    "description newDesc)")
-    return parser
-
-
-def init_default_parser():
-    parser = common_commands_parser()
     parser.description = "Process user-defined GOST operations"
     return parser
 
@@ -91,9 +91,18 @@ def init_default_parser():
 def init_test_parser():
     parser = common_commands_parser()
     parser.description = "Process user-defined testing oriented GOST operations"
-
     parser.add_argument("--session", help="with 'start' argument "
                                           "starts a test session, and all created items will be"
-                                          "saved in an env variable. With 'clear' all those items will be"
+                                          "saved in an env variable and in a file with the name of "
+                                          "ogc_type in the folder"
+                                          "test_files. With 'clear' or  changing"
+                                          "the mode all those items will be"
                                           "deleted", default=False)
+
+    parser.add_argument("--create", nargs='*', default=False, help="Creates n items of type t "
+                                                                   "test_files/<type>,"
+                                                                   "you can define field values for created records\n"
+                                                                   "otherwise default value will be used"
+                                                                   "(ex: --create num 2 type Sensors\n"
+                                                                   "description newDesc)")
     return parser

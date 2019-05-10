@@ -26,9 +26,11 @@ def started_session(evaluator):
 
 def create_test_records(evaluator):
     if evaluator.args.create:
-        if evaluator.args.start_session:
+        if evaluator.args.session:
+            evaluator.args.create["file"] = "test_files/" + evaluator.args.create["type"]
             result = create_records_file(args_to_dict(evaluator.args.create))
-            evaluator.environment["testing_items"].append(result["created_name_list"])
+            evaluator.environment["testing_items"][evaluator.args.create["type"]]\
+                .append(result["created_name_list"])
         else:
-            errors = create_records_file(args_to_dict(evaluator.args.create))["errors"]
-            evaluator.environment["non_critical_failures"].append(errors)
+            evaluator.environment["non_critical_failures"].append("Error: impossible create test items"
+                                                                  "if session is not started")
