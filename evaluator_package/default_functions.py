@@ -45,14 +45,16 @@ def select_items(evaluator):
                     evaluator.environment["selected_items"].remove(x)
 
 
-def select_fields(evaluator):
+def select_result_fields(evaluator):
     if not evaluator.environment["critical_failures"]:
+        if not evaluator.environment["results"] and only_get(evaluator.args):
+            # if the user has only made a get request, the results
+            # are simply the selected items
+
+            evaluator.environment["results"] = \
+                copy.deepcopy(evaluator.environment["selected_items"])
 
         if evaluator.args.show:
-            if not evaluator.environment["results"]:  # if the user has only made a get request, the results
-                                                      # are simply the selected items
-                evaluator.environment["results"] = \
-                    copy.deepcopy(evaluator.environment["selected_items"])
             if "all" not in evaluator.args.show:
                 for x in evaluator.environment["results"]:
                     for field in x.copy():
@@ -63,17 +65,37 @@ def select_fields(evaluator):
 def delete(evaluator):
     if not evaluator.environment["critical_failures"]:
         if evaluator.args.delete:
-            for x in evaluator.environment["selected_items"]:
-                try:
-                    if "error" in x:
-                        evaluator.environment["non_critical_failures"].append(x["error"])
-                    elif "@iot.id" in x:
-                        delete_item(x.get("@iot.id"), evaluator.args.ogc, evaluator.environment)
-                        result = "Deleted id: " + str(x.get("@iot.id"))
-                        append_result(evaluator, result, "results")
-                except AttributeError as attr:
-                    print(attr)
-                    pass
+            if evaluator.environment["selected_items"]:  # deleting selected items
+
+                warning_message = f"You are going to delete the following {evaluator.args.ogc}:\n"   # creation of warning message
+                for x in evaluator.environment["selected_items"]:
+                    try:
+                        if "error" in x:
+                            pass
+                        elif "@iot.id" in x:
+                            id = str(x["@iot.id"])
+                            warning_message += id + " "
+                    except AttributeError as attr:
+                        print("missing" + attr)
+                        pass
+                proceed = input(warning_message + "\nProceed?(Y/N)")
+
+                if proceed == "Y" or proceed == "y" :  # elimination of items
+                    for x in evaluator.environment["selected_items"]:
+                        try:
+                            if "error" in x:
+                                evaluator.environment["non_critical_failures"].append(x["error"])
+                            elif "@iot.id" in x:
+                                delete_item(x.get("@iot.id"), evaluator.args.ogc, evaluator.environment)
+                                result = "Deleted id: " + str(x.get("@iot.id"))
+                                append_result(evaluator, result, "results")
+                        except AttributeError as attr:
+                            print(attr)
+                            pass
+                else :
+                    print("Aborted deletion")
+            else:
+                print("trying to delete but no item defined")
 
 
 def patch(evaluator):
@@ -196,21 +218,6 @@ def show_failures(evaluator):
 
 def show_results(evaluator):
     if not evaluator.environment["critical_failures"]:
-        if evaluator.environment["selected_items"] and evaluator.args.viewget:
-            print("selected items ("
-                  + str(len(evaluator.environment["selected_items"])) + "):")
-
-            if "all" not in evaluator.args.viewget:
-
-                for x in evaluator.environment["selected_items"]:
-                    for field in x.copy():
-                        if field not in evaluator.args.viewget:
-                            x.pop(field, None)
-
-            pp = pprint.PrettyPrinter(indent=4)
-
-            for x in evaluator.environment["selected_items"]:
-                pp.pprint(x)
         if evaluator.environment["results"]:
             print("results("
                   + str(len(evaluator.environment["results"])) + "):")
@@ -254,7 +261,7 @@ def format_multi_options(args):
 
 
 def file_iterator(file_name):
-    from .evaluator import EvaluatorClass  # late import for avoiding cross-import problems
+    from evaluator_package.evaluator import EvaluatorClass  # late import for avoiding cross-import problems
     file_evaluator = EvaluatorClass(["-i"], reading_file = True)
     file = open(file_name)
     requests_list = file.readlines()
@@ -271,3 +278,17 @@ def append_result(evaluator, result, field_name):
         evaluator.environment["non_critical_failures"].append(result)
     else:
         evaluator.environment[field_name].append(result)
+
+
+def only_get(args):
+    """checks if the only user command is get"""
+    args_dict = args.__dict__
+    if args_dict["get"]:
+        for key in args_dict:
+            if (key == "identifier") or (key == "ogc") or (key == "get"):
+                pass
+            if not bool(key):
+                return False
+        return True
+    return False
+

@@ -19,7 +19,8 @@ def common_commands_parser():
                                              "Actually available modes:\n"
                                              "- test\n-default", default=False)
 
-    parser.add_argument("-d", "--delete", help="delete the chosen items",
+    parser.add_argument("-d", "--delete", help="delete the items chosen with get"
+                                               "es: -g 15 -t Sensors --delete",
                         action="store_true")
 
     parser.add_argument("-i", "--info", help="shows GOST address and operation mode",
@@ -41,12 +42,6 @@ def common_commands_parser():
                                                   "usable with multiple values at once "
                                                   "Use 'all' to show all fields "
                                                   "(ex: --show id name)", default=False)
-
-    parser.add_argument("--viewget", nargs='*', help="select from the items found with --get"
-                                                  "the selected fields, "
-                                                  "usable with multiple values at once."
-                                                  "Use 'all' to show all fields "
-                                                  "(ex: --viewget id name)", default=False)
 
     parser.add_argument("-G", "--GOSTaddress", "--address",
                         help="sets a new address (IP and port) for GOST")

@@ -13,7 +13,7 @@ default_initialization = [user_defined_address, missing_ogc_type, ping, read_fil
 getting_items = [get, select_items]
 create = [create_records]
 mod_items = [delete, patch, post]
-show = [select_fields, show_results]
+show = [select_result_fields, show_results]
 failure_handling = [show_failures]
 
 first_time_ending = [clear_environment, execute_and_exit]
