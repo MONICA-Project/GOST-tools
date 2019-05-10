@@ -9,26 +9,27 @@ def common_commands_parser():
                                            "or 'all' for all the items of chosen type",
                         nargs='*', default=False)
 
-    parser.add_argument("-f", "--file", help="choose a FILE from which to execute a list of commands",
+    parser.add_argument("-f", "--file", help="choose a FILE from which execute a list of commands",
                         action="store", dest="file", default=False)
 
-    parser.add_argument("-t", "--ogc", "--type"
-                        , help="OGC Model name of the type of the item to process")
+    parser.add_argument("-t", "--ogc", "--type",
+                        help="select the OGC Model name of the items to process")
 
     parser.add_argument("-m", "--mode", help="Select an alternative mode of operation."
                                              "Actually available modes:\n"
-                                             "- test\n-default", default=False)
+                                             "- test\n-default")
 
     parser.add_argument("-d", "--delete", help="delete the items chosen with get"
                                                "es: -g 15 -t Sensors --delete",
                         action="store_true")
 
-    parser.add_argument("-i", "--info", help="shows GOST address and operation mode",
+    parser.add_argument("-i", "--info", help="shows the current GOST address and operation mode",
                         action="store_true")
 
-    parser.add_argument("-p", "--patch", nargs='*', help="patch the chosen item FIELD with selected VALUE,"
-                                                         "usable with multiple values at once "
-                                                         "(ex: -p id <newId> name <newName>)")
+    parser.add_argument("-p", "--patch", nargs='*', help="patch the choosen item FIELD with selected VALUE,accepts "
+                                                         "multiple values at once"
+                                                          "examples:\n--p id <newId> name <newName>"
+                                                          "\n--p description <newDescription>")
 
     parser.add_argument("-s", "--select", nargs='*', help="selection of the items from those found with --get,"
                                                           "before any further operation like delete or patch."

@@ -67,7 +67,8 @@ def delete(evaluator):
         if evaluator.args.delete:
             if evaluator.environment["selected_items"]:  # deleting selected items
 
-                warning_message = f"You are going to delete the following {evaluator.args.ogc}:\n"   # creation of warning message
+                warning_message = f"You are going to delete the {evaluator.args.ogc}" \
+                    f"with the following id:\n"   # creation of warning message
                 for x in evaluator.environment["selected_items"]:
                     try:
                         if "error" in x:
@@ -80,7 +81,7 @@ def delete(evaluator):
                         pass
                 proceed = input(warning_message + "\nProceed?(Y/N)")
 
-                if proceed == "Y" or proceed == "y" :  # elimination of items
+                if proceed == "Y" or proceed == "y":  # elimination of items
                     for x in evaluator.environment["selected_items"]:
                         try:
                             if "error" in x:
@@ -92,7 +93,7 @@ def delete(evaluator):
                         except AttributeError as attr:
                             print(attr)
                             pass
-                else :
+                else:
                     print("Aborted deletion")
             else:
                 print("trying to delete but no item defined")

@@ -7,7 +7,8 @@
 
 
 ## Getting Started
-*GOST-CLI* is a tool for [...]
+*GOST-CLI* is a tool for interacting via command-line with a GOST
+server
 
 ### Install
 GOST-CLI requires Python 3 or greater (it was tested on Python 3.7 so it is suggested to install at least that version).
@@ -17,44 +18,75 @@ GOST-CLI requires Python 3 or greater (it was tested on Python 3.7 so it is sugg
 git clone https://git.pertforge.ismb.it/Students-Projects/gost-cli.git
 ```
 
-#### Libraries
-Here insert possible necessary libraries.
-
-#### Python packages
-To install the required python3 packages:
-```
-pip3 install -r requirements.txt
-```
-
 
 ### How to use GOST-CLI
 ```
-        _____ __________  ___    __                                     
-       / ___// ____/ __ \/   |  / /                                     
-       \__ \/ /   / /_/ / /| | / /                                      
-      ___/ / /___/ _, _/ ___ |/ /___   Smart City Resource Adaptation Layer                                 
-     /____/\____/_/ |_/_/  |_/_____/   v2.0 - enhanced by Python 3
 
-     (c) 2019, LINKS Foundation
-     developed by Jacopo Foglietti & Luca Mannella
+usage: interface.py [-h] [-f FILE] [-t OGC] [-m MODE] [-d] [-i]
+                    [-p [PATCH [PATCH ...]]] [-s [SELECT [SELECT ...]]]
+                    [--show [SHOW [SHOW ...]]] [-G GOSTADDRESS]
+                    [--pingconnection] [-g] [--exit] [--interactive]
+                    [--post [POST [POST ...]]]
+                    [--create [CREATE [CREATE ...]]]
+                    [identifier [identifier ...]]
 
+Process user-defined GOST operations
 
-usage: SCRAL [-h] [-v] [-o OGC_FILE] [-c CONNECTION_FILE] [-p PILOT]
-
-GOST - Command Line Interface
+positional arguments:
+  identifier            ID or Name of one or more items to process, or '$'
+                        followed by the name of a file with a list of them or
+                        'all' for all the items of chosen type
 
 optional arguments:
   -h, --help            show this help message and exit
-  -v, --verbose         enable verbose mode
-  -o OGC_FILE, --ogc OGC_FILE
-                        the path of the OGC configuration file
-  -c CONNECTION_FILE, --conn CONNECTION_FILE
-                        the path of the connection configuration
-  -p PILOT, --pilot PILOT
-                        the name of the desired pilot
-
-example: start_module.py -v -f ./my_conf.conf -c external -p MOVIDA
-  
+  -f FILE, --file FILE  choose a FILE from which execute a list of commands
+  -t OGC, --ogc OGC, --type OGC
+                        select the OGC Model name of the items to process
+  -m MODE, --mode MODE  Select an alternative mode of operation.Actually
+                        available modes: 
+                         - test
+  -d, --delete          delete the items chosen with get: 
+                        example
+                         --get 15 -t Sensors --delete
+  -i, --info            shows the current GOST address and operation mode
+  -p [PATCH [PATCH ...]], --patch [PATCH [PATCH ...]]
+                        patch the choosen item FIELD with selected VALUE,usable
+                        with multiple values at once 
+                        examples: 
+                        --p id <newId> name <newName>
+                        --p description <newDescription> 
+  -s [SELECT [SELECT ...]], --select [SELECT [SELECT ...]]
+                        selection of the items from those found with
+                        --get,before any further operation like delete or
+                        patch. Choosen items are those in which FIELD has the
+                        selected VALUE,usable with multiple values at once
+                        example: 
+                         --select id <definedId> name <definedName>)
+  --show [SHOW [SHOW ...]]
+                        select which fields of the results of the elaborations 
+                        to show as output.
+                        Usable with multiple values at once, use 'all'
+                        to show all fields
+  -G GOSTADDRESS, --GOSTaddress GOSTADDRESS, --address GOSTADDRESS
+                        sets a new address (IP and port) for GOST
+  --pingconnection, --connectiontest, --conntest
+                        sends a ping to test the connection
+  -g, --get             get the items of the currently selected ogc type,if
+                        one or more identifiers are definited,or all the items
+                        of seleted typeif nothing is defined. The results are
+                        saved for successive operationslike delete and patch
+  --exit                exit from the program
+  --interactive         starts an interactive session, --exit to return
+                        toshell
+  --post [POST [POST ...]]
+                        posts records from user defined file/s tocurrently
+                        selected OGC typees('--post <file_name> -t <type>'
+  --create [CREATE [CREATE ...]]
+                        Creates n items of type t in created_files/<type>,or
+                        in the file defined with 'file <filename> you can
+                        define field values for created records otherwise
+                        default value will be used(ex: --create num 2 type
+                        Sensors description newDesc)
 ```
 
 More details about GOST-CLI implementation
