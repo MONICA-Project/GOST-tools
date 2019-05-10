@@ -143,7 +143,10 @@ def delete_by_id(id, ogcName, environment):
 def delete_item(item_identifier, type, environment):
     check_id(str(item_identifier))
     return_value = delete_by_id(str(item_identifier), type, environment)
-    return return_value
+    if return_value.ok:
+        return {"success": f"deleted from {type}, identifier {item_identifier}"}
+    else:
+        return {"error": "delete failed"}
 
 
 def delete_all(ogc_name, environment):
@@ -163,11 +166,24 @@ def add_observation(req, client) :
     return client.publish(topic=topic, payload=str(content), qos=2)
 
 
-def all_matching_fields(item, options_dict):
+def matching_fields(item, options_dict, mode):
+    """check if item fields match with options_dict fields with
+    same value. If mode is set to 'and', returns true if all options match.
+    If set to 'or', returns true if at least one option matches"""
     for key in options_dict:
-
-        if not(str(item[key]) == str(options_dict[key])):
-            return False
+        if mode == "and":
+            if not(str(item[key]) == str(options_dict[key])):
+                return False
+        elif mode == "or":
+            field = item[key]
+            option = options_dict[key]
+            if isinstance(field, str) and isinstance(option,str):
+                if option == field:
+                    return True
+            elif str(field) == str(option):
+                return True
+    if mode == "or":
+        return False
     return True
 
 

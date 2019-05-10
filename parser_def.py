@@ -33,10 +33,13 @@ def common_commands_parser():
 
     parser.add_argument("-s", "--select", nargs='*', help="selection of the items from those found with --get,"
                                                           "before any further operation like delete or patch."
-                                                          "Choosen items are those in which FIELD "
-                                                          "has the selected VALUE,"
-                                                          "usable with multiple values at once "
-                                                          "(ex: -s id <definedId> name <definedName>)")
+                                                          "Chosen items are those in which FIELD "
+                                                          "has the selected VALUE. It is usable with " 
+                                                          "multiple values at once, starting with 'and/or' depending " 
+                                                          "if the user wants ALL fields matching or AT LEAST one"
+                                                          "\n(ex: -s id <definedId> name <definedName>)"
+                                                          "\n(ex: -s and id <definedId> name <definedName>)"
+                                                          "\n(ex: -s or id <definedId> name <definedName>)")
 
     parser.add_argument("--show", nargs='*', help="select from the results of elaborations"
                                                   "the choosen fields, "
@@ -50,13 +53,11 @@ def common_commands_parser():
     parser.add_argument("--pingconnection", "--connectiontest", "--conntest",
                         help="sends a ping to test the connection", action="store_true")
 
-    parser.add_argument("-g", "--get", help="get the items of the currently "
-                                            "selected ogc type,"
-                                            "if one or more identifiers are definited,"
-                                            "or all the items of seleted type"
-                                            "if nothing is defined. "
-                                            "The results are saved for successive operations"
-                                            "like delete and patch",
+    parser.add_argument("-g", "--get", help="get the items of the currently selected ogc type,if\n"
+                        "one or more item identifiers or name are definited,\n"
+                        "or all the items of selected type if no id or name\n" 
+                        "is provided. The query results are\n"
+                        "saved for successive operations like delete or patch",
                                             action="store_true")
 
     parser.add_argument("--exit", help="exit from the program", action="store_true")

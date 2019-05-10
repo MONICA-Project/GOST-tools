@@ -39,10 +39,21 @@ def get(evaluator):
 def select_items(evaluator):
     if not evaluator.environment["critical_failures"]:
         if evaluator.args.select:
+
+            boolean_mode = "and"
+
+            if (evaluator.args.select[0] == "and") or (evaluator.args.select[0] == "or"):
+                boolean_mode = evaluator.args.select[0]
+                evaluator.args.select = evaluator.args.select[1:]
+
             select_rules = args_to_dict(evaluator.args.select)
             for x in evaluator.environment["selected_items"].copy():
-                if not all_matching_fields(x, select_rules):
+                res = matching_fields(x, select_rules, boolean_mode)
+                if not res:
                     evaluator.environment["selected_items"].remove(x)
+            if len(evaluator.environment["selected_items"]) == 0:
+                evaluator.environment["non_critical_failures"] += [f"error: no {evaluator.args.ogc} found " \
+                    f"with select statement conditions"]
 
 
 def select_result_fields(evaluator):
@@ -67,7 +78,7 @@ def delete(evaluator):
         if evaluator.args.delete:
             if evaluator.environment["selected_items"]:  # deleting selected items
 
-                warning_message = f"You are going to delete the {evaluator.args.ogc}" \
+                warning_message = f"You are going to delete the {evaluator.args.ogc} " \
                     f"with the following id:\n"   # creation of warning message
                 for x in evaluator.environment["selected_items"]:
                     try:
@@ -79,19 +90,18 @@ def delete(evaluator):
                     except AttributeError as attr:
                         print("missing" + attr)
                         pass
-                proceed = input(warning_message + "\nProceed?(Y/N)")
+                proceed = input(warning_message + "\nProceed?(y/N)")
 
-                if proceed == "Y" or proceed == "y":  # elimination of items
+                if proceed == "y":  # elimination of items
                     for x in evaluator.environment["selected_items"]:
                         try:
                             if "error" in x:
                                 evaluator.environment["non_critical_failures"].append(x["error"])
                             elif "@iot.id" in x:
-                                delete_item(x.get("@iot.id"), evaluator.args.ogc, evaluator.environment)
-                                result = "Deleted id: " + str(x.get("@iot.id"))
+                                result = delete_item(x.get("@iot.id"), evaluator.args.ogc, evaluator.environment)
                                 append_result(evaluator, result, "results")
                         except AttributeError as attr:
-                            print(attr)
+                            print("missing" + attr)
                             pass
                 else:
                     print("Aborted deletion")

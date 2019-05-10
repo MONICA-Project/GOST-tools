@@ -59,9 +59,13 @@ optional arguments:
                         selection of the items from those found with
                         --get,before any further operation like delete or
                         patch. Choosen items are those in which FIELD has the
-                        selected VALUE,usable with multiple values at once
+                        selected VALUE. It is usable with multiple values at once,
+                        starting with "and/or" depending if the user wants ALL fields
+                        matching or AT LEAST one
                         example: 
                          --select id <definedId> name <definedName>)
+                         --select and id <definedId> name <definedName>)
+                         --select or id <definedId> name <definedName>)
   --show [SHOW [SHOW ...]]
                         select which fields of the results of the elaborations 
                         to show as output.
@@ -72,34 +76,63 @@ optional arguments:
   --pingconnection, --connectiontest, --conntest
                         sends a ping to test the connection
   -g, --get             get the items of the currently selected ogc type,if
-                        one or more identifiers are definited,or all the items
-                        of seleted typeif nothing is defined. The results are
-                        saved for successive operationslike delete and patch
-  --exit                exit from the program
+                        one or more item identifiers or name are definited,
+                        or all the items of selected type if no id or name 
+                        is provided. The query results are
+                        saved for successive operations like delete or patch
   --interactive         starts an interactive session, --exit to return
-                        toshell
+                        to shell
+  --exit                exit from the program when you are in an interactive session
   --post [POST [POST ...]]
-                        posts records from user defined file/s tocurrently
-                        selected OGC typees('--post <file_name> -t <type>'
+                        posts records from user defined file/s to currently
+                        selected OGC types('--post <file_name> -t <type>'
   --create [CREATE [CREATE ...]]
                         Creates n items of type t in created_files/<type>,or
-                        in the file defined with 'file <filename> you can
-                        define field values for created records otherwise
-                        default value will be used(ex: --create num 2 type
-                        Sensors description newDesc)
+                        in the file defined with 'file <filename>'. 
+                        You can define field values for created 
+                        records otherwise default value will be used
+                        example: 
+                         --create num 2 type Sensors description newDesc
 ```
 
 More details about GOST-CLI implementation
 
 ### Examples
-ex 1
+Different ways of getting the Sensor with @iot.id = 1 
+and name = "test_name":
 ```
-./scral.py -h
+1 --get -t Sensors
+--get 1 -t Sensors
+test_name --get -t Sensors
+-t Sensors --get test_name
+--get -t Sensors --select name test_name
+--get -t Sensors --select name test_name @iot.id = 1
+
+```
+Getting all the Sensors and showing their
+@iot.id and description:
+```
+--get -t Sensors --show @iot.id description
 ```
 
-ex 2
+Getting all the Sensors with name = "test_name" OR @iot.id = 5
 ```
-./scral.py -h
+--get -t Sensors --select or @iot.id 5 name test_name
+```
+
+Two ways of getting all the Sensors with 
+name = "test_name" AND description = "test_description"
+```
+--get -t Sensors --select name test_name description test_description
+--get -t Sensors --select and name test_name description test_description
+
+```
+
+Different ways of deleting the Sensor with @iot.id = 1 
+and name = "test_name":
+```
+1 --get -t Sensors --delete
+--get 1 -t Sensors -d
 ```
 
 ex 3
@@ -115,9 +148,7 @@ Insert here more relevant information.
 ## Next steps
 GOST-CLI is still under active development. Several extensions will be available soon.
 
-* nuova cosa 1
-* nuova cosa 2
-* nuova cosa 3
+* implementing a test mode
 
 
 ## Contacts
