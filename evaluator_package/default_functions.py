@@ -208,13 +208,30 @@ def user_defined_address(evaluator):
 
         if evaluator.args.GOSTaddress:
             if len(evaluator.args.GOSTaddress) < 8:
-                evaluator.environment["critical_failures"].append("error: invalid address")
+                evaluator.environment["critical_failures"].append("error: invalid address, too short")
             else:
-                valid_conn = connection_config.set_GOST_address(evaluator.args.GOSTaddress)
-                if not valid_conn:
-                    evaluator.environment["critical_failures"].append("error: address not working")
-                else:
+
+                working_conn = connection_config.test_connection((evaluator.args.GOSTaddress)[:-5])
+                if working_conn:
+                    valid_conn = connection_config.set_GOST_address(evaluator.args.GOSTaddress)
                     evaluator.environment["GOST_address"] = valid_conn
+                else:
+                    warning_message = f"The selected GOST address is not working, " \
+                        f"do you want to set it as your address or want to change it?\n" \
+                        f"('y' to set the currently provided address,'ch' to set a new address, " \
+                        f"'n' to mantain the old address:\n"  # creation of warning message
+                    proceed = input(warning_message)
+                    if proceed == "y":
+                        valid_conn = connection_config.set_GOST_address(evaluator.args.GOSTaddress)
+                        evaluator.environment["GOST_address"] = valid_conn
+                    if proceed == "n":
+                        evaluator.environment["GOST_address"] = connection_config.set_GOST_address()
+                        if not evaluator.environment["GOST_address"]:
+                            evaluator.environment["critical_failures"].append("error: invalid address")
+                    if proceed == "ch":
+                        new_address = input("Insert new address:\n")
+                        evaluator.args.GOSTaddress = new_address
+                        user_defined_address(evaluator)
 
 
 def show_failures(evaluator):
