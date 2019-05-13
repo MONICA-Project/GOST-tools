@@ -6,157 +6,156 @@ from test_utility import create_records_file
 from environments import default_env
 import shlex
 import copy
+import functools
+from . import evaluating_conditions as conditions
 
 
+@conditions.needed_fields(["info"], critical_failures_resistant=True)
 def get_info(evaluator):
-    if evaluator.args.info:
-        if evaluator.environment["mode"]:
-            print("Mode : " + str(evaluator.environment["mode"]))
-        if evaluator.environment["GOST_address"]:
-            print("Address : " + evaluator.environment["GOST_address"])
+    if evaluator.environment["mode"]:
+        print("Mode : " + str(evaluator.environment["mode"]))
+    if evaluator.environment["GOST_address"]:
+        print("Address : " + evaluator.environment["GOST_address"])
 
 
+@conditions.needed_fields(["get", "identifier"], critical_failures_resistant=False)
 def get(evaluator):
-    if not evaluator.environment["critical_failures"]:
-        if evaluator.args.identifier == ["all"] or ((not evaluator.args.identifier)
-                                                    and evaluator.args.get):
-            results = get_all(evaluator.args.ogc, evaluator.environment)
-            evaluator.environment["selected_items"] = results
+    if evaluator.args.identifier == ["all"] or ((not evaluator.args.identifier)
+                                                and evaluator.args.get):
+        results = get_all(evaluator.args.ogc, evaluator.environment)
+        evaluator.environment["selected_items"] = results
 
-        else:
-            if evaluator.args.get:
-                if type(evaluator.args.get) is list:
-                    for get_identifier in evaluator.args.get:
-                        result = get_item(get_identifier, evaluator.args.ogc, evaluator.environment)
-                        append_result(evaluator, result, "selected_items")
+    else:
+        if evaluator.args.get:
+            if type(evaluator.args.get) is list:
+                for get_identifier in evaluator.args.get:
+                    result = get_item(get_identifier, evaluator.args.ogc, evaluator.environment)
+                    append_result(evaluator, result, "selected_items")
 
-                if evaluator.args.identifier:
-                    for current_identifier in evaluator.args.identifier:
-                        result = get_item(current_identifier, evaluator.args.ogc, evaluator.environment)
-                        append_result(evaluator, result, "selected_items")
+            if evaluator.args.identifier:
+                for current_identifier in evaluator.args.identifier:
+                    result = get_item(current_identifier, evaluator.args.ogc, evaluator.environment)
+                    append_result(evaluator, result, "selected_items")
 
 
+@conditions.needed_fields(["select"], critical_failures_resistant=False)
 def select_items(evaluator):
     """selects the items matching with the rules defined in evaluator.args.select
     and removes the others"""
-    if not evaluator.environment["critical_failures"]:
-        if evaluator.args.select:
+    if evaluator.args.select:
 
-            boolean_mode = "and"
+        boolean_mode = "and"
 
-            if (evaluator.args.select[0] == "and") or (evaluator.args.select[0] == "or"):
-                boolean_mode = evaluator.args.select[0]
-                evaluator.args.select = evaluator.args.select[1:]
+        if (evaluator.args.select[0] == "and") or (evaluator.args.select[0] == "or"):
+            boolean_mode = evaluator.args.select[0]
+            evaluator.args.select = evaluator.args.select[1:]
 
-            select_rules = args_to_dict(evaluator.args.select)
-            for x in evaluator.environment["selected_items"].copy():
-                res = matching_fields(x, select_rules, boolean_mode)
-                if not res:
-                    evaluator.environment["selected_items"].remove(x)
-            if len(evaluator.environment["selected_items"]) == 0:
-                evaluator.environment["non_critical_failures"] += [f"error: no {evaluator.args.ogc} found " \
-                    f"with select statement conditions"]
+        select_rules = args_to_dict(evaluator.args.select)
+        for x in evaluator.environment["selected_items"].copy():
+            res = matching_fields(x, select_rules, boolean_mode)
+            if not res:
+                evaluator.environment["selected_items"].remove(x)
+        if len(evaluator.environment["selected_items"]) == 0:
+            evaluator.environment["non_critical_failures"] += [f"error: no {evaluator.args.ogc} found " \
+                f"with select statement conditions"]
 
 
+@conditions.needed_fields(["select"], critical_failures_resistant=False)
 def select_result_fields(evaluator):
     """selects which fields of the record in result will be showed"""
-    if not evaluator.environment["critical_failures"]:
-        if not evaluator.environment["results"] and only_get(evaluator.args):
-            # if the user has only made a get request, the results
-            # are simply the selected items
+    if not evaluator.environment["results"] and only_get(evaluator.args):
+        # if the user has only made a get request, the results
+        # are simply the selected items
 
-            evaluator.environment["results"] = \
-                copy.deepcopy(evaluator.environment["selected_items"])
+        evaluator.environment["results"] = \
+            copy.deepcopy(evaluator.environment["selected_items"])
 
-        if evaluator.args.show:
-            if "all" not in evaluator.args.show:
-                for x in evaluator.environment["results"]:
-                    for field in x.copy():
-                        if field not in evaluator.args.show:
-                            x.pop(field, None)
+    if evaluator.args.show:
+        if "all" not in evaluator.args.show:
+            for x in evaluator.environment["results"]:
+                for field in x.copy():
+                    if field not in evaluator.args.show:
+                        x.pop(field, None)
 
 
+@conditions.needed_fields(["delete"], critical_failures_resistant=False)
 def delete(evaluator):
-    if not evaluator.environment["critical_failures"]:
-        if evaluator.args.delete:
-            if evaluator.environment["selected_items"]:  # deleting selected items
+    if evaluator.args.delete:
+        if evaluator.environment["selected_items"]:  # deleting selected items
 
-                warning_message = f"You are going to delete the {evaluator.args.ogc} " \
-                    f"with the following id:\n"   # creation of warning message
+            warning_message = f"You are going to delete the {evaluator.args.ogc} " \
+                f"with the following id:\n"   # creation of warning message
+            for x in evaluator.environment["selected_items"]:
+                try:
+                    if "error" in x:
+                        pass
+                    elif "@iot.id" in x:
+                        id = str(x["@iot.id"])
+                        warning_message += id + " "
+                except AttributeError as attr:
+                    print("missing" + attr)
+                    pass
+            proceed = input(warning_message + "\nProceed?(y/N)")
+
+            if proceed == "y":  # elimination of items
                 for x in evaluator.environment["selected_items"]:
                     try:
                         if "error" in x:
-                            pass
+                            evaluator.environment["non_critical_failures"].append(x["error"])
                         elif "@iot.id" in x:
-                            id = str(x["@iot.id"])
-                            warning_message += id + " "
+                            result = delete_item(x.get("@iot.id"), evaluator.args.ogc, evaluator.environment)
+                            append_result(evaluator, result, "results")
                     except AttributeError as attr:
                         print("missing" + attr)
                         pass
-                proceed = input(warning_message + "\nProceed?(y/N)")
-
-                if proceed == "y":  # elimination of items
-                    for x in evaluator.environment["selected_items"]:
-                        try:
-                            if "error" in x:
-                                evaluator.environment["non_critical_failures"].append(x["error"])
-                            elif "@iot.id" in x:
-                                result = delete_item(x.get("@iot.id"), evaluator.args.ogc, evaluator.environment)
-                                append_result(evaluator, result, "results")
-                        except AttributeError as attr:
-                            print("missing" + attr)
-                            pass
-                else:
-                    print("Aborted deletion")
             else:
-                print("trying to delete but no item defined")
-
-
-def patch(evaluator):
-    if not evaluator.environment["critical_failures"]:
-        if evaluator.args.patch:
-            for x in evaluator.environment["selected_items"]:
-                if ("error" not in x) and ("@iot.id" in x):
-                    patches = args_to_dict(evaluator.args.patch)
-                    result = patch_item(patches, str(x.get("@iot.id")),
-                                evaluator.args.ogc, evaluator.environment).json()
-                    append_result(evaluator, result, "results")
-
-
-def post(evaluator):
-    if not evaluator.environment["critical_failures"]:
-        if evaluator.args.post:
-            for file in evaluator.args.post:
-                with open(file) as json_file:
-                    NOT_WHITESPACE = re.compile(r'[^\s]')
-                    def decode_stacked(document, pos=0, decoder=JSONDecoder()):
-                        while True:
-                            match = NOT_WHITESPACE.search(document, pos)
-                            if not match:
-                                return
-                            pos = match.start()
-
-                            try:
-                                obj, pos = decoder.raw_decode(document, pos)
-                            except JSONDecodeError:
-                                raise
-                            yield obj
-
-                    for obj in decode_stacked(json_file.read()):
-                        result = add_item(obj, evaluator.args.ogc)
-                        json_result = json.loads((result.data).decode('utf-8'))
-                        append_result(evaluator, json_result, "results")
-
-
-def connection_test(evaluator):
-    if not evaluator.environment["critical_failures"]:
-
-        if not connection_config.test_connection(evaluator.environment.GOST_address, False):
-            print("Network error, failed connection")
-            evaluator.environment["critical_failure"].append("failed connection "
-                                                             "to " + evaluator.environment["GOST_address"][:-5])
+                print("Aborted deletion")
         else:
-            print(f"current GOST address: {evaluator.environment.GOST_address}\n'--address <ip:port>' to change")
+            print("trying to delete but no item defined")
+
+
+@conditions.needed_fields(["patch"], critical_failures_resistant=False)
+def patch(evaluator):
+    for x in evaluator.environment["selected_items"]:
+        if ("error" not in x) and ("@iot.id" in x):
+            patches = args_to_dict(evaluator.args.patch)
+            result = patch_item(patches, str(x.get("@iot.id")),
+                        evaluator.args.ogc, evaluator.environment).json()
+            append_result(evaluator, result, "results")
+
+
+@conditions.needed_fields(["post"], critical_failures_resistant=False)
+def post(evaluator):
+    for file in evaluator.args.post:
+        with open(file) as json_file:
+            NOT_WHITESPACE = re.compile(r'[^\s]')
+            def decode_stacked(document, pos=0, decoder=JSONDecoder()):
+                while True:
+                    match = NOT_WHITESPACE.search(document, pos)
+                    if not match:
+                        return
+                    pos = match.start()
+
+                    try:
+                        obj, pos = decoder.raw_decode(document, pos)
+                    except JSONDecodeError:
+                        raise
+                    yield obj
+
+            for obj in decode_stacked(json_file.read()):
+                result = add_item(obj, evaluator.args.ogc)
+                json_result = json.loads((result.data).decode('utf-8'))
+                append_result(evaluator, json_result, "results")
+
+
+@conditions.needed_fields([], critical_failures_resistant=False)
+def connection_test(evaluator):
+    if not connection_config.test_connection(evaluator.environment.GOST_address, False):
+        print("Network error, failed connection")
+        evaluator.environment["critical_failure"].append("failed connection "
+                                                         "to " + evaluator.environment["GOST_address"][:-5])
+    else:
+        print(f"current GOST address: {evaluator.environment.GOST_address}\n'--address <ip:port>' to change")
 
 
 def exit_function(evaluator):
@@ -166,72 +165,70 @@ def exit_function(evaluator):
         exit(0)
 
 
+@conditions.needed_fields(["get", "delete", "patch", "post"], critical_failures_resistant=False)
 def missing_ogc_type(evaluator):
     """returns True if the submitted command requires
     one or more OGC item type and they are not provided"""
-    if not evaluator.environment["critical_failures"]:
-        needed_ogc_type = evaluator.args.get or evaluator.args.delete \
-                          or evaluator.args.patch or evaluator.args.post
-        missing_ogc = needed_ogc_type and (not evaluator.args.ogc)
-        if missing_ogc:
-            evaluator.environment["critical_failures"].append("This command needs an ogc type "
-                                                              "(--ogc <type name>)")
+    if not evaluator.args.ogc:
+        evaluator.environment["critical_failures"].append("This command needs an ogc type "
+                                                          "(--ogc <type name>)")
 
 
+@conditions.needed_fields([], critical_failures_resistant=False)
 def execute_and_exit(evaluator):
-    if not evaluator.environment["critical_failures"]:
-        if evaluator.args.interactive:
-            print("Entering interactive mode: --exit to return to shell")
-        elif evaluator.reading_file:
-            pass
-        else:
-            exit(0)
+    if evaluator.args.interactive:
+        print("Entering interactive mode: --exit to return to shell")
+    elif evaluator.reading_file:
+        pass
+    else:
+        exit(0)
 
 
+@conditions.needed_fields(["pingconnection"], critical_failures_resistant=True)
 def ping(evaluator):
-    if evaluator.args.pingconnection:
-        if evaluator.environment["GOST_address"]:
-            connection_config.test_connection(evaluator.environment["GOST_address"][:-5], verbose=True)
-        else:
-            evaluator.environment["non_critical_failures"].append("GOST address undefined, ping not possible")
+    if evaluator.environment["GOST_address"]:
+        connection_config.test_connection(evaluator.environment["GOST_address"][:-5], verbose=True)
+    else:
+        evaluator.environment["non_critical_failures"].append("GOST address undefined, ping not possible")
 
 
+@conditions.needed_fields([], critical_failures_resistant=False)
 def saved_address(evaluator):
-    if not evaluator.environment["critical_failures"]:
-        evaluator.environment["GOST_address"] = connection_config.set_GOST_address()
-        if not evaluator.environment["GOST_address"]:
-            evaluator.environment["critical_failures"].append("error: invalid address")
+    evaluator.environment["GOST_address"] = connection_config.set_GOST_address()
+    if not evaluator.environment["GOST_address"]:
+        evaluator.environment["critical_failures"].append("error: invalid address")
 
 
+@conditions.needed_fields([], critical_failures_resistant=False)
 def user_defined_address(evaluator):
-    if not evaluator.environment["critical_failures"]:
+    """if the user has defined a GOST address, checks if it is possible to reach it.
+    If it possible, sets the GOST address to the new address, otherwise asks the user if he
+    wants to select a different address or wants to keep the non working address"""
+    if len(evaluator.args.GOSTaddress) < 8:
+        evaluator.environment["critical_failures"].append("error: invalid address, too short")
+    else:
 
-        if evaluator.args.GOSTaddress:
-            if len(evaluator.args.GOSTaddress) < 8:
-                evaluator.environment["critical_failures"].append("error: invalid address, too short")
-            else:
-
-                working_conn = connection_config.test_connection((evaluator.args.GOSTaddress)[:-5])
-                if working_conn:
-                    valid_conn = connection_config.set_GOST_address(evaluator.args.GOSTaddress)
-                    evaluator.environment["GOST_address"] = valid_conn
-                else:
-                    warning_message = f"The selected GOST address is not working, " \
-                        f"do you want to set it as your address or want to change it?\n" \
-                        f"('y' to set the currently provided address,'ch' to set a new address, " \
-                        f"'n' to mantain the old address:\n"  # creation of warning message
-                    proceed = input(warning_message)
-                    if proceed == "y":
-                        valid_conn = connection_config.set_GOST_address(evaluator.args.GOSTaddress)
-                        evaluator.environment["GOST_address"] = valid_conn
-                    if proceed == "n":
-                        evaluator.environment["GOST_address"] = connection_config.set_GOST_address()
-                        if not evaluator.environment["GOST_address"]:
-                            evaluator.environment["critical_failures"].append("error: invalid address")
-                    if proceed == "ch":
-                        new_address = input("Insert new address:\n")
-                        evaluator.args.GOSTaddress = new_address
-                        user_defined_address(evaluator)
+        working_conn = connection_config.test_connection((evaluator.args.GOSTaddress)[:-5])
+        if working_conn:
+            valid_conn = connection_config.set_GOST_address(evaluator.args.GOSTaddress)
+            evaluator.environment["GOST_address"] = valid_conn
+        else:
+            warning_message = f"The selected GOST address is not working, " \
+                f"do you want to set it as your address or want to change it?\n" \
+                f"('y' to set the currently provided address,'ch' to set a new address, " \
+                f"'n' to mantain the old address:\n"  # creation of warning message
+            proceed = input(warning_message)
+            if proceed == "y":
+                valid_conn = connection_config.set_GOST_address(evaluator.args.GOSTaddress)
+                evaluator.environment["GOST_address"] = valid_conn
+            if proceed == "n":
+                evaluator.environment["GOST_address"] = connection_config.set_GOST_address()
+                if not evaluator.environment["GOST_address"]:
+                    evaluator.environment["critical_failures"].append("error: GOST address not defined")
+            if proceed == "ch":
+                new_address = input("Insert new address:\n")
+                evaluator.args.GOSTaddress = new_address
+                user_defined_address(evaluator)
 
 
 def show_failures(evaluator):
@@ -247,26 +244,27 @@ def show_failures(evaluator):
             print(x)
 
 
+@conditions.needed_fields([], critical_failures_resistant=False)
 def show_results(evaluator):
-    if not evaluator.environment["critical_failures"]:
-        if evaluator.environment["results"]:
-            print("results("
-                  + str(len(evaluator.environment["results"])) + "):")
-            pp = pprint.PrettyPrinter(indent=4)
-            for x in evaluator.environment["results"]:
-                pp.pprint(x)
+    if evaluator.environment["results"]:
+        print("results("
+              + str(len(evaluator.environment["results"])) + "):")
+        pp = pprint.PrettyPrinter(indent=4)
+        for x in evaluator.environment["results"]:
+            pp.pprint(x)
 
 
+@conditions.needed_fields(["create"], critical_failures_resistant=False)
 def create_records(evaluator):
-    if evaluator.args.create:
-        result = create_records_file(args_to_dict(evaluator.args.create))
-        if result["errors"]:
-            evaluator.environment["non_critical_failures"] += result["errors"]
-        if evaluator.args.show:
-            if result["created_name_list"]:
-                evaluator.environment["results"] += result["created_name_list"]
+    result = create_records_file(args_to_dict(evaluator.args.create))
+    if result["errors"]:
+        evaluator.environment["non_critical_failures"] += result["errors"]
+    if evaluator.args.show:
+        if result["created_name_list"]:
+            evaluator.environment["results"] += result["created_name_list"]
 
 
+@conditions.needed_fields(["read_file"], critical_failures_resistant=False)
 def read_file(evaluator):
     """creates a temporary evaluator_package which evaluates the instructions
     in the file specified by args.file"""
@@ -312,14 +310,13 @@ def append_result(evaluator, result, field_name):
 
 
 def only_get(args):
-    """checks if the only user command is get"""
+    """checks if the only user command involving items is get"""
     args_dict = args.__dict__
     if args_dict["get"]:
         for key in args_dict:
-            if (key == "identifier") or (key == "ogc") or (key == "get"):
-                pass
-            if not bool(args_dict[key]):
-                return False
+            if (key == "delete") or (key == "patch"):
+                if bool(args_dict[key]):
+                    return False
         return True
     return False
 

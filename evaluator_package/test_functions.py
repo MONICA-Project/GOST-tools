@@ -1,6 +1,8 @@
 from ogc_utility import *
 from test_utility import create_records_file
 from environments import test_env
+import functools
+from . import evaluating_conditions as conditions
 
 
 def clear_test_environment(evaluator):
@@ -24,13 +26,13 @@ def started_session(evaluator):
         print("started test session")
 
 
+@conditions.needed_fields(["create"], critical_failures_resistant=False)
 def create_test_records(evaluator):
-    if evaluator.args.create:
-        if evaluator.args.session:
-            evaluator.args.create["file"] = "test_files/" + evaluator.args.create["type"]
-            result = create_records_file(args_to_dict(evaluator.args.create))
-            evaluator.environment["testing_items"][evaluator.args.create["type"]]\
-                .append(result["created_name_list"])
-        else:
-            evaluator.environment["non_critical_failures"].append("Error: impossible create test items"
-                                                                  "if session is not started")
+    if evaluator.args.session:
+        evaluator.args.create["file"] = "test_files/" + evaluator.args.create["type"]
+        result = create_records_file(args_to_dict(evaluator.args.create))
+        evaluator.environment["testing_items"][evaluator.args.create["type"]]\
+            .append(result["created_name_list"])
+    else:
+        evaluator.environment["non_critical_failures"].append("Error: impossible create test items"
+                                                              "if session is not started")
