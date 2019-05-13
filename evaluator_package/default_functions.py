@@ -37,6 +37,8 @@ def get(evaluator):
 
 
 def select_items(evaluator):
+    """selects the items matching with the rules defined in evaluator.args.select
+    and removes the others"""
     if not evaluator.environment["critical_failures"]:
         if evaluator.args.select:
 
@@ -57,6 +59,7 @@ def select_items(evaluator):
 
 
 def select_result_fields(evaluator):
+    """selects which fields of the record in result will be showed"""
     if not evaluator.environment["critical_failures"]:
         if not evaluator.environment["results"] and only_get(evaluator.args):
             # if the user has only made a get request, the results
@@ -298,7 +301,7 @@ def only_get(args):
         for key in args_dict:
             if (key == "identifier") or (key == "ogc") or (key == "get"):
                 pass
-            if not bool(key):
+            if not bool(args_dict[key]):
                 return False
         return True
     return False
