@@ -10,10 +10,9 @@ def needed_fields(at_least_one_field=None, all_mandatory_fields=None, critical_f
             required_all = bool(all_mandatory_fields)
             required_at_least_confirmed = not required_at_least
             required_all_confirmed = not required_all
-            function_executable = False
 
             if (not required_all) and (not required_at_least):
-                function_executable = True
+                return function(arg)
 
             if required_all:  # checking all mandatory fields
                 for i in all_mandatory_fields:
