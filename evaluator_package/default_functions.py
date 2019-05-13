@@ -61,7 +61,7 @@ def select_items(evaluator):
                                                                f"with select statement conditions"]
 
 
-@conditions.needed_fields(["show", "get"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["show", "get"], critical_failures_resistant=False)
 def select_result_fields(evaluator):
     """selects which fields of the record in result will be showed.
     If get is defined but there is no result, all the getted items will be
