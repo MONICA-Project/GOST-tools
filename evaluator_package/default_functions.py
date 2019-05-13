@@ -10,7 +10,8 @@ import functools
 from . import evaluating_conditions as conditions
 
 
-@conditions.needed_fields(["info"], critical_failures_resistant=True)
+@conditions.needed_fields(at_least_one_field=["info"], all_mandatory_fields=[],
+                          critical_failures_resistant=True)
 def get_info(evaluator):
     if evaluator.environment["mode"]:
         print("Mode : " + str(evaluator.environment["mode"]))
@@ -18,7 +19,7 @@ def get_info(evaluator):
         print("Address : " + evaluator.environment["GOST_address"])
 
 
-@conditions.needed_fields(["get", "identifier"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["get", "identifier"], critical_failures_resistant=False)
 def get(evaluator):
     if evaluator.args.identifier == ["all"] or ((not evaluator.args.identifier)
                                                 and evaluator.args.get):
@@ -56,19 +57,20 @@ def select_items(evaluator):
             if not res:
                 evaluator.environment["selected_items"].remove(x)
         if len(evaluator.environment["selected_items"]) == 0:
-            evaluator.environment["non_critical_failures"] += [f"error: no {evaluator.args.ogc} found " \
-                f"with select statement conditions"]
+            evaluator.environment["non_critical_failures"] += [f"error: no {evaluator.args.ogc} found "
+                                                               f"with select statement conditions"]
 
 
-@conditions.needed_fields(["select"], critical_failures_resistant=False)
+@conditions.needed_fields(["show", "get"], critical_failures_resistant=False)
 def select_result_fields(evaluator):
-    """selects which fields of the record in result will be showed"""
+    """selects which fields of the record in result will be showed.
+    If get is defined but there is no result, all the getted items will be
+    showed"""
     if not evaluator.environment["results"] and only_get(evaluator.args):
         # if the user has only made a get request, the results
         # are simply the selected items
 
-        evaluator.environment["results"] = \
-            copy.deepcopy(evaluator.environment["selected_items"])
+        evaluator.environment["results"] = copy.deepcopy(evaluator.environment["selected_items"])
 
     if evaluator.args.show:
         if "all" not in evaluator.args.show:
@@ -192,14 +194,14 @@ def ping(evaluator):
         evaluator.environment["non_critical_failures"].append("GOST address undefined, ping not possible")
 
 
-@conditions.needed_fields([], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=[], all_mandatory_fields=[], critical_failures_resistant=False)
 def saved_address(evaluator):
     evaluator.environment["GOST_address"] = connection_config.set_GOST_address()
     if not evaluator.environment["GOST_address"]:
         evaluator.environment["critical_failures"].append("error: invalid address")
 
 
-@conditions.needed_fields([], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["GOSTaddress"], critical_failures_resistant=False)
 def user_defined_address(evaluator):
     """if the user has defined a GOST address, checks if it is possible to reach it.
     If it possible, sets the GOST address to the new address, otherwise asks the user if he
@@ -215,20 +217,21 @@ def user_defined_address(evaluator):
         else:
             warning_message = f"The selected GOST address is not working, " \
                 f"do you want to set it as your address or want to change it?\n" \
-                f"('y' to set the currently provided address,'ch' to set a new address, " \
+                f"'y' to set the currently provided address\n'ch' to set a new address\n" \
                 f"'n' to mantain the old address:\n"  # creation of warning message
             proceed = input(warning_message)
             if proceed == "y":
                 valid_conn = connection_config.set_GOST_address(evaluator.args.GOSTaddress)
                 evaluator.environment["GOST_address"] = valid_conn
-            if proceed == "n":
-                evaluator.environment["GOST_address"] = connection_config.set_GOST_address()
-                if not evaluator.environment["GOST_address"]:
-                    evaluator.environment["critical_failures"].append("error: GOST address not defined")
-            if proceed == "ch":
+            elif proceed == "ch":
                 new_address = input("Insert new address:\n")
                 evaluator.args.GOSTaddress = new_address
                 user_defined_address(evaluator)
+
+            else:
+                evaluator.environment["GOST_address"] = connection_config.set_GOST_address()
+                if not evaluator.environment["GOST_address"]:
+                    evaluator.environment["critical_failures"].append("error: GOST address not defined")
 
 
 def show_failures(evaluator):
