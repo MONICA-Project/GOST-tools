@@ -2,7 +2,7 @@ from ogc_utility import *
 import pprint
 from json import JSONDecoder, JSONDecodeError
 import re
-from test_utility import create_records_file
+from creation_utilities import create_records_file
 from environments import default_env
 import shlex
 import copy
@@ -305,7 +305,7 @@ def format_multi_options(args):
         string_arg = args.__dict__[key]
         if not (key == "identifier" or key == "ogc") and isinstance(string_arg, str):  # accepts only one ogc type
                                                                                        # for each query
-            args.__dict__[key] = evaluator_utilities.custom_split(args.__dict__[key], ["'", '"'])
+            args.__dict__[key] = evaluator_utilities.custom_split(args.__dict__[key], ['"'])
     return args
 
 
