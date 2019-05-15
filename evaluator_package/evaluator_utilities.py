@@ -1,7 +1,7 @@
 import re
 
-def custom_split(string, custom_splitter):
-    """splits a string by whitespace, but ignores the whitespaces inside custom_splitter
+def custom_split(string, custom_splitters_list):
+    """splits a string by whitespace, but ignores the whitespaces inside custom_splitters_list
     example: "a b 'c d' e f -> [a][b][c d][e][f]
     """
     result = []
@@ -11,22 +11,22 @@ def custom_split(string, custom_splitter):
     i = 0
 
     while i < len(splitted):
-        if splitted[i] != custom_splitter:
+        if splitted[i] not in custom_splitters_list:
             result.append(splitted[i])
             i += 1
-        elif splitted[i] == custom_splitter:
+        elif splitted[i] in custom_splitters_list:
             temp_str = ""
             cont_reading = True
             while cont_reading:
                 i += 1
                 if i >= len(splitted):
                     cont_reading = False
-                elif splitted[i] == custom_splitter:
+                elif splitted[i] in custom_splitters_list:
                     cont_reading = False
                     i += 1
                 else:
                     temp_str += f"{str(splitted[i])}"
-                    if splitted[i + 1] != custom_splitter:
+                    if splitted[i + 1] not in custom_splitters_list:
                         temp_str += " "
 
             result.append(temp_str)

@@ -299,12 +299,13 @@ def clear_environment(evaluator):
 
 def format_multi_options(args):
     """takes a dictionary and stores each key's value as a list
-    example: {"get" : "102 103"} becomes {"get" : [102] [103]}"""
+    example: {"get" : "102 103"} becomes {"get" : [102] [103]}
+    {"get" : "102 '103 104'"} becomes {"get" : [102] [103 104]}"""
     for key in args.__dict__:
         string_arg = args.__dict__[key]
         if not (key == "identifier" or key == "ogc") and isinstance(string_arg, str):  # accepts only one ogc type
                                                                                        # for each query
-            args.__dict__[key] = evaluator_utilities.custom_split(args.__dict__[key], "'")
+            args.__dict__[key] = evaluator_utilities.custom_split(args.__dict__[key], ["'", '"'])
     return args
 
 

@@ -128,11 +128,25 @@ name = "test_name" AND description = "test_description"
 
 ```
 
+
+Getting the Sensor with 
+name = "Separated name" and the Sensor with @iot.id = 15
+description = "test_description"
+```
+"Separated name" 15 --get -t Sensors
+
+```
+
 Different ways of deleting the Sensor with @iot.id = 1 
 and name = "test_name":
 ```
 1 --get -t Sensors --delete
 --get 1 -t Sensors -d
+```
+
+Deleting all the Sensors (a warning message will be displayed before proceeding):
+```
+--get -t Sensors --d
 ```
 
 Creating and storing 5 Sensors with default values to a file with path = "file_path":
@@ -146,17 +160,23 @@ Creating and storing 5 Sensors with default values except the description, which
 --post num 5 type Sensors description new_description file file_path
 ```
 
-Posting all the Sensors stored in a txt file with path = "file_path":
+Posting to GOST all the Sensors stored in a txt file with path = "file_path":
 ```
 --post file_path -t Sensors
+```
+
+Setting the GOST address to which send requests to 192.168.99.100:8080
+```
+-G 192.168.99.100:8080
 ```
 
 
 ## Next steps
 GOST-CLI is still under active development. Several extensions will be available soon.
 
+*selective selection of records from file
 * implementing a test mode
-* storing custom commands and tying them to a user account
+* storing custom commands and settings and tying them to a user account
 
 
 ## Contacts
