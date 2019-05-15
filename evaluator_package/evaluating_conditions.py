@@ -27,7 +27,6 @@ def needed_fields(at_least_one_field=None, all_mandatory_fields=None, critical_f
                             required_at_least_confirmed = True
                             break
 
-
             if required_at_least_confirmed and required_all_confirmed:
                 return function(arg)
             else:

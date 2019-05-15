@@ -8,11 +8,13 @@ import shlex
 import copy
 import functools
 from . import evaluating_conditions as conditions
+from . import evaluator_utilities
 
 
 @conditions.needed_fields(at_least_one_field=["info"], all_mandatory_fields=[],
                           critical_failures_resistant=True)
 def get_info(evaluator):
+    """prints the informations about the current evaluator"""
     if evaluator.environment["mode"]:
         print("Mode : " + str(evaluator.environment["mode"]))
     if evaluator.environment["GOST_address"]:
@@ -21,6 +23,7 @@ def get_info(evaluator):
 
 @conditions.needed_fields(at_least_one_field=["get", "identifier"], critical_failures_resistant=False)
 def get(evaluator):
+    """gets the items from GOST"""
     if evaluator.args.identifier == ["all"] or ((not evaluator.args.identifier)
                                                 and evaluator.args.get):
         results = get_all(evaluator.args.ogc, evaluator.environment)
@@ -39,7 +42,7 @@ def get(evaluator):
                     append_result(evaluator, result, "selected_items")
 
 
-@conditions.needed_fields(["select"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["select"], critical_failures_resistant=False)
 def select_items(evaluator):
     """selects the items matching with the rules defined in evaluator.args.select
     and removes the others"""
@@ -80,8 +83,10 @@ def select_result_fields(evaluator):
                         x.pop(field, None)
 
 
-@conditions.needed_fields(["delete"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["delete"], critical_failures_resistant=False)
 def delete(evaluator):
+    """delete from GOST bb the items selected with get:
+    befor deleting asks user for confirmation"""
     if evaluator.args.delete:
         if evaluator.environment["selected_items"]:  # deleting selected items
 
@@ -116,8 +121,11 @@ def delete(evaluator):
             print("trying to delete but no item defined")
 
 
-@conditions.needed_fields(["patch"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["patch"], critical_failures_resistant=False)
 def patch(evaluator):
+    """
+    patches the selected fields of the items chosen with get with the selected values
+    """
     for x in evaluator.environment["selected_items"]:
         if ("error" not in x) and ("@iot.id" in x):
             patches = args_to_dict(evaluator.args.patch)
@@ -126,7 +134,7 @@ def patch(evaluator):
             append_result(evaluator, result, "results")
 
 
-@conditions.needed_fields(["post"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["post"], critical_failures_resistant=False)
 def post(evaluator):
     for file in evaluator.args.post:
         with open(file) as json_file:
@@ -150,7 +158,7 @@ def post(evaluator):
                 append_result(evaluator, json_result, "results")
 
 
-@conditions.needed_fields([], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
 def connection_test(evaluator):
     if not connection_config.test_connection(evaluator.environment.GOST_address, False):
         print("Network error, failed connection")
@@ -167,7 +175,7 @@ def exit_function(evaluator):
         exit(0)
 
 
-@conditions.needed_fields(["get", "delete", "patch", "post"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["get", "delete", "patch", "post"], critical_failures_resistant=False)
 def missing_ogc_type(evaluator):
     """returns True if the submitted command requires
     one or more OGC item type and they are not provided"""
@@ -176,7 +184,7 @@ def missing_ogc_type(evaluator):
                                                           "(--ogc <type name>)")
 
 
-@conditions.needed_fields([], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
 def execute_and_exit(evaluator):
     if evaluator.args.interactive:
         print("Entering interactive mode: --exit to return to shell")
@@ -186,7 +194,7 @@ def execute_and_exit(evaluator):
         exit(0)
 
 
-@conditions.needed_fields(["pingconnection"], critical_failures_resistant=True)
+@conditions.needed_fields(at_least_one_field=["pingconnection"], critical_failures_resistant=True)
 def ping(evaluator):
     if evaluator.environment["GOST_address"]:
         connection_config.test_connection(evaluator.environment["GOST_address"][:-5], verbose=True)
@@ -196,9 +204,11 @@ def ping(evaluator):
 
 @conditions.needed_fields(at_least_one_field=[], all_mandatory_fields=[], critical_failures_resistant=False)
 def saved_address(evaluator):
+    """checks if there is a saved address, and tries to connect to it.
+    This method is intended only for the first evaluation of the session"""
     evaluator.environment["GOST_address"] = connection_config.set_GOST_address()
     if not evaluator.environment["GOST_address"]:
-        evaluator.environment["critical_failures"].append("error: invalid address")
+        evaluator.environment["critical_failures"].append("error: GOST address missing or not working")
 
 
 @conditions.needed_fields(at_least_one_field=["GOSTaddress"], critical_failures_resistant=False)
@@ -234,7 +244,9 @@ def user_defined_address(evaluator):
                     evaluator.environment["critical_failures"].append("error: GOST address not defined")
 
 
+@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=True)
 def show_failures(evaluator):
+    """shows the failures occurred during evaluation"""
     if evaluator.environment["critical_failures"]:
         print("critical_failures("
                   + str(len(evaluator.environment["critical_failures"])) + "):")
@@ -247,8 +259,9 @@ def show_failures(evaluator):
             print(x)
 
 
-@conditions.needed_fields([], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
 def show_results(evaluator):
+    """shows the results of evaluation"""
     if evaluator.environment["results"]:
         print("results("
               + str(len(evaluator.environment["results"])) + "):")
@@ -257,8 +270,9 @@ def show_results(evaluator):
             pp.pprint(x)
 
 
-@conditions.needed_fields(["create"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["create"], critical_failures_resistant=False)
 def create_records(evaluator):
+    """create records to store in a file"""
     result = create_records_file(args_to_dict(evaluator.args.create))
     if result["errors"]:
         evaluator.environment["non_critical_failures"] += result["errors"]
@@ -267,7 +281,7 @@ def create_records(evaluator):
             evaluator.environment["results"] += result["created_name_list"]
 
 
-@conditions.needed_fields(["read_file"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["read_file"], critical_failures_resistant=False)
 def read_file(evaluator):
     """creates a temporary evaluator_package which evaluates the instructions
     in the file specified by args.file"""
@@ -277,18 +291,20 @@ def read_file(evaluator):
 
 
 def clear_environment(evaluator):
+    """clear the environment between different requests in the same session in default mode"""
     temp_address = evaluator.environment["GOST_address"]
     temp_mode = evaluator.environment["mode"]
     evaluator.environment = default_env(GOST_address=temp_address, mode=temp_mode)
 
 
 def format_multi_options(args):
+    """takes a dictionary and stores each key's value as a list
+    example: {"get" : "102 103"} becomes {"get" : [102] [103]}"""
     for key in args.__dict__:
         string_arg = args.__dict__[key]
         if not (key == "identifier" or key == "ogc") and isinstance(string_arg, str):  # accepts only one ogc type
                                                                                        # for each query
-            args.__dict__[key] = string_arg.split()
-
+            args.__dict__[key] = evaluator_utilities.custom_split(args.__dict__[key], "'")
     return args
 
 
