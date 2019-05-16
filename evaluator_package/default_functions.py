@@ -6,7 +6,7 @@ from creation_utilities import create_records_file
 from evaluator_package.environments import default_env
 import shlex
 import copy
-from . import evaluating_conditions as conditions
+from . import evaluating_conditions_decorator as conditions
 from . import evaluator_utilities
 
 

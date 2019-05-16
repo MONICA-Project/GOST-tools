@@ -1,7 +1,7 @@
 from ogc_utility import *
 from creation_utilities import create_records_file
 from evaluator_package.environments import test_env
-from . import evaluating_conditions as conditions
+from . import evaluating_conditions_decorator as conditions
 
 
 def clear_test_environment(evaluator):

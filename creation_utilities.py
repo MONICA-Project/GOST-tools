@@ -29,68 +29,43 @@ def create_records_file(args, ogc_type):
 
 
 def create_random_item(args, ogc_type):
+    """Creates a random item of given type, with fields filled with the
+    arguments given by the user"""
     if ogc_type == "Sensors":
-        return create_random_sensor(args)
-    if ogc_type == "Observations":
-        return create_random_observation(args)
-    if ogc_type == "Things":
-        return create_random_thing(args)
-    if ogc_type == "Locations":
-        return create_random_location(args)
-    if ogc_type == "ObservedProperties":
-        return create_random_observed_property(args)
-    else:
-        return {"error": "incorrect ogc type"}
-
-
-def create_random_sensor(args):
-    return json.dumps({
-        "name": user_defined_or_default(args, "name", "Sensors"),
-        "description": user_defined_or_default(args, "description"),
-        "encodingType": "application/pdf",
-        "metadata": user_defined_or_default(args, "metadata")
+        return json.dumps({
+            "name": user_defined_or_default(args, "name", "Sensors"),
+            "description": user_defined_or_default(args, "description"),
+            "encodingType": "application/pdf",
+            "metadata": user_defined_or_default(args, "metadata")
         }) + "\n"
 
+    if ogc_type == "Observations":
+        if "Datastream" not in args:
+            return {"error": "missing datastream"}
+        return json.dumps({
+            "result": user_defined_or_default(args, "result"),
+            "Datastream": {"@iot.id": args["datastream"]},
+            "FeatureOfInterest": {"@iot.id": args["feature_of_interest"]}}) + "\n"
+    if ogc_type == "Things":
+        return json.dumps({
+            "name": user_defined_or_default(args, "name", "Things"),
+            "description": user_defined_or_default(args, "description"),
+            "properties": {"organisation": user_defined_or_default(args, "organisation"),
+                           "owner": user_defined_or_default(args, "owner")}}) + "\n"
+    if ogc_type == "Locations":
+        return json.dumps({"name": user_defined_or_default(args, "name", "Locations"),
+                           "description": user_defined_or_default(args, "description"),
+                           "encodingType": user_defined_or_default(args, "encodingType", "Locations"),
+                           "location": {"coordinates": user_defined_or_default(args, "coordinates"),
+                                        "type": user_defined_or_default(args, "type")}}) + "\n"
 
-def create_random_thing(args):
-    return json.dumps({
-        "name": user_defined_or_default(args, "name", "Things"),
-        "description": user_defined_or_default(args, "description"),
-        "properties": {
-        "organisation": user_defined_or_default(args, "organisation"),
-        "owner": user_defined_or_default(args, "owner")
-        }
-}) + "\n"
+    if ogc_type == "ObservedProperties":
+        return json.dumps({"name": user_defined_or_default(args, "name", "ObservedProperties"), "description":
+                          user_defined_or_default(args, "description", "ObservedProperties"), "definition":
+                          user_defined_or_default(args, "definition", "ObservedProperties")}) + "\n"
 
-
-def create_random_observed_property(args):
-    return json.dumps({
-  "name": user_defined_or_default(args, "name", "ObservedProperties"),
-  "description": user_defined_or_default(args, "description", "ObservedProperties"),
-  "definition": user_defined_or_default(args, "definition", "ObservedProperties")
-}) + "\n"
-
-
-def create_random_observation(args):
-    if "Datastream" not in args:
-        return {"error": "missing datastream"}
-    return json.dumps({
-        "result": user_defined_or_default(args, "result"),
-        "Datastream": {
-        "@iot.id": args["datastream"]},
-        "FeatureOfInterest" : {"@iot.id": args["feature_of_interest"]}}) + "\n"
-
-
-def create_random_location(args):
-    return json.dumps({
-    "name": user_defined_or_default(args, "name", "Locations"),
-    "description": user_defined_or_default(args, "description"),
-    "encodingType": user_defined_or_default(args, "encodingType", "Locations"),
-    "location": {
-        "coordinates":
-            user_defined_or_default(args, "coordinates")
-        ,
-        "type": user_defined_or_default(args, "type")}}) + "\n"
+    else:
+        return {"error": "incorrect ogc type"}
 
 
 def random_name_generator(range, ogc_type):
@@ -101,6 +76,8 @@ def random_name_generator(range, ogc_type):
 
 
 def valid_random_name(ogc_type):
+    """given an ogc type, checks and returns a valid random name for a new item
+    of that type"""
     name = random_name_generator(5, ogc_type)
     while item_is_already_present(name, ogc_type):
         name = random_name_generator(5, ogc_type)
@@ -108,6 +85,8 @@ def valid_random_name(ogc_type):
 
 
 def user_defined_or_default(args, field_name, ogc_type=None):
+    """Given a field name, returns its default value or the user-defined
+    one if present"""
     if field_name in args:  # using user-defined value for the field
         result = None
         if field_name == "coordinates" and bool(args["coordinates"]):
@@ -124,8 +103,8 @@ def user_defined_or_default(args, field_name, ogc_type=None):
         return "default " + field_name
 
 
-def string_to_coordinates(string):
-    result = string.split(",")
+def string_to_coordinates(coordinate_string):
+    result = coordinate_string.split(",")
     for i in result:
         i = float(i)
     return result
