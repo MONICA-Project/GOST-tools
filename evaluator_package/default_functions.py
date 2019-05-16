@@ -273,7 +273,7 @@ def show_results(evaluator):
 @conditions.needed_fields(at_least_one_field=["create"], critical_failures_resistant=False)
 def create_records(evaluator):
     """create records to store in a file"""
-    result = create_records_file(args_to_dict(evaluator.args.create))
+    result = create_records_file(args_to_dict(evaluator.args.create), evaluator.args.ogc)
     if result["errors"]:
         evaluator.environment["non_critical_failures"] += result["errors"]
     if evaluator.args.show:

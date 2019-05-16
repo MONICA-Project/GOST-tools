@@ -79,8 +79,8 @@ def init_default_parser():
                                                                    "or in the file defined with 'file <filename>\n"
                                                                    "you can define field values for created records\n"
                                                                    "otherwise default value will be used"
-                                                                   "(ex: --create num 2 type Sensors\n"
-                                                                   "description newDesc)")
+                                                                   "(ex: --create num 2 description new_description"
+                                                                   " --type Sensors\n)")
     parser.description = "Process user-defined GOST operations"
     return parser
 

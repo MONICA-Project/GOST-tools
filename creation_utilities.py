@@ -4,18 +4,18 @@ import random
 import string
 
 
-def create_records_file(args):
+def create_records_file(args, ogc_type):
     """create records in default file or in a specified file, if provided"""
     result = {"created_name_list" : [],"errors" : []}
     if "file" in args:
         file_name = args["file"]
     else:
-        file_name = "created_files/" + args["type"]
+        file_name = "created_files/" + ogc_type
 
     my_file = open(file_name, "w")
 
     for x in range(int(args["num"])):
-        item = create_random_item(args)
+        item = create_random_item(args, ogc_type)
         if "error" in item:
             result["errors"].append(item["error"])
         else:
@@ -24,18 +24,18 @@ def create_records_file(args):
 
     my_file.close()
     print("Created a file in " + file_name
-          + " with " + str(len(result["created_name_list"])) + " " + args["type"])
+          + " with " + str(len(result["created_name_list"])) + " " + ogc_type)
     return result
 
 
-def create_random_item(args):
-    if args["type"] == "Sensors":
+def create_random_item(args, ogc_type):
+    if ogc_type == "Sensors":
         return create_random_sensor(args)
-    if args["type"] == "Observations":
+    if ogc_type == "Observations":
         return create_random_observation(args)
-    if args["type"] == "Things":
+    if ogc_type == "Things":
         return create_random_thing(args)
-    if args["type"] == "Locations":
+    if ogc_type == "Locations":
         return create_random_location(args)
     else:
         return {"error": "incorrect ogc type"}
@@ -43,7 +43,7 @@ def create_random_item(args):
 
 def create_random_sensor(args):
     return json.dumps({
-        "name": user_defined_or_default(args, "name"),
+        "name": user_defined_or_default(args, "name", "Sensors"),
         "description": user_defined_or_default(args, "description"),
         "encodingType": "application/pdf",
         "metadata": user_defined_or_default(args, "metadata")
@@ -52,7 +52,7 @@ def create_random_sensor(args):
 
 def create_random_thing(args):
     return json.dumps({
-        "name": user_defined_or_default(args, "name"),
+        "name": user_defined_or_default(args, "name", "Things"),
         "description": user_defined_or_default(args, "description"),
         "properties": {
         "organisation": user_defined_or_default(args, "organisation"),
@@ -72,14 +72,14 @@ def create_random_observation(args):
 
 def create_random_location(args):
     return json.dumps({
-    "name": user_defined_or_default(args, "name"),
+    "name": user_defined_or_default(args, "name", "Locations"),
     "description": user_defined_or_default(args, "description"),
-    "encodingType": user_defined_or_default(args, "encodingType"),
+    "encodingType": user_defined_or_default(args, "encodingType", "Locations"),
     "location": {
         "coordinates":
             user_defined_or_default(args, "coordinates")
         ,
-        "type": user_defined_or_default(args, "type")},}) + "\n"
+        "type": user_defined_or_default(args, "type")}}) + "\n"
 
 
 def random_string(stringLength=10):
@@ -87,26 +87,29 @@ def random_string(stringLength=10):
     return ''.join(random.choice(letters) for i in range(stringLength))
 
 
-def valid_random_name(type):
+def valid_random_name(ogc_type):
     name = random_string()
-    while item_is_already_present(name, type):
+    while item_is_already_present(name, ogc_type):
         name = random_string()
     return name
 
 
-def user_defined_or_default(args, field_name):
-    if field_name == "coordinates" and bool(args["coordinates"]):
-        return string_to_coordinates(args["coordinates"])
-
-    elif field_name in args:
-        return args[field_name]
+def user_defined_or_default(args, field_name, ogc_type=None):
+    if field_name in args:  # using user-defined value for the field
+        result = None
+        if field_name == "coordinates" and bool(args["coordinates"]):
+            result = string_to_coordinates(args["coordinates"])
+        else:
+            result = args[field_name]
+        return result
 
     elif field_name == "name":
-        return valid_random_name(args["type"])
-    elif field_name == "encodingType" and args["type"] == "Locations":
+        return valid_random_name(ogc_type)
+    elif field_name == "encodingType" and ogc_type == "Locations":
         return "application/vnd.geo+json"
     else:
         return "default " + field_name
+
 
 def string_to_coordinates(string):
     result = string.split(",")

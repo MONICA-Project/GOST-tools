@@ -157,7 +157,7 @@ Creating and storing 5 Sensors with default values to a file with path = "file_p
 Creating and storing 5 Sensors with default values except the description, which will be
  equal to "new_description", to a file with path = "file_path":
 ```
---post num 5 type Sensors description new_description file file_path
+--post num 5 description new_description file file_path --type Sensors
 ```
 
 Posting to GOST all the Sensors stored in a txt file with path = "file_path":
