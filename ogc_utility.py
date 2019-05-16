@@ -2,6 +2,7 @@ from flask import jsonify, make_response, Flask
 from condition_manager import *
 from condition_config import *
 import connection_config
+import json
 
 
 def get_id_list(dict_list):
@@ -22,7 +23,7 @@ def send_json(provided_load=None, ogc_name=None, sending_address=None, request_t
     ogc type
     """
     if not sending_address:
-        sending_address = "http://" + connection_config.get_address_from_file() + "/v1.0/" + ogc_name
+        sending_address = connection_config.get_address_from_file() + "/" + ogc_name
     if provided_load:
         if isinstance(provided_load, str):
             load = json.dumps(provided_load)
@@ -55,7 +56,7 @@ def get_item(identifier, ogc_type, environment):
     """
     if not identifier.isdigit():
         identifier = get_item_id_by_name(identifier, ogc_type, environment)
-    address = "http://" + environment["GOST_address"] + "/v1.0/"
+    address = environment["GOST_address"] + "/"
     query_address = f"{address}{ogc_type}({identifier})"
     response = send_json("", sending_address=query_address, request_type= "GET")
     json_response = response.json()
@@ -101,7 +102,7 @@ def patch_item(options_dict, identifier, ogc_type, environment):
     """patch the item identified by 'identifier' with the fields
     provided with 'options_dict'
     """
-    GOST_address = "http://" + environment["GOST_address"] + "/v1.0/"
+    GOST_address = environment["GOST_address"] + "/"
     address = f"{GOST_address}{ogc_type}({check_id(identifier)})"
     return send_json(provided_load=options_dict, sending_address=address, request_type='PATCH')
 
@@ -135,7 +136,7 @@ def check_id(item_identifier):
 def delete_by_id(id, ogcName, environment):
     """delete the item of type ogcName with id==n
     """
-    address = "http://" + environment["GOST_address"] + "/v1.0/"
+    address = environment["GOST_address"] + "/"
     r = requests.delete(f"{address}{ogcName}({str(id)})")
     return r
 

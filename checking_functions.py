@@ -10,7 +10,7 @@ def get_all(ogc_name, environment = None):
         GOST_address = environment["GOST_address"]
     else:
         GOST_address = connection_config.get_address_from_file()
-    sending_address = "http://" + GOST_address + "/v1.0/" + ogc_name
+    sending_address = GOST_address + "/" + ogc_name
     r = requests.get(sending_address)
     return r.json()["value"]
 
