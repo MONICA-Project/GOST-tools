@@ -80,7 +80,7 @@ def add_item(req, type, spec = None):
 
         conditions_results = checkConditions(spec, content)
 
-        if errorExists(conditions_results):
+        if error_exists(conditions_results):
             return make_response(jsonify(error="missing conditions " + str(conditions_results)), 400)
         else:
             s = send_json(content, type)
@@ -110,7 +110,7 @@ def add_data_stream(req, spec):
     content = req.get_json()
     conditions_results = checkConditions(spec, content)
 
-    if errorExists(conditions_results):
+    if error_exists(conditions_results):
         return make_response(jsonify(error="missing conditions " + str(conditions_results)), 400)
 
     else:

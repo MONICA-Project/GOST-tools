@@ -2,12 +2,10 @@ import re
 
 def custom_split(string, custom_splitters_list):
     """splits a string by whitespace, but ignores the whitespaces inside custom_splitters_list
-    example: "a b 'c d' e f -> [a][b][c d][e][f]
+    example: "custom_splitters_list(a b $c d$ e f, custom_splitters_list=['$']) -> [a][b][c d][e][f]
     """
     result = []
-
     splitted = string.split()
-
     i = 0
 
     while i < len(splitted):

@@ -1,12 +1,12 @@
 from checking_functions import *
 
-sensorSpecs = {"name": sensorIsAlreadyPresent, "description": fieldIsVoid}
-thingSpecs = {"name": thingIsAlreadyPresent}
-observedPropertySpecs = {"name": observedPropertyIsAlreadyPresent}
-dataStreamSpecs = {"name": dataStreamIsAlreadyPresent}
+sensorSpecs = {"name": sensor_is_already_present, "description": field_is_void}
+thingSpecs = {"name": thing_is_already_present}
+observedPropertySpecs = {"name": observed_property_is_already_present}
+dataStreamSpecs = {"name": data_stream_is_already_present}
 observationSpecs = {}
-locationSpecs = {"name": locationIsAlreadyPresent}
-featureOfInterestSpecs = {"name": featureOfInterestIsAlreadyPresent}
+locationSpecs = {"name": location_is_already_present}
+featureOfInterestSpecs = {"name": feature_of_interest_is_already_present}
 
 
 def get_specs(ogc_name):
