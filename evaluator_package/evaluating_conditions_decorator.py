@@ -16,11 +16,12 @@ def needed_fields(at_least_one_field=None, all_mandatory_fields=None, critical_f
 
             if required_all:  # checking all mandatory fields
                 for i in all_mandatory_fields:
-                    if i not in arg.args.__dict__:
+                    if bool(arg.args.__dict__[i]):
+                            required_all_confirmed = True
+                    else:
                         return False
-                required_all_confirmed = True
 
-            if required_at_least:  # checking at least one fields
+            if required_at_least and bool(arg.args.__dict__):  # checking at least one fields
                 for i in at_least_one_field:
                     for j in arg.args.__dict__:
                         if bool(arg.args.__dict__[j]) and (i == j):

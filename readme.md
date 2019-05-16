@@ -45,15 +45,18 @@ optional arguments:
   -m MODE, --mode MODE  Select an alternative mode of operation.Actually
                         available modes: 
                          - test
-  -d, --delete          delete the items chosen with get: 
+  -d, --delete          delete the items chosen with get or selected
+                        giving id or name: 
                         example
                          --get 15 -t Sensors --delete
+                          15 16 -t Sensors --delete
+
   -i, --info            shows the current GOST address and operation mode
   -p [PATCH [PATCH ...]], --patch [PATCH [PATCH ...]]
                         patch the choosen item FIELD with selected VALUE,usable
                         with multiple values at once 
                         examples: 
-                        --p id <newId> name <newName>
+                        15 -t Sensors --p id <newId> name <newName>
                         --p description <newDescription> 
   -s [SELECT [SELECT ...]], --select [SELECT [SELECT ...]]
                         selection of the items from those found with

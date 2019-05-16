@@ -21,46 +21,19 @@ def get_info(evaluator):
 
 
 @conditions.needed_fields(at_least_one_field=["get", "identifier"], critical_failures_resistant=False)
-def get(evaluator):
-    """gets the items from GOST"""
-    if evaluator.args.identifier == ["all"] or ((not evaluator.args.identifier)
-                                                and evaluator.args.get):
-        results = get_all(evaluator.args.ogc, evaluator.environment)
-        evaluator.environment["selected_items"] = results
-
-    else:
-        if evaluator.args.get:
-            if type(evaluator.args.get) is list:
-                for get_identifier in evaluator.args.get:
-                    result = get_item(get_identifier, evaluator.args.ogc, evaluator.environment)
-                    append_result(evaluator, result, "selected_items")
-
-            if evaluator.args.identifier:
-                for current_identifier in evaluator.args.identifier:
-                    result = get_item(current_identifier, evaluator.args.ogc, evaluator.environment)
-                    append_result(evaluator, result, "selected_items")
+def get_with_check_of_command_line(evaluator):
+    """gets the items from GOST, used if get or identifier are defined"""
+    get(evaluator)
 
 
 @conditions.needed_fields(at_least_one_field=["select"], critical_failures_resistant=False)
 def select_items(evaluator):
     """selects the items matching with the rules defined in evaluator.args.select
     and removes the others"""
-    if evaluator.args.select:
-
-        boolean_mode = "and"
-
-        if (evaluator.args.select[0] == "and") or (evaluator.args.select[0] == "or"):
-            boolean_mode = evaluator.args.select[0]
-            evaluator.args.select = evaluator.args.select[1:]
-
-        select_rules = args_to_dict(evaluator.args.select)
-        for x in evaluator.environment["selected_items"].copy():
-            res = matching_fields(x, select_rules, boolean_mode)
-            if not res:
-                evaluator.environment["selected_items"].remove(x)
-        if len(evaluator.environment["selected_items"]) == 0:
-            evaluator.environment["non_critical_failures"] += [f"error: no {evaluator.args.ogc} found "
-                                                               f"with select statement conditions"]
+    if (bool(evaluator.args.patch) or bool(evaluator.args.delete)) and not bool(evaluator.args.get):
+        return False
+    else:
+        select_items_without_line_command(evaluator)
 
 
 @conditions.needed_fields(at_least_one_field=["show", "get"], critical_failures_resistant=False)
@@ -82,42 +55,45 @@ def select_result_fields(evaluator):
                         x.pop(field, None)
 
 
-@conditions.needed_fields(at_least_one_field=["delete"], critical_failures_resistant=False)
+@conditions.needed_fields(all_mandatory_fields=["delete", "ogc"], critical_failures_resistant=False)
 def delete(evaluator):
     """delete from GOST bb the items selected with get:
     befor deleting asks user for confirmation"""
-    if evaluator.args.delete:
-        if evaluator.environment["selected_items"]:  # deleting selected items
+    get_without_explicit_get(evaluator)
+    if evaluator.environment["selected_items"]:  # deleting selected items
+        warning_message = f"You are going to delete the {evaluator.args.ogc} " \
+            f"with the following id:\n"   # creation of warning message
+        for x in evaluator.environment["selected_items"]:
+            try:
+                if "error" in x:
+                    pass
+                elif "@iot.id" in x:
+                    id = str(x["@iot.id"])
+                    warning_message += id + " "
+            except AttributeError as attr:
+                print("missing" + attr)
+                pass
+        for x in evaluator.environment["non_critical_failures"]:
+            if "error" in x:
+                print(x["error"]["message"])
 
-            warning_message = f"You are going to delete the {evaluator.args.ogc} " \
-                f"with the following id:\n"   # creation of warning message
+        proceed = input(warning_message + "\nProceed?(y/N)")
+
+        if proceed == "y":  # elimination of items
             for x in evaluator.environment["selected_items"]:
                 try:
                     if "error" in x:
-                        pass
+                        evaluator.environment["non_critical_failures"].append(x["error"])
                     elif "@iot.id" in x:
-                        id = str(x["@iot.id"])
-                        warning_message += id + " "
+                        result = delete_item(x.get("@iot.id"), evaluator.args.ogc, evaluator.environment)
+                        append_result(evaluator, result, "results")
                 except AttributeError as attr:
                     print("missing" + attr)
                     pass
-            proceed = input(warning_message + "\nProceed?(y/N)")
-
-            if proceed == "y":  # elimination of items
-                for x in evaluator.environment["selected_items"]:
-                    try:
-                        if "error" in x:
-                            evaluator.environment["non_critical_failures"].append(x["error"])
-                        elif "@iot.id" in x:
-                            result = delete_item(x.get("@iot.id"), evaluator.args.ogc, evaluator.environment)
-                            append_result(evaluator, result, "results")
-                    except AttributeError as attr:
-                        print("missing" + attr)
-                        pass
-            else:
-                print("Aborted deletion")
         else:
-            print("trying to delete but no item defined")
+            print("Aborted deletion")
+    else:
+        print("trying to delete but no item defined")
 
 
 @conditions.needed_fields(at_least_one_field=["patch"], critical_failures_resistant=False)
@@ -125,6 +101,7 @@ def patch(evaluator):
     """
     patches the selected fields of the items chosen with get with the selected values
     """
+    get_without_explicit_get(evaluator)
     for x in evaluator.environment["selected_items"]:
         if ("error" not in x) and ("@iot.id" in x):
             patches = args_to_dict(evaluator.args.patch)
@@ -174,7 +151,7 @@ def exit_function(evaluator):
         exit(0)
 
 
-@conditions.needed_fields(at_least_one_field=["get", "delete", "patch", "post"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["get", "patch", "post"], critical_failures_resistant=False)
 def missing_ogc_type(evaluator):
     """returns True if the submitted command requires
     one or more OGC item type and they are not provided"""
@@ -269,7 +246,7 @@ def show_results(evaluator):
             pp.pprint(x)
 
 
-@conditions.needed_fields(at_least_one_field=["create"], critical_failures_resistant=False)
+@conditions.needed_fields(all_mandatory_fields=["create", "ogc"], critical_failures_resistant=False)
 def create_records(evaluator):
     """create records to store in a file"""
     result = create_records_file(args_to_dict(evaluator.args.create), evaluator.args.ogc)
@@ -338,4 +315,56 @@ def only_get(args):
                     return False
         return True
     return False
+
+
+def get(evaluator):
+    """gets the items from GOST, used as auxilliary method by other commands"""
+    if evaluator.args.identifier == ["all"] or ((not evaluator.args.identifier)
+                                                and evaluator.args.get):
+        results = get_all(evaluator.args.ogc, evaluator.environment)
+        evaluator.environment["selected_items"] = results
+
+    else:
+        if evaluator.args.get:
+            if type(evaluator.args.get) is list:
+                for get_identifier in evaluator.args.get:
+                    result = get_item(get_identifier, evaluator.args.ogc, evaluator.environment)
+                    append_result(evaluator, result, "selected_items")
+
+            if evaluator.args.identifier:
+                for current_identifier in evaluator.args.identifier:
+                    result = get_item(current_identifier, evaluator.args.ogc, evaluator.environment)
+                    append_result(evaluator, result, "selected_items")
+
+
+def get_without_explicit_get(current_evaluator):
+    """get the items in identifier and stores them in selected items even if get is not defined"""
+    if current_evaluator.args.identifier and not current_evaluator.args.get:
+        errors = []
+        selected = []
+        for i in current_evaluator.args.identifier:
+            get_result = get_item(i, current_evaluator.args.ogc, current_evaluator.environment)
+            if "error" in get_result:
+                current_evaluator.environment["non_critical_failures"].append(get_result)
+            else:
+                current_evaluator.environment["selected_items"].append(get_result)
+        select_items_without_line_command(current_evaluator)
+
+
+def select_items_without_line_command(evaluator):
+    if bool(evaluator.args.select):
+        boolean_mode = "and"
+
+        if (evaluator.args.select[0] == "and") or (evaluator.args.select[0] == "or"):
+            boolean_mode = evaluator.args.select[0]
+            evaluator.args.select = evaluator.args.select[1:]
+
+        select_rules = args_to_dict(evaluator.args.select)
+        for x in evaluator.environment["selected_items"].copy():
+            res = matching_fields(x, select_rules, boolean_mode)
+            if not res:
+                evaluator.environment["selected_items"].remove(x)
+        if len(evaluator.environment["selected_items"]) == 0:
+            evaluator.environment["non_critical_failures"] += [f"error: no {evaluator.args.ogc} found "
+                                                               f"with select statement conditions"]
 
