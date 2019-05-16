@@ -55,6 +55,7 @@ class EvaluatorClass:
         else:
             print("Inserire un comando")
             exit(0)
+        #self.args = expand_intervals(args)
         for step in self.evaluation_steps:
             for function in step:
                 function(self)

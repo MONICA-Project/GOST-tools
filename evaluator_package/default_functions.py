@@ -279,7 +279,7 @@ def format_multi_options(args):
     {"get" : "102 '103 104'"} becomes {"get" : [102] [103 104]}"""
     for key in args.__dict__:
         string_arg = args.__dict__[key]
-        if not (key == "identifier" or key == "ogc") and isinstance(string_arg, str):  # accepts only one ogc type
+        if not (key == "ogc") and isinstance(string_arg, str):  # accepts only one ogc type
                                                                                        # for each query
             args.__dict__[key] = evaluator_utilities.custom_split(args.__dict__[key], ['"'])
     return args
