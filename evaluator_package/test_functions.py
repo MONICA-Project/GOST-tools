@@ -1,7 +1,6 @@
 from ogc_utility import *
 from creation_utilities import create_records_file
-from environments import test_env
-import functools
+from evaluator_package.environments import test_env
 from . import evaluating_conditions as conditions
 
 

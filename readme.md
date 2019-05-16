@@ -87,12 +87,11 @@ optional arguments:
                         posts records from user defined file/s to currently
                         selected OGC types('--post <file_name> -t <type>'
   --create [CREATE [CREATE ...]]
-                        Creates n items of type t in created_files/<type>,or
-                        in the file defined with 'file <filename>'. 
-                        You can define field values for created 
-                        records otherwise default value will be used
-                        example: 
-                         --create num 2 type Sensors description newDesc
+                        Creates n items of type t in created_files/<type>,
+                        or in the file defined with 'file <filename>
+                        you can define field values for created records
+                        otherwise default value will be used
+                        (ex: --create num 2 description new_description --type Sensors)
 ```
 
 More details about GOST-CLI implementation

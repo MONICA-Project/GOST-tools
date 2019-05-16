@@ -37,6 +37,8 @@ def create_random_item(args, ogc_type):
         return create_random_thing(args)
     if ogc_type == "Locations":
         return create_random_location(args)
+    if ogc_type == "ObservedProperties":
+        return create_random_observed_property(args)
     else:
         return {"error": "incorrect ogc type"}
 
@@ -61,6 +63,14 @@ def create_random_thing(args):
 }) + "\n"
 
 
+def create_random_observed_property(args):
+    return json.dumps({
+  "name": user_defined_or_default(args, "name", "ObservedProperties"),
+  "description": user_defined_or_default(args, "description", "ObservedProperties"),
+  "definition": user_defined_or_default(args, "definition", "ObservedProperties")
+}) + "\n"
+
+
 def create_random_observation(args):
     if "Datastream" not in args:
         return {"error": "missing datastream"}
@@ -69,6 +79,7 @@ def create_random_observation(args):
         "Datastream": {
         "@iot.id": args["datastream"]},
         "FeatureOfInterest" : {"@iot.id": args["feature_of_interest"]}}) + "\n"
+
 
 def create_random_location(args):
     return json.dumps({

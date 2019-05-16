@@ -3,10 +3,9 @@ import pprint
 from json import JSONDecoder, JSONDecodeError
 import re
 from creation_utilities import create_records_file
-from environments import default_env
+from evaluator_package.environments import default_env
 import shlex
 import copy
-import functools
 from . import evaluating_conditions as conditions
 from . import evaluator_utilities
 

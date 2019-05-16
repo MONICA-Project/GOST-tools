@@ -1,7 +1,7 @@
 from evaluator_package.default_functions import *
 from evaluator_package.test_functions import *
 from parser_def import init_default_parser, init_test_parser
-from environments import default_env, test_env
+from evaluator_package.environments import default_env, test_env
 
 # all the evaluation methods which are always used and are checked before all other methods
 always_active = [get_info]
