@@ -82,15 +82,17 @@ def create_random_location(args):
         "type": user_defined_or_default(args, "type")}}) + "\n"
 
 
-def random_string(stringLength=10):
-    letters = string.ascii_lowercase
-    return ''.join(random.choice(letters) for i in range(stringLength))
+def random_name_generator(range, ogc_type):
+    """creates a random name for the new record, composed by a number <= 10^range,
+    padded on the left with zeroes if shorter than range"""
+    numerical_name_side = str(random.randint(0, 10**range)).zfill(range)
+    return numerical_name_side + "_" + ogc_type
 
 
 def valid_random_name(ogc_type):
-    name = random_string()
+    name = random_name_generator(5, ogc_type)
     while item_is_already_present(name, ogc_type):
-        name = random_string()
+        name = random_name_generator(5, ogc_type)
     return name
 
 
