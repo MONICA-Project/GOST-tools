@@ -20,7 +20,6 @@ def needed_fields(no_fields=None,at_least_one_field=None,
                     evaluator.environment["critical_failures"].append([{"error": "ogc type not defined"}])
                     return False
 
-
             required_at_least = bool(at_least_one_field)
             required_all = bool(all_mandatory_fields)
             required_at_least_confirmed = not required_at_least

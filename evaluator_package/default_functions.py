@@ -20,7 +20,7 @@ def get_info(evaluator):
         print("Address : " + evaluator.environment["GOST_address"])
 
 
-@conditions.needed_fields(at_least_one_field=["identifier"], all_mandatory_fields=["get", "ogc"],
+@conditions.needed_fields(at_least_one_field=[], all_mandatory_fields=["get", "ogc"],
                           critical_failures_resistant=False)
 def get_with_check_of_command_line(evaluator):
     """gets the items from GOST, used if get or identifier are defined"""
@@ -216,26 +216,24 @@ def user_defined_address(evaluator, verbose = True):
 def show_failures(evaluator):
     """shows the failures occurred during evaluation"""
     if evaluator.environment["critical_failures"]:
-        print("critical_failures("
-                  + str(len(evaluator.environment["critical_failures"])) + "):")
         for x in evaluator.environment["critical_failures"]:
             print(x)
+        print("Found "+ str(len(evaluator.environment["critical_failures"]) + " critical_failures\n"))
+
     if evaluator.environment["non_critical_failures"]:
-        print("non_critical_failures("
-                  + str(len(evaluator.environment["non_critical_failures"])) + "):")
         for x in evaluator.environment["non_critical_failures"]:
             print(x)
+        print("Found " + str(len(evaluator.environment["non_critical_failures"])) + " non_critical_failures\n")
 
 
 @conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
 def show_results(evaluator):
     """shows the results of evaluation"""
     if evaluator.environment["results"]:
-        print("results("
-              + str(len(evaluator.environment["results"])) + "):")
         pp = pprint.PrettyPrinter(indent=4)
         for x in evaluator.environment["results"]:
             pp.pprint(x)
+        print(str(len(evaluator.environment["results"])) + " results found\n")
 
 
 @conditions.needed_fields(all_mandatory_fields=["create"], critical_failures_resistant=False,
@@ -252,7 +250,6 @@ def read_file(evaluator):
     # TODO recursion control
     if evaluator.args.file:
         file_iterator(evaluator.args.file)
-
 
 
 def clear_environment(evaluator):
