@@ -19,7 +19,7 @@ def item_is_already_present(name, type):
     """check if an item with given name is already present"""
     for x in get_all(type):
         if x["name"] == name:
-            return "Item with name " + name + "is already present"
+            return "Item with name " + name + " is already present"
     return False
 
 
