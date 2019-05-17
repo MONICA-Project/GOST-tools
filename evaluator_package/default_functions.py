@@ -98,7 +98,7 @@ def delete(evaluator):
         print("trying to delete but no item defined")
 
 
-@conditions.needed_fields(all_mandatory_fields=["patch", "ogc"], critical_failures_resistant=False,
+@conditions.needed_fields(all_mandatory_fields=["patch"], critical_failures_resistant=False,
                           needed_ogc=True)
 def patch(evaluator):
     """
@@ -108,8 +108,7 @@ def patch(evaluator):
     for x in evaluator.environment["selected_items"]:
         if ("error" not in x) and ("@iot.id" in x):
             patches = args_to_dict(evaluator.args.patch)
-            result = patch_item(patches, str(x.get("@iot.id")),
-                        evaluator.args.ogc, evaluator.environment).json()
+            result = patch_item(patches, str(x.get("@iot.id")), evaluator.args.ogc, evaluator.environment)
             append_result(evaluator, result, "results")
 
 
@@ -218,7 +217,7 @@ def show_failures(evaluator):
     if evaluator.environment["critical_failures"]:
         for x in evaluator.environment["critical_failures"]:
             print(x)
-        print("Found "+ str(len(evaluator.environment["critical_failures"]) + " critical_failures\n"))
+        print("Found "+ str(len(evaluator.environment["critical_failures"])) + " critical_failures\n")
 
     if evaluator.environment["non_critical_failures"]:
         for x in evaluator.environment["non_critical_failures"]:
@@ -281,12 +280,12 @@ def file_iterator(file_name):
     file.close()
 
 
-def append_result(evaluator, result, field_name):
+def append_result(evaluator, result, field_name, failure_type = "non_critical_failures"):
     """appends the 'result' dict to 'field_name' of evaluator, after having checked
     if an error field exists in 'result',
-    in which case the result is appended to 'non_critical_failures'"""
+    in which case the result is appended to failure_type"""
     if "error" in result:
-        evaluator.environment["non_critical_failures"].append(result)
+        evaluator.environment[failure_type].append(result)
     else:
         evaluator.environment[field_name].append(result)
 
@@ -322,6 +321,9 @@ def get(evaluator):
                     result = get_item(current_identifier, evaluator.args.ogc, evaluator.environment)
                     append_result(evaluator, result, "selected_items")
 
+    evaluator_utilities.check_name_duplicates(evaluator, "selected_items")
+    evaluator_utilities.check_name_duplicates(evaluator, "results")
+
 
 def get_without_line_command(current_evaluator):
     """get the items in identifier and stores them in selected items even if get is not defined"""
@@ -333,6 +335,7 @@ def get_without_line_command(current_evaluator):
             else:
                 current_evaluator.environment["selected_items"].append(get_result)
         select_items_without_line_command(current_evaluator)
+        evaluator_utilities.check_name_duplicates(current_evaluator, "selected_items")
 
 
 def select_items_without_line_command(evaluator):

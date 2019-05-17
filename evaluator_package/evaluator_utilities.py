@@ -90,3 +90,26 @@ def check_and_fix_ogc(evaluator):
             return ask_ogc(evaluator)
     else:
         return ask_ogc(evaluator)
+
+
+def check_name_duplicates(evaluator, list_name):
+    """find name duplicates in given list"""
+    names_list = []
+    for i in evaluator.environment[list_name]:
+        names_list.append(i["name"])
+    duplicate_dict = {}
+    for j in names_list:
+        if j in names_list:
+            if j in duplicate_dict:
+                duplicate_dict[j] = duplicate_dict[j] + 1
+            else:
+                duplicate_dict[j] = 2
+        else:
+            names_list.append(j)
+
+    for key, val in duplicate_dict.items():
+        error_message = {"error": f"found {str(val)} records with name {key}"}
+        evaluator.environment["critical_failures"].append(error_message)
+
+
+

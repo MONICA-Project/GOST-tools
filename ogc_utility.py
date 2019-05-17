@@ -104,7 +104,12 @@ def patch_item(options_dict, identifier, ogc_type, environment):
     """
     GOST_address = environment["GOST_address"] + "/"
     address = f"{GOST_address}{ogc_type}({check_id(identifier)})"
-    return send_json(provided_load=options_dict, sending_address=address, request_type='PATCH')
+    if "name" in options_dict:
+        if item_is_already_present(options_dict["name"], ogc_type):
+            return {"error" : f"Trying to patch "
+            f"with name {options_dict['name']} already present in {ogc_type}"}
+
+    return send_json(provided_load=options_dict, sending_address=address, request_type='PATCH').json()
 
 
 def add_data_stream(req, spec):
