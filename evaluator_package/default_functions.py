@@ -64,14 +64,13 @@ def delete(evaluator):
     get_without_line_command(evaluator)
     if evaluator.environment["selected_items"]:  # deleting selected items
         warning_message = f"You are going to delete the {evaluator.args.ogc} " \
-            f"with the following id:\n"   # creation of warning message
+            f"with the following name and id:\n"   # creation of warning message
         for x in evaluator.environment["selected_items"]:
             try:
                 if "error" in x:
                     pass
                 elif "@iot.id" in x:
-                    id = str(x["@iot.id"])
-                    warning_message += id + " "
+                    warning_message +=  str(x["@iot.id"]) + " " +  str(x["name"]) + "\n"
             except AttributeError as attr:
                 print("missing" + attr)
                 pass
@@ -280,7 +279,7 @@ def file_iterator(file_name):
     file.close()
 
 
-def append_result(evaluator, result, field_name, failure_type = "non_critical_failures"):
+def append_result(evaluator, result, field_name="results", failure_type = "non_critical_failures"):
     """appends the 'result' dict to 'field_name' of evaluator, after having checked
     if an error field exists in 'result',
     in which case the result is appended to failure_type"""
@@ -327,13 +326,15 @@ def get(evaluator):
 
 def get_without_line_command(current_evaluator):
     """get the items in identifier and stores them in selected items even if get is not defined"""
-    if current_evaluator.args.identifier and not current_evaluator.args.get:
+    if current_evaluator.args.identifier:
         for i in current_evaluator.args.identifier:
             get_result = get_item(i, current_evaluator.args.ogc, current_evaluator.environment)
-            if "error" in get_result:
-                current_evaluator.environment["non_critical_failures"].append(get_result)
-            else:
-                current_evaluator.environment["selected_items"].append(get_result)
+            append_result(current_evaluator, get_result, field_name="selected_items")
+    else:
+        result_all = get_all(current_evaluator.args.ogc, current_evaluator.environment)
+        for i in result_all:
+            append_result(current_evaluator, i, field_name="selected_items")
+
         select_items_without_line_command(current_evaluator)
         evaluator_utilities.check_name_duplicates(current_evaluator, "selected_items")
 

@@ -6,13 +6,22 @@ def get_all(ogc_name, environment = None):
     """sends a GET request for the list of all OGC items of ogcName type
     Returns an array of Ogc items in form of a dictionary
     """
+    result = []
     if environment:
         GOST_address = environment["GOST_address"]
     else:
         GOST_address = connection_config.get_address_from_file()
     sending_address = GOST_address + "/" + ogc_name
     r = requests.get(sending_address)
-    return r.json()["value"]
+    response = r.json()
+    if "value" in response:
+        result = response["value"]
+  #  while "@iot.nextLink" in response:  # iteration for getting results beyond first page
+  #      next_page_address = "http://" + response["@iot.nextLink"]
+  #      response = requests.get(next_page_address)
+  #      result.append(response["value"])
+
+    return result
 
 
 def item_is_already_present(name, type):
