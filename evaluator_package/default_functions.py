@@ -20,7 +20,8 @@ def get_info(evaluator):
         print("Address : " + evaluator.environment["GOST_address"])
 
 
-@conditions.needed_fields(at_least_one_field=["get", "identifier"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["identifier"], all_mandatory_fields=["get", "ogc"],
+                          critical_failures_resistant=False)
 def get_with_check_of_command_line(evaluator):
     """gets the items from GOST, used if get or identifier are defined"""
     get(evaluator)
@@ -55,11 +56,12 @@ def select_result_fields(evaluator):
                         x.pop(field, None)
 
 
-@conditions.needed_fields(all_mandatory_fields=["delete", "ogc"], critical_failures_resistant=False)
+@conditions.needed_fields(all_mandatory_fields=["delete"], critical_failures_resistant=False,
+                          needed_ogc=True)
 def delete(evaluator):
     """delete from GOST bb the items selected with get:
     befor deleting asks user for confirmation"""
-    get_without_explicit_get(evaluator)
+    get_without_line_command(evaluator)
     if evaluator.environment["selected_items"]:  # deleting selected items
         warning_message = f"You are going to delete the {evaluator.args.ogc} " \
             f"with the following id:\n"   # creation of warning message
@@ -96,12 +98,13 @@ def delete(evaluator):
         print("trying to delete but no item defined")
 
 
-@conditions.needed_fields(at_least_one_field=["patch"], critical_failures_resistant=False)
+@conditions.needed_fields(all_mandatory_fields=["patch", "ogc"], critical_failures_resistant=False,
+                          needed_ogc=True)
 def patch(evaluator):
     """
     patches the selected fields of the items chosen with get with the selected values
     """
-    get_without_explicit_get(evaluator)
+    get_without_line_command(evaluator)
     for x in evaluator.environment["selected_items"]:
         if ("error" not in x) and ("@iot.id" in x):
             patches = args_to_dict(evaluator.args.patch)
@@ -110,7 +113,8 @@ def patch(evaluator):
             append_result(evaluator, result, "results")
 
 
-@conditions.needed_fields(at_least_one_field=["post"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["post"], critical_failures_resistant=False,
+                          needed_ogc=True)
 def post(evaluator):
     for file in evaluator.args.post:
         with open(file) as json_file:
@@ -151,15 +155,6 @@ def exit_function(evaluator):
         exit(0)
 
 
-@conditions.needed_fields(at_least_one_field=["get", "patch", "post"], critical_failures_resistant=False)
-def missing_ogc_type(evaluator):
-    """returns True if the submitted command requires
-    one or more OGC item type and they are not provided"""
-    if not evaluator.args.ogc:
-        evaluator.environment["critical_failures"].append("This command needs an ogc type "
-                                                          "(--ogc <type name>)")
-
-
 @conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
 def execute_and_exit(evaluator):
     if evaluator.args.interactive:
@@ -178,7 +173,8 @@ def ping(evaluator):
         evaluator.environment["non_critical_failures"].append("GOST address undefined, ping not possible")
 
 
-@conditions.needed_fields(at_least_one_field=[], all_mandatory_fields=[], critical_failures_resistant=False)
+@conditions.needed_fields(no_fields=["GOSTaddress"],at_least_one_field=[],
+                          all_mandatory_fields=[], critical_failures_resistant=False)
 def saved_address(evaluator):
     """checks if there is a saved address, and tries to connect to it.
     This method is intended only for the first evaluation of the session"""
@@ -188,36 +184,32 @@ def saved_address(evaluator):
 
 
 @conditions.needed_fields(at_least_one_field=["GOSTaddress"], critical_failures_resistant=False)
-def user_defined_address(evaluator):
+def user_defined_address(evaluator, verbose = True):
     """if the user has defined a GOST address, checks if it is possible to reach it.
     If it possible, sets the GOST address to the new address, otherwise asks the user if he
     wants to select a different address or wants to keep the non working address"""
-    if len(evaluator.args.GOSTaddress) < 8:
-        evaluator.environment["critical_failures"].append("error: invalid address, too short")
+    working_conn = connection_config.test_connection((evaluator.args.GOSTaddress)[:-5])
+    if working_conn:
+        valid_conn = connection_config.set_GOST_address(evaluator.args.GOSTaddress)
+        evaluator.environment["GOST_address"] = valid_conn
     else:
-
-        working_conn = connection_config.test_connection((evaluator.args.GOSTaddress)[:-5])
-        if working_conn:
+        warning_message = f"The selected GOST address is not working, " \
+            f"do you want to set it as your address or want to change it?\n" \
+            f"'y' to set the currently provided address\n'ch' to set a new address\n" \
+            f"'n' to mantain the old address:\n"  # creation of warning message
+        proceed = input(warning_message)
+        if proceed == "y":
             valid_conn = connection_config.set_GOST_address(evaluator.args.GOSTaddress)
             evaluator.environment["GOST_address"] = valid_conn
-        else:
-            warning_message = f"The selected GOST address is not working, " \
-                f"do you want to set it as your address or want to change it?\n" \
-                f"'y' to set the currently provided address\n'ch' to set a new address\n" \
-                f"'n' to mantain the old address:\n"  # creation of warning message
-            proceed = input(warning_message)
-            if proceed == "y":
-                valid_conn = connection_config.set_GOST_address(evaluator.args.GOSTaddress)
-                evaluator.environment["GOST_address"] = valid_conn
-            elif proceed == "ch":
-                new_address = input("Insert new address:\n")
-                evaluator.args.GOSTaddress = new_address
-                user_defined_address(evaluator)
+        elif proceed == "ch":
+            new_address = input("Insert new address:\n")
+            evaluator.args.GOSTaddress = new_address
+            user_defined_address(evaluator)
 
-            else:
-                evaluator.environment["GOST_address"] = connection_config.set_GOST_address()
-                if not evaluator.environment["GOST_address"]:
-                    evaluator.environment["critical_failures"].append("error: GOST address not defined")
+        else:
+            evaluator.environment["GOST_address"] = connection_config.set_GOST_address()
+            if not evaluator.environment["GOST_address"]:
+                evaluator.environment["critical_failures"].append("error: GOST address not defined")
 
 
 @conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=True)
@@ -246,15 +238,11 @@ def show_results(evaluator):
             pp.pprint(x)
 
 
-@conditions.needed_fields(all_mandatory_fields=["create", "ogc"], critical_failures_resistant=False)
+@conditions.needed_fields(all_mandatory_fields=["create"], critical_failures_resistant=False,
+                          needed_ogc=True)
 def create_records(evaluator):
     """create records to store in a file"""
-    result = create_records_file(args_to_dict(evaluator.args.create), evaluator.args.ogc)
-    if result["errors"]:
-        evaluator.environment["non_critical_failures"] += result["errors"]
-    if evaluator.args.show:
-        if result["created_name_list"]:
-            evaluator.environment["results"] += result["created_name_list"]
+    create_without_line_command(evaluator)
 
 
 @conditions.needed_fields(at_least_one_field=["read_file"], critical_failures_resistant=False)
@@ -264,6 +252,7 @@ def read_file(evaluator):
     # TODO recursion control
     if evaluator.args.file:
         file_iterator(evaluator.args.file)
+
 
 
 def clear_environment(evaluator):
@@ -337,11 +326,9 @@ def get(evaluator):
                     append_result(evaluator, result, "selected_items")
 
 
-def get_without_explicit_get(current_evaluator):
+def get_without_line_command(current_evaluator):
     """get the items in identifier and stores them in selected items even if get is not defined"""
     if current_evaluator.args.identifier and not current_evaluator.args.get:
-        errors = []
-        selected = []
         for i in current_evaluator.args.identifier:
             get_result = get_item(i, current_evaluator.args.ogc, current_evaluator.environment)
             if "error" in get_result:
@@ -368,3 +355,11 @@ def select_items_without_line_command(evaluator):
             evaluator.environment["non_critical_failures"] += [f"error: no {evaluator.args.ogc} found "
                                                                f"with select statement conditions"]
 
+
+def create_without_line_command(evaluator):
+    result = create_records_file(args_to_dict(evaluator.args.create), evaluator.args.ogc)
+    if result["errors"]:
+        evaluator.environment["non_critical_failures"] += result["errors"]
+    if evaluator.args.show:
+        if result["created_name_list"]:
+            evaluator.environment["results"] += result["created_name_list"]

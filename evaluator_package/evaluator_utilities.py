@@ -45,3 +45,48 @@ def custom_split(string, custom_splitters_list):
 
     return result
 
+
+def ask_ogc(evaluator):
+    provided_ogc = input("Missing or invalid Ogc Type, insert one or 'exit' to exit: \n")
+    if is_ogc(provided_ogc):
+        evaluator.args.ogc = provided_ogc
+        return True
+    if is_ogc(provided_ogc + "s"):
+        evaluator.args.ogc = provided_ogc + "s"
+        return True
+    if provided_ogc == 'exit':
+        return False
+    else:
+        while not (is_ogc(provided_ogc) or is_ogc(provided_ogc + "s")):
+            provided_ogc = input("Invalid Ogc Type, insert one or 'exit' to exit:\n"
+                                 "(the types are Things, Sensors, Locations, HystoricalLocations, Datastreams, "
+                                 "ObservedProperties, Observations, FeaturesOfInterest)\n")
+            if provided_ogc == 'exit':
+                return False
+    if is_ogc(provided_ogc):
+        evaluator.args.ogc = provided_ogc
+        return True
+    if is_ogc(provided_ogc + "s"):
+        evaluator.args.ogc = provided_ogc + "s"
+        return True
+
+
+def is_ogc(name):
+    return name in ["Things", "Sensors", "Locations", "HystoricalLocations", "Datastreams", "ObservedProperties",
+                    "Observations", "FeaturesOfInterest"]
+
+
+def check_and_fix_ogc(evaluator):
+    """check if ogc_type is only missing the final 's', in that case automatically fix it,
+    otherwise asks the user to insert a valid ogc type"""
+    if bool(evaluator.args.ogc):
+        ogc_pluralized = evaluator.args.ogc + "s"
+        if is_ogc(ogc_pluralized):
+            evaluator.args.ogc = ogc_pluralized
+            return True
+        elif is_ogc(evaluator.args.ogc):
+            return True
+        elif not is_ogc(evaluator.args.ogc):
+            return ask_ogc(evaluator)
+    else:
+        return ask_ogc(evaluator)

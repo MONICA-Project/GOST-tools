@@ -24,13 +24,13 @@ def set_GOST_address(address=None):
         os.write(f, bytes(address, 'utf-8'))
         os.fsync(f)
         os.close(f)
-    if test_connection(address):  # [:-5]):
+    if test_connection(address, verbose=False):
         return address
     else:
         return False
 
 
-def test_connection(server_address, server_username=None, server_password=None):
+def test_connection(server_address, server_username=None, server_password=None, verbose=True):
     """ This function checks if a REST connection is correctly configured.
 
     :param server_address: The address of the OGC server.
@@ -44,8 +44,9 @@ def test_connection(server_address, server_username=None, server_password=None):
             r = requests.get(url=server_address)
         else:
             r = requests.get(url=server_address, auth=(server_username, server_password))
-        if r.ok:
-            print("Network connectivity: VERIFIED. Server "+server_address+" is reachable!")
+        if r.ok :
+            if verbose:
+                print("Network connectivity: VERIFIED. Server "+server_address+" is reachable!")
             return True
         else:
             print("Something wrong during connection!")

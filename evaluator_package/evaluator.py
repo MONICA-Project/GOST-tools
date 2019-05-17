@@ -7,8 +7,8 @@ from evaluator_package.environments import default_env, test_env
 always_active = [get_info]
 
 # standard mode evaluations list
-first_initialization = [user_defined_address, saved_address, missing_ogc_type, ping, read_file]
-default_initialization = [user_defined_address, missing_ogc_type, ping, read_file]
+first_initialization = [user_defined_address, saved_address, ping, read_file]
+default_initialization = [user_defined_address, ping, read_file]
 
 getting_items = [get_with_check_of_command_line, select_items]
 create = [create_records]
@@ -53,7 +53,7 @@ class EvaluatorClass:
         elif self.first_time:
             self.init(self.first_time)
         else:
-            print("Inserire un comando")
+            print("Insert a command")
             exit(0)
         #self.args = expand_intervals(args)
         for step in self.evaluation_steps:

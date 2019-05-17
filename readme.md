@@ -155,13 +155,19 @@ Creating and storing 5 Sensors with default values to a file with path = "file_p
 ```
 --post num 5 type Sensors file file_path
 ```
-
 Creating and storing 5 Sensors with default values except the description, which will be
  equal to "new_description", to a file with path = "file_path":
 ```
 --post num 5 description new_description file file_path --type Sensors
 ```
-
+Creating two Sensors without specifying the ogc type: the system will ask
+to the user to insert it
+```
+interface.py --create num 2
+Missing Ogc Type, insert one:
+Sensors
+Created a file in created_files/Sensors with 2 Sensors
+```
 Posting to GOST all the Sensors stored in a txt file with path = "file_path":
 ```
 --post file_path -t Sensors
