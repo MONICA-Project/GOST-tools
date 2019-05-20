@@ -53,9 +53,10 @@ def a(tokens, record):
         tokens.pop(0)
         if tokens[0] == "not":
             tokens.pop(0)
+            tokens.pop(0)
             temp_field = record[tokens[0]]
             tokens.pop(0)
-            return not temp_val in temp_field
+            return not (temp_val in temp_field)
         elif is_field(tokens[0]):
             temp_field = record[tokens[0]]
             tokens.pop(0)
@@ -111,6 +112,17 @@ def test(record):
     tokens_6 = {"name": "6",
                 "tokens": ["name", "==", "mario", "and", "(", "description", "==", "default description", ")"],
                 "expected_result": True}
+    tokens_7 = {"name": "7",
+                "tokens": ["name", "==", "mario", "and", "(", "1", "in", "metadata", ")"],
+                "expected_result": True}
+    tokens_8 = {"name": "8",
+                "tokens": ["name", "==", "mario","or", "name", "==", "gianni",
+                           "and", "(", "1", "in", "metadata", "and", "2", "not", "in", "description", ")"],
+                "expected_result": True}
+    tokens_9 = {"name": "8",
+                "tokens": ["name", "!=", "mario", "or", "gianni", "not", "in", "name",
+                           "and", "(", "1", "in", "metadata", "and", "2", "not", "in", "description", ")"],
+                "expected_result": True}
 
     test_list = []
     test_list.append(tokens_1)
@@ -119,7 +131,9 @@ def test(record):
     test_list.append(tokens_4)
     test_list.append(tokens_5)
     test_list.append(tokens_6)
-
+    test_list.append(tokens_7)
+    test_list.append(tokens_8)
+    test_list.append(tokens_9)
 
     for i in test_list:
         result = parser(i["tokens"], record)
@@ -128,5 +142,6 @@ def test(record):
         else:
             print(f"test {i['name']} not passed")
 
-args = {"name" : "mario", "description" : "default description"}
+
+args = {"name" : "mario", "description" : "default description", "metadata" : "meta 1"}
 test(args)
