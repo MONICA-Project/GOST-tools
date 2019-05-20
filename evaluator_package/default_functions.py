@@ -20,21 +20,21 @@ def get_info(evaluator):
         print("Address : " + evaluator.environment["GOST_address"])
 
 
-@conditions.needed_fields(at_least_one_field=[], all_mandatory_fields=["get", "ogc"],
+@conditions.needed_fields(at_least_one_field=["get"], needed_ogc=True,
                           critical_failures_resistant=False)
-def get_with_check_of_command_line(evaluator):
+def get_command_line(evaluator):
     """gets the items from GOST, used if get or identifier are defined"""
     get(evaluator)
 
 
 @conditions.needed_fields(at_least_one_field=["select"], critical_failures_resistant=False)
-def select_items(evaluator):
+def select_items_command_line(evaluator):
     """selects the items matching with the rules defined in evaluator.args.select
     and removes the others"""
     if (bool(evaluator.args.patch) or bool(evaluator.args.delete)) and not bool(evaluator.args.get):
         return False
     else:
-        select_items_without_line_command(evaluator)
+        select_items(evaluator)
 
 
 @conditions.needed_fields(at_least_one_field=["show", "get"], critical_failures_resistant=False)
@@ -335,11 +335,11 @@ def get_without_line_command(current_evaluator):
         for i in result_all:
             append_result(current_evaluator, i, field_name="selected_items")
 
-        select_items_without_line_command(current_evaluator)
+        select_items(current_evaluator)
         evaluator_utilities.check_name_duplicates(current_evaluator, "selected_items")
 
 
-def select_items_without_line_command(evaluator):
+def select_items(evaluator):
     if bool(evaluator.args.select):
         boolean_mode = "and"
 

@@ -10,7 +10,7 @@ always_active = [get_info]
 first_initialization = [user_defined_address, saved_address, ping, read_file]
 default_initialization = [user_defined_address, ping, read_file]
 
-getting_items = [get_with_check_of_command_line, select_items]
+getting_items = [get_command_line, select_items_command_line]
 create = [create_records]
 mod_items = [delete, patch, post]
 show = [select_result_fields, show_results]
