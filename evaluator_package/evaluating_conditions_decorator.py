@@ -11,14 +11,11 @@ def needed_fields(no_fields=None,at_least_one_field=None,
             if bool(evaluator.environment["critical_failures"]) and not critical_failures_resistant:
                 return False
 
-            if no_fields:  # checking all field that will block the execution
-                for i in all_mandatory_fields:
+            if bool(no_fields):  # checking all field that will block the execution
+                for i in no_fields:
                     if bool(evaluator.args.__dict__[i]):
                         return False
-            if needed_ogc:
-                if not evaluator_utilities.check_and_fix_ogc(evaluator):
-                    evaluator.environment["critical_failures"].append([{"error": "ogc type not defined"}])
-                    return False
+
 
             required_at_least = bool(at_least_one_field)
             required_all = bool(all_mandatory_fields)
@@ -43,7 +40,12 @@ def needed_fields(no_fields=None,at_least_one_field=None,
                             break
 
             if required_at_least_confirmed and required_all_confirmed:
+                if bool(needed_ogc):
+                    if not evaluator_utilities.check_and_fix_ogc(evaluator):
+                        evaluator.environment["critical_failures"].append([{"error": "ogc type not defined"}])
+                        return False
                 return function(evaluator)
+
             else:
                 return False
 

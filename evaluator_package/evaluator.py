@@ -98,7 +98,7 @@ class EvaluatorClass:
 
         if changed_mode:
             if args:
-                self.args = self.parser.parse_args(args)  # re-parse the args with the new parser
+                self.args = self.parser.parse_args(args)  # re-parse the args with the new bool_parser
                                                           # double parsing needed to get "--mode" value
         return changed_mode
 

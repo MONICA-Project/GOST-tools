@@ -1,4 +1,4 @@
-def parser(tokens, record = None):
+def bool_parser(tokens, record = None):
     if not(bool(tokens)):
         return False
     return S(tokens, record)
@@ -147,12 +147,12 @@ def test(record):
     test_list.append(tokens_10)
 
     for i in test_list:
-        result = parser(i["tokens"], record)
+        result = bool_parser(i["tokens"], record)
         if (result and i["expected_result"]) or ((not result) and (not i["expected_result"])):
             print(f"test {i['name']} passed")
         else:
             print(f"test {i['name']} not passed")
 
 
-args = {"name" : "mario", "description" : "default description", "metadata" : "meta 1", "@iot.id" : "1"}
-test(args)
+#args = {"name" : "mario", "description" : "default description", "metadata" : "meta 1", "@iot.id" : "1"}
+#test(args)

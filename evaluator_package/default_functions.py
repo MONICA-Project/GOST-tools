@@ -8,6 +8,8 @@ import shlex
 import copy
 from . import evaluating_conditions_decorator as conditions
 from . import evaluator_utilities
+from . import selection_parser
+
 
 
 @conditions.needed_fields(at_least_one_field=["info"], all_mandatory_fields=[],
@@ -146,6 +148,7 @@ def connection_test(evaluator):
         print(f"current GOST address: {evaluator.environment.GOST_address}\n'--address <ip:port>' to change")
 
 
+@conditions.needed_fields(critical_failures_resistant=True)
 def exit_function(evaluator):
     if evaluator.reading_file:
         pass
@@ -234,7 +237,7 @@ def show_results(evaluator):
         print(str(len(evaluator.environment["results"])) + " results found\n")
 
 
-@conditions.needed_fields(all_mandatory_fields=["create"], critical_failures_resistant=False,
+@conditions.needed_fields(at_least_one_field=["create"], critical_failures_resistant=False,
                           needed_ogc=True)
 def create_records(evaluator):
     """create records to store in a file"""
@@ -340,21 +343,13 @@ def get_without_line_command(current_evaluator):
 
 
 def select_items(evaluator):
-    if bool(evaluator.args.select):
-        boolean_mode = "and"
-
-        if (evaluator.args.select[0] == "and") or (evaluator.args.select[0] == "or"):
-            boolean_mode = evaluator.args.select[0]
-            evaluator.args.select = evaluator.args.select[1:]
-
-        select_rules = args_to_dict(evaluator.args.select)
-        for x in evaluator.environment["selected_items"].copy():
-            res = matching_fields(x, select_rules, boolean_mode)
-            if not res:
-                evaluator.environment["selected_items"].remove(x)
-        if len(evaluator.environment["selected_items"]) == 0:
-            evaluator.environment["non_critical_failures"] += [f"error: no {evaluator.args.ogc} found "
-                                                               f"with select statement conditions"]
+    for x in evaluator.environment["selected_items"].copy():
+        matching = selection_parser.bool_parser(evaluator.args.select,x)
+        if not matching:
+            evaluator.environment["selected_items"].remove(x)
+    if len(evaluator.environment["selected_items"]) == 0:
+        evaluator.environment["non_critical_failures"] += [f"error: no {evaluator.args.ogc} found "
+                                                           f"with select statement conditions"]
 
 
 def create_without_line_command(evaluator):
