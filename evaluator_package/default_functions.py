@@ -343,10 +343,10 @@ def get_without_line_command(current_evaluator):
 
 
 def select_items(evaluator):
-    for x in evaluator.environment["selected_items"].copy():
-        matching = selection_parser.bool_parser(evaluator.args.select,x)
+    for single_item in evaluator.environment["selected_items"].copy():
+        matching = selection_parser.select_parser(evaluator.args.select, single_item)
         if not matching:
-            evaluator.environment["selected_items"].remove(x)
+            evaluator.environment["selected_items"].remove(single_item)
     if len(evaluator.environment["selected_items"]) == 0:
         evaluator.environment["non_critical_failures"] += [f"error: no {evaluator.args.ogc} found "
                                                            f"with select statement conditions"]

@@ -1,10 +1,15 @@
-def bool_parser(tokens, record = None):
+import copy
+
+def select_parser(tokens, record = None):
     if not(bool(tokens)):
         return False
-    return S(tokens, record)
+    local_tokens_copy = copy.deepcopy(tokens)  # necessary because the parser removes all the elements from
+                                               # tokens list during evaluation
+
+    return S(local_tokens_copy, record)
 
 
-def S(tokens, record = None):
+def S(tokens, record=None):
     if tokens[0] == "(":
         tokens.pop(0)
         temp_result = S(tokens, record)
@@ -73,6 +78,8 @@ def a(tokens, record):
             tokens.pop(0)
             temp_val = tokens[0]
             tokens.pop(0)
+            if isinstance(temp_field, int):  # necessary for checking @iot.id
+                temp_val = int(temp_val)
             return temp_val == temp_field
         elif tokens[0] == "!=":
             tokens.pop(0)
@@ -94,65 +101,3 @@ def is_field(token):
                      "resultQuality","validTime", "time", "parameters", "feature"]
 def is_value(token):
     return not (is_field(token) or token in ["(", ")", "and", "or", "in", "not"])
-
-
-def test(record):
-    tokens_1 = {"name": "1",
-                "tokens": ["name", "==", "mario", "and", "description", "==", "default"],
-                "expected_result": False}
-    tokens_2 = {"name": "2",
-                "tokens": ["(", "description", "==", "default", ")"],
-                "expected_result": False}
-    tokens_3 = {"name": "3",
-                "tokens": ["name", "==", "mario", "and", "(", "description", "==", "default", ")"],
-                "expected_result": False}
-    tokens_4 = {"name": "4",
-                "tokens": ["name", "!=", "mario", "or", "(", "description", "!=", "default", ")"],
-                "expected_result": True}
-    tokens_5 = {"name": "5",
-                "tokens": ["name", "==", "mario", "and", "(", "description", "!=", "default", ")"],
-                "expected_result": True}
-    tokens_6 = {"name": "6",
-                "tokens": ["name", "==", "mario", "and", "(", "description", "==", "default description", ")"],
-                "expected_result": True}
-    tokens_7 = {"name": "7",
-                "tokens": ["name", "==", "mario", "and", "(", "1", "in", "metadata", ")"],
-                "expected_result": True}
-    tokens_8 = {"name": "8",
-                "tokens": ["name", "==", "mario","or", "name", "==", "gianni",
-                           "and", "(", "1", "in", "metadata", "and", "2", "not", "in", "description", ")"],
-                "expected_result": True}
-    tokens_9 = {"name": "9",
-                "tokens": ["name", "!=", "mario", "or", "gianni", "not", "in", "name",
-                           "and", "(", "1", "in", "metadata", "and", "2", "not", "in", "description", ")"],
-                "expected_result": True}
-
-    t_10 = tokens_9["tokens"] + ["and"] + tokens_2["tokens"]
-
-    tokens_10 = {"name": "10",
-                "tokens": t_10,
-                "expected_result": False}
-
-    test_list = []
-
-    test_list.append(tokens_1)
-    test_list.append(tokens_2)
-    test_list.append(tokens_3)
-    test_list.append(tokens_4)
-    test_list.append(tokens_5)
-    test_list.append(tokens_6)
-    test_list.append(tokens_7)
-    test_list.append(tokens_8)
-    test_list.append(tokens_9)
-    test_list.append(tokens_10)
-
-    for i in test_list:
-        result = bool_parser(i["tokens"], record)
-        if (result and i["expected_result"]) or ((not result) and (not i["expected_result"])):
-            print(f"test {i['name']} passed")
-        else:
-            print(f"test {i['name']} not passed")
-
-
-#args = {"name" : "mario", "description" : "default description", "metadata" : "meta 1", "@iot.id" : "1"}
-#test(args)
