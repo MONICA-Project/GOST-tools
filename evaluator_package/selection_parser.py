@@ -1,7 +1,7 @@
 import copy
 
 """Implemented Grammar:
-S    -> (S) S_1 | a_1 S_1 | not (S) S_1 | epsilon
+S    -> (S) S_1 | a_1 S_1 | not (S) S_1
 S_1  -> bool S S_1 | epsilon
 bool -> and | or
 a_1  -> a | not a
@@ -9,9 +9,11 @@ a    -> record_field comp value | value in record_field | value not in field
 comp -> == | != | > | < | >= | <=
 """
 
+
 def select_parser(tokens, record = None):
     if not(bool(tokens)):
         return False
+    tokenize_parentheses(tokens)
     local_tokens_copy = copy.deepcopy(tokens)  # necessary because the parser removes all the elements from
                                                # tokens list during evaluation
     return S(local_tokens_copy, record)
@@ -136,3 +138,29 @@ def is_field(token):
                      "resultQuality","validTime", "time", "parameters", "feature"]
 def is_value(token):
     return not (is_field(token) or token in ["(", ")", "and", "or", "in", "not"])
+
+
+def tokenize_parentheses(tokens):
+    for index, token in enumerate(tokens):
+        if ("(" in token or ")" in token) and len(token) > 1:
+            parenthesis_index = token.find("(")
+            parenthesis = "("
+            if parenthesis_index < 0:
+                parenthesis_index = token.find(")")
+                parenthesis = ")"
+            left_side = token[:parenthesis_index]
+            right_side = token[parenthesis_index + 1:]
+
+            del tokens[index]
+            if bool(left_side):
+                tokens.insert(index, left_side)
+                index += 1
+            tokens.insert(index, parenthesis)
+            if bool(right_side):
+                index += 1
+                tokens.insert(index, right_side)
+
+            print("ok")
+
+
+

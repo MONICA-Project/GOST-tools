@@ -1,5 +1,6 @@
 from evaluator_package.default_functions import *
 from evaluator_package.test_functions import *
+from evaluator_package.evaluator_utilities import *
 from parser_definitions import init_default_parser, init_test_parser
 from evaluator_package.environments import default_env, test_env
 
@@ -53,9 +54,17 @@ class EvaluatorClass:
         elif self.first_time:
             self.init(self.first_time)
         else:
-            print("Insert a command")
+            print("Insert a valid command")
             exit(0)
-        #self.args = expand_intervals(args)
+
+        for argument in self.args.__dict__:  # adding the @ to iot.id, for shells who doesn't accept special characters
+            current_argument = self.args.__dict__[argument]
+            if bool(current_argument) and bool(current_argument) and isinstance(current_argument, list):
+                if "iot.id" in self.args.__dict__[argument]:
+                    for index, item in enumerate(current_argument):
+                        if item == "iot.id":
+                            current_argument[index] = "@iot.id"
+
         for step in self.evaluation_steps:
             for function in step:
                 function(self)
