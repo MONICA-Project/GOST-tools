@@ -7,7 +7,7 @@ a_1  -> a | not a
 a    -> record_field comp value | value in record_field | value not in field
 
 bool -> and | or
-comp -> == | != | > | < | >= | <=
+comp -> == | != | > | < | >= | <= | gt | lt | gteq |  lteq
 """
 
 
@@ -109,20 +109,21 @@ def a(tokens, record):
                 temp_val = int(temp_val)
             tokens.pop(0)
             return temp_val != temp_field
-        elif tokens[0] == "<" or tokens[0] == ">" or tokens[0] == "<=" or tokens[0] == ">=":
+        elif tokens[0] == "<" or tokens[0] == ">" or tokens[0] == "<=" or tokens[0] == ">="\
+                or tokens[0] == "gt" or tokens[0] == "lt" or tokens[0] == "gteq" or tokens[0] == "lteq":
             comparator = tokens[0]
             tokens.pop(0)
             temp_val = tokens[0]
             temp_val = int(temp_val)
             temp_field = int(temp_field)
             tokens.pop(0)
-            if comparator == "<":
+            if comparator == "<" or comparator == "lt":
                 return  temp_field < temp_val
-            if comparator == "<=":
+            if comparator == "<=" or comparator == "lteq":
                 return temp_field <= temp_val
-            if comparator == ">":
+            if comparator == ">" or comparator == "gt":
                 return temp_field > temp_val
-            if comparator == ">=":
+            if comparator == ">=" or comparator == "gteq":
                 return temp_field >= temp_val
         else:
             return parse_error()
