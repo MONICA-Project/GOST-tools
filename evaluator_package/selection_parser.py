@@ -1,7 +1,7 @@
 import copy
 
-"""PARSER Grammar:
-S    -> (S)S_1 | a_1 S_1 | epsilon
+"""Implemented Grammar:
+S    -> (S) S_1 | a_1 S_1 | not (S) S_1 | epsilon
 S_1  -> bool S S_1 | epsilon
 bool -> and | or
 a_1  -> a | not a
@@ -14,7 +14,6 @@ def select_parser(tokens, record = None):
         return False
     local_tokens_copy = copy.deepcopy(tokens)  # necessary because the parser removes all the elements from
                                                # tokens list during evaluation
-
     return S(local_tokens_copy, record)
 
 
@@ -27,6 +26,16 @@ def S(tokens, record=None):
             return S_1(tokens, temp_result, record)
         else:
             return parse_error()
+    elif tokens[0] == "not":
+        tokens.pop(0)
+        if tokens[0] == "(":
+            tokens.pop(0)
+            temp_result = S(tokens, record)
+            if tokens[0] == ")":
+                tokens.pop(0)
+                return not (S_1(tokens, temp_result, record))
+            else:
+                return parse_error()
 
     elif is_field(tokens[0]) or is_value(tokens[0]) or tokens[0] == "not":
         temp_result = a_1(tokens, record)
