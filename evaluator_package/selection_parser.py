@@ -1,5 +1,14 @@
 import copy
 
+"""PARSER Grammar:
+S    -> (S)S_1 | a_1 S_1 | epsilon
+S_1  -> bool S S_1 | epsilon
+bool -> and | or
+a_1  -> a | not a
+a    -> record_field comp value | value in record_field | value not in field
+comp -> == | != | > | < | >= | <=
+"""
+
 def select_parser(tokens, record = None):
     if not(bool(tokens)):
         return False
@@ -84,8 +93,25 @@ def a(tokens, record):
         elif tokens[0] == "!=":
             tokens.pop(0)
             temp_val = tokens[0]
+            if isinstance(temp_field, int):  # necessary for checking @iot.id
+                temp_val = int(temp_val)
             tokens.pop(0)
             return temp_val != temp_field
+        elif tokens[0] == "<" or tokens[0] == ">" or tokens[0] == "<=" or tokens[0] == ">=":
+            comparator = tokens[0]
+            tokens.pop(0)
+            temp_val = tokens[0]
+            temp_val = int(temp_val)
+            temp_field = int(temp_field)
+            tokens.pop(0)
+            if comparator == "<":
+                return  temp_field < temp_val
+            if comparator == "<=":
+                return temp_field <= temp_val
+            if comparator == ">":
+                return temp_field > temp_val
+            if comparator == ">=":
+                return temp_field >= temp_val
         else:
             return parse_error()
     else:

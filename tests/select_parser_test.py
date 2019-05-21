@@ -62,9 +62,14 @@ tokens_12 = {"name": "12",
              "tokens": ["name", "==", "timer", "or", "@iot.id", "==", "1", "or", "(", "name", "==", "photometer",
                         "and", "metadata", "==", "meta 3", ")"],
              "expected_results": 2}
+tokens_13 = {"name": "13",
+             "tokens": ["@iot.id", ">", "1", "and", "@iot.id", "<=", "3"],
+             "expected_results": 2}
 
 multi_record_test_list = []
 multi_record_test_list.append(tokens_12)
+multi_record_test_list.append(tokens_13)
+
 
 
 def test_single_record():
