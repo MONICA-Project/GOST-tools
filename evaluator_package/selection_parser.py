@@ -3,9 +3,10 @@ import copy
 """Implemented Grammar:
 S    -> (S) S_1 | a_1 S_1 | not (S) S_1
 S_1  -> bool S S_1 | epsilon
-bool -> and | or
 a_1  -> a | not a
 a    -> record_field comp value | value in record_field | value not in field
+
+bool -> and | or
 comp -> == | != | > | < | >= | <=
 """
 
@@ -159,8 +160,6 @@ def tokenize_parentheses(tokens):
             if bool(right_side):
                 index += 1
                 tokens.insert(index, right_side)
-
-            print("ok")
 
 
 

@@ -1,8 +1,9 @@
 import requests
 import connection_config
+import urllib.parse as urlparse
 
 
-def get_all(ogc_name, environment = None):
+def get_all(ogc_name, environment = None, payload = None, sending_address=None):
     """sends a GET request for the list of all OGC items of ogcName type
     Returns an array of Ogc items in form of a dictionary
     """
@@ -12,14 +13,19 @@ def get_all(ogc_name, environment = None):
     else:
         GOST_address = connection_config.get_address_from_file()
     sending_address = GOST_address + "/" + ogc_name
-    r = requests.get(sending_address)
+    r = requests.get(sending_address, payload)
     response = r.json()
     if "value" in response:
         result = response["value"]
-  #  while "@iot.nextLink" in response:  # iteration for getting results beyond first page
-  #      next_page_address = "http://" + response["@iot.nextLink"]
-  #      response = requests.get(next_page_address)
-  #      result.append(response["value"])
+    if "@iot.nextLink" in response:  # iteration for getting results beyond first page
+        next_page_address = "http://" + response["@iot.nextLink"]
+        parsed = urlparse.urlparse(next_page_address)
+        params = urlparse.parse_qsl(parsed.query)
+        new_payload = {}
+        for x, y in params:
+            new_payload[x] = y
+        partial_result = get_all(ogc_name, payload=new_payload, sending_address=next_page_address)
+        (result).extend(partial_result)
 
     return result
 
