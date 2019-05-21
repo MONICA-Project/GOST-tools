@@ -72,7 +72,7 @@ def delete(evaluator):
                 if "error" in x:
                     pass
                 elif "@iot.id" in x:
-                    warning_message +=  str(x["@iot.id"]) + " " +  str(x["name"]) + "\n"
+                    warning_message += "id = " +  str(x["@iot.id"]) + " name = " + str(x["name"]) + "\n"
             except AttributeError as attr:
                 print("missing" + attr)
                 pass
@@ -329,17 +329,18 @@ def get(evaluator):
 
 def get_without_line_command(current_evaluator):
     """get the items in identifier and stores them in selected items even if get is not defined"""
-    if current_evaluator.args.identifier:
-        for i in current_evaluator.args.identifier:
-            get_result = get_item(i, current_evaluator.args.ogc, current_evaluator.environment)
-            append_result(current_evaluator, get_result, field_name="selected_items")
-    else:
-        result_all = get_all(current_evaluator.args.ogc, current_evaluator.environment)
-        for i in result_all:
-            append_result(current_evaluator, i, field_name="selected_items")
+    if not bool(current_evaluator.environment["selected_items"]):  # necessary to avoid getting items more than one time
+        if current_evaluator.args.identifier:
+            for i in current_evaluator.args.identifier:
+                get_result = get_item(i, current_evaluator.args.ogc, current_evaluator.environment)
+                append_result(current_evaluator, get_result, field_name="selected_items")
+        else:
+            result_all = get_all(current_evaluator.args.ogc, current_evaluator.environment)
+            for i in result_all:
+                append_result(current_evaluator, i, field_name="selected_items")
 
-        select_items(current_evaluator)
-        evaluator_utilities.check_name_duplicates(current_evaluator, "selected_items")
+            select_items(current_evaluator)
+            evaluator_utilities.check_name_duplicates(current_evaluator, "selected_items")
 
 
 def select_items(evaluator):
