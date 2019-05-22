@@ -153,6 +153,7 @@ def exit_function(evaluator):
     if evaluator.reading_file:
         pass
     elif evaluator.args.exit:
+        raise ValueError('Exited interactive mode')
         exit(0)
 
 
@@ -244,7 +245,7 @@ def create_records(evaluator):
     create(evaluator)
 
 
-@conditions.needed_fields(at_least_one_field=["file"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["exec"], critical_failures_resistant=False)
 def read_file(evaluator):
     """creates a temporary evaluator_package which evaluates the instructions
     in the file specified by args.file"""

@@ -4,10 +4,10 @@ from evaluator_package.evaluator_utilities import *
 from parser_definitions import init_default_parser, init_test_parser
 from evaluator_package.environments import default_env, test_env
 
-# all the evaluation methods which are always used and are checked before all other methods
+# all the evaluation functions which are always used and are checked before all other methods
 always_active = [get_info]
 
-# standard mode evaluations list
+# all the evaluation functions which are used when the mode is set on "default"
 first_initialization = [user_defined_address, saved_address, ping, read_file]
 default_initialization = [user_defined_address, ping, read_file]
 
@@ -27,7 +27,7 @@ first_time_steps = [always_active, first_initialization, create, getting_items, 
 default_steps = [always_active, default_initialization, create, getting_items, mod_items, show,
                  failure_handling, default_ending]
 
-# test mode evaluations list
+# all the evaluation functions which are used when the mode is set on "test"
 test_initialization = [started_session, create_test_records]
 test_actions = [post]
 test_ending = [clear_test_environment, exit_function]
@@ -70,7 +70,10 @@ class EvaluatorClass:
                 try:
                     function(self)
                 except BaseException as e:
-                    print('Raised exception: ' + str(e))
+                    if str(e) == "Exited interactive mode":
+                        exit(0)
+                    else:
+                        print('Raised exception: ' + str(e))
 
     def init(self, args):
         self.args = self.parser.parse_args(args)
