@@ -92,9 +92,10 @@ def delete(evaluator):
                     print("missing" + attr)
                     pass
         else:
+            evaluator.environment["selected_items"] = []
             print("Aborted deletion")
     else:
-        print("trying to delete but no item defined")
+        print("trying to delete but no item defined or found")
 
 
 @conditions.needed_fields(all_mandatory_fields=["patch"], critical_failures_resistant=False,
@@ -103,6 +104,7 @@ def patch(evaluator):
     """
     patches the selected fields of the items chosen with get with the selected values
     """
+    get_without_line_command(evaluator)
 
     for x in evaluator.environment["selected_items"]:
         if ("error" not in x) and ("@iot.id" in x):
@@ -242,7 +244,7 @@ def create_records(evaluator):
     create(evaluator)
 
 
-@conditions.needed_fields(at_least_one_field=["read_file"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["file"], critical_failures_resistant=False)
 def read_file(evaluator):
     """creates a temporary evaluator_package which evaluates the instructions
     in the file specified by args.file"""
@@ -316,7 +318,7 @@ def get(evaluator):
 def get_without_line_command(current_evaluator):
     """get the items in identifier and stores them in selected items even if get is not defined"""
     if not bool(current_evaluator.environment["selected_items"]):  # necessary to avoid getting items more than one time
-        if current_evaluator.args.identifier:
+        if bool(current_evaluator.args.identifier):
             for i in current_evaluator.args.identifier:
                 get_result = get_item(i, current_evaluator.args.ogc, current_evaluator.environment)
                 append_result(current_evaluator, get_result, field_name="selected_items")
