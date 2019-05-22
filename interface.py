@@ -11,8 +11,7 @@ def main():
         evaluator = EvaluatorClass(args=sys.argv[1:])
         evaluator.evaluate()
     except SystemExit as e:
-        if e.code == 0:
-            exit(0)
+        exit(e.code)
     except BaseException as e:
         print('Raised exception: ' + str(e))
         exit(1)
