@@ -7,12 +7,19 @@ def main():
     """Creates a command evaluator_package, reads the argv input and if
     specified with the --interactive option starts a loop of
     requests"""
-    evaluator = EvaluatorClass(args=sys.argv[1:])
-    evaluator.evaluate()
+    try:
+        evaluator = EvaluatorClass(args=sys.argv[1:])
+        evaluator.evaluate()
+    except BaseException as e:
+        print('Raised exception: ' + str(e))
+        exit(1)
 
     while True:
-        new_command = shlex.split(input("(" + evaluator.environment["mode"] + " mode) insert command : "))
-        evaluator.evaluate(new_command)
+        try:
+            new_command = shlex.split(input("(" + evaluator.environment["mode"] + " mode) insert command : "))
+            evaluator.evaluate(new_command)
+        except BaseException as e:
+            print('Raised exception: ' + str(e))
 
 
 if __name__ == "__main__":
