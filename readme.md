@@ -40,10 +40,11 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   
-  -f FILE, --file FILE  choose a FILE from which execute a list of commands, this command
+  --exec                execute a of commands, this command
                         requires the absolute file path inside ""
                         example:
-                         --file "absolute_filepath"
+                         --exec "absolute_filepath"
+                         --exec "absolute_filepath_1" "absolute_filepath_2"
                          
   -t OGC, --ogc OGC, --type OGC
                         select the OGC Model name of the items to process

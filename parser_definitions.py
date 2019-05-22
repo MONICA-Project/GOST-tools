@@ -9,7 +9,7 @@ def common_commands_parser():
                                            "or 'all' for all the items of chosen type",
                         nargs='*', default=False)
 
-    parser.add_argument("-f", "--file", help="choose a FILE from which execute a list of commands",
+    parser.add_argument("--exec", help="choose a FILE from which execute a list of commands",
                         action="store", dest="file", default=False)
 
     parser.add_argument("-t", "--ogc", "--type",
