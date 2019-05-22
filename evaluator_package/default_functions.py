@@ -33,10 +33,8 @@ def get_command_line(evaluator):
 def select_items_command_line(evaluator):
     """selects the items matching with the rules defined in evaluator.args.select
     and removes the others"""
-    if (bool(evaluator.args.patch) or bool(evaluator.args.delete)) and not bool(evaluator.args.get):
-        return False
-    else:
-        select_items(evaluator)
+    get_without_line_command(evaluator)
+    select_items(evaluator)
 
 
 @conditions.needed_fields(at_least_one_field=["show", "get"], critical_failures_resistant=False)
@@ -44,11 +42,11 @@ def select_result_fields(evaluator):
     """selects which fields of the record in result will be showed.
     If get is defined but there is no result, all the getted items will be
     showed"""
-    if not evaluator.environment["results"] and only_get(evaluator.args):
-        # if the user has only made a get request, the results
-        # are simply the selected items
-
+    if not bool(evaluator.environment["results"]) and bool(evaluator.environment["selected_items"]):
+        # if at the end of the execution of the command there are some selected items, they are added
+        # to the result
         evaluator.environment["results"] = copy.deepcopy(evaluator.environment["selected_items"])
+        evaluator.environment["selected_items"] = []
 
     if evaluator.args.show:
         if "all" not in evaluator.args.show:
@@ -105,7 +103,7 @@ def patch(evaluator):
     """
     patches the selected fields of the items chosen with get with the selected values
     """
-    get_without_line_command(evaluator)
+
     for x in evaluator.environment["selected_items"]:
         if ("error" not in x) and ("@iot.id" in x):
             patches = args_to_dict(evaluator.args.patch)
@@ -241,7 +239,7 @@ def show_results(evaluator):
                           needed_ogc=True)
 def create_records(evaluator):
     """create records to store in a file"""
-    create_without_line_command(evaluator)
+    create(evaluator)
 
 
 @conditions.needed_fields(at_least_one_field=["read_file"], critical_failures_resistant=False)
@@ -292,18 +290,6 @@ def append_result(evaluator, result, field_name="results", failure_type = "non_c
         evaluator.environment[field_name].append(result)
 
 
-def only_get(args):
-    """checks if the only user command involving items is get"""
-    args_dict = args.__dict__
-    if args_dict["get"]:
-        for key in args_dict:
-            if (key == "delete") or (key == "patch"):
-                if bool(args_dict[key]):
-                    return False
-        return True
-    return False
-
-
 def get(evaluator):
     """gets the items from GOST, used as auxilliary method by other commands"""
     if evaluator.args.identifier == ["all"] or ((not evaluator.args.identifier)
@@ -335,6 +321,7 @@ def get_without_line_command(current_evaluator):
                 get_result = get_item(i, current_evaluator.args.ogc, current_evaluator.environment)
                 append_result(current_evaluator, get_result, field_name="selected_items")
         else:
+            evaluator_utilities.check_and_fix_ogc(current_evaluator)
             result_all = get_all(current_evaluator.args.ogc, current_evaluator.environment)
             for i in result_all:
                 append_result(current_evaluator, i, field_name="selected_items")
@@ -353,7 +340,7 @@ def select_items(evaluator):
                                                            f"with select statement conditions"]
 
 
-def create_without_line_command(evaluator):
+def create(evaluator):
     result = create_records_file(args_to_dict(evaluator.args.create), evaluator.args.ogc)
     if result["errors"]:
         evaluator.environment["non_critical_failures"] += result["errors"]
