@@ -67,7 +67,10 @@ class EvaluatorClass:
 
         for step in self.evaluation_steps:
             for function in step:
-                function(self)
+                try:
+                    function(self)
+                except BaseException as e:
+                    print('Raised exception: ' + str(e))
 
     def init(self, args):
         self.args = self.parser.parse_args(args)
