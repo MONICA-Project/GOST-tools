@@ -7,12 +7,32 @@ import shlex
 def needed_fields(no_fields=None,at_least_one_field=None,
                   all_mandatory_fields=None, critical_failures_resistant=False,
                   needed_ogc=False, needed_items = False):
-    """decorator with arguments: if at least one of the field in at_least_one
-    and  all the fields in all_fields are in args the decorated function is executed,
-    otherwise not. If critical_failures_resistant is setted, the function will be
-    executed regardless of the presence of critical failures. If ogc is needed but not provided,
-    the user will be asked of inserting it. If items are needed but not present,
-    a get_items will be executed if the needed_items flag is True"""
+    """Decorator: checks conditions before executing the decorated function.
+    Parameters:
+        no_fields ([str]): the field(s) which presence in current command string
+                           negate the execution of the function
+
+        at_least_one_field ([str]): the field(s) for which the presence of at least
+                            one of them in the current command string
+                            is mandatory for the execution of the function
+
+        all_mandatory_fields ([str]): the field(s) the presence of all of them in the current
+                            command string is mandatory for the execution of the function
+
+        critical_failures_resistant (bool): if True, the function will be
+                            executed regardless of the presence of critical failures,
+                            otherwise not
+
+        needed_ogc (bool): if True, the command string will be checked for an ogc type:
+                            if not found, the user will be asked to provide one
+
+        needed_items (bool): if True, the current environment will be checked for selected items:
+                            if not found, a get with the parameters provided in command string
+                            will be executed on GOST
+
+    Returns:
+        False: if the function is not executed
+    """
     def decorator(function):
         def wrapper(evaluator):
             if bool(evaluator.environment["critical_failures"]) and not critical_failures_resistant:
