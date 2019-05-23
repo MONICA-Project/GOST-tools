@@ -34,7 +34,7 @@ def get_command_line(evaluator):
 
 
 @conditions.needed_fields(at_least_one_field=["select"], critical_failures_resistant=False, needed_items=True)
-def select_items_command_line(evaluator):
+def select_items_command(evaluator):
     """selects the items matching with the rules defined in evaluator.args.select
     and removes the others"""
     conditions.select_items(evaluator)
@@ -93,6 +93,7 @@ def delete(evaluator):
                 except AttributeError as attr:
                     print("missing" + attr)
                     pass
+            evaluator.environment["selected_items"] = []
         else:
             evaluator.environment["selected_items"] = []
             print("Aborted deletion")

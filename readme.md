@@ -40,7 +40,7 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   
-  --exec                execute a of commands, this command
+  --execute             execute a of commands, this command
                         requires the absolute file path inside ""
                         example:
                          --exec "absolute_filepath"
@@ -117,6 +117,9 @@ optional arguments:
                         you can define field values for created records
                         otherwise default value will be used
                         (ex: --create num 2 description new_description --type Sensors)
+                        
+  --store STORE         store the results of command execution in the
+                        specified file
 ```
 
 More details about GOST-CLI implementation:
@@ -205,8 +208,8 @@ equal to "new_description", to a file with path = "file_path":
 Creating two Sensors without specifying the ogc type: the system will ask
 to the user to insert it
 ```
-interface.py --create num 2   --> user input
-Missing Ogc Type, insert one: --> system response
+interface.py --create num 2   <-- User input
+Missing Ogc Type, insert one: <-- System response
 Sensors
 Created a file in created_files/Sensors with 2 Sensors
 ```
@@ -218,6 +221,15 @@ Posting to GOST all the Sensors stored in a txt file with path = "file_path":
 Setting the GOST address to which send requests to http://x.x.x.x:port_number/v1.0
 ```
 -G http://x.x.x.x:port_number/v1.0
+```
+
+Executing a list  of commands stored in a file with absolute path = "file_path"
+```
+--execute "file_path"
+```
+Storing all sensor in a file with absolute path = "file_path"
+```
+--get --type Sensors --store "file_path"
 ```
 
 

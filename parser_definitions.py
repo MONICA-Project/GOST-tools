@@ -12,6 +12,9 @@ def common_commands_parser():
     parser.add_argument("--execute", help="choose a FILE from which execute a list of commands",
                         action="store", default=False)
 
+    parser.add_argument("--store", help="store the results of command execution in the specified file",
+                        action="store", default=False)
+
     parser.add_argument("-t", "--ogc", "--type",
                         help="select the OGC Model name of the items to process")
 

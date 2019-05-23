@@ -11,8 +11,8 @@ always_active = [get_info]
 first_initialization = [user_defined_address, saved_address, ping, exec_file]
 default_initialization = [user_defined_address, ping, exec_file]
 
-getting_items = [get_command_line, select_items_command_line]
-create = [create_records]
+getting_items = [get_command_line, select_items_command]
+create_functions = [create_records]
 mod_items = [delete, patch, post]
 show = [select_result_fields, show_results]
 failure_handling = [show_failures]
@@ -21,10 +21,10 @@ first_time_ending = [store, clear_environment, execute_and_exit]
 default_ending = [store, clear_environment, exit_function]
 
 # the steps of evaluation
-first_time_steps = [always_active, first_initialization, create, getting_items, mod_items, show,
+first_time_steps = [always_active, first_initialization, create_functions, getting_items, mod_items, show,
                     failure_handling, first_time_ending]
 
-default_steps = [always_active, default_initialization, create, getting_items, mod_items, show,
+default_steps = [always_active, default_initialization, create_functions, getting_items, mod_items, show,
                  failure_handling, default_ending]
 
 # all the evaluation functions which are used when the mode is set on "test"

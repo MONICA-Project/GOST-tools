@@ -95,8 +95,11 @@ def get_items(current_evaluator):
             result_all = get_all(current_evaluator.args.ogc, current_evaluator.environment)
             for i in result_all:
                 add_result(current_evaluator, i, field_name="selected_items")
-        select_items(current_evaluator)
-        evaluator_utilities.check_name_duplicates(current_evaluator, "selected_items")
+        if not bool(current_evaluator.environment["selected_items"]):
+            current_evaluator.environment["non_critical_failures"] += [f"error: no {current_evaluator.args.ogc} found"]
+        else:
+            select_items(current_evaluator)
+            evaluator_utilities.check_name_duplicates(current_evaluator, "selected_items")
 
 
 def add_result(evaluator, result, field_name="results", failure_type ="non_critical_failures"):

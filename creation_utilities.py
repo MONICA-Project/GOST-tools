@@ -1,7 +1,6 @@
 import json
 from checking_functions import item_is_already_present
 import random
-import string
 
 
 def create_records_file(args, ogc_type):
@@ -64,6 +63,28 @@ def create_random_item(args, ogc_type):
                           user_defined_or_default(args, "description", "ObservedProperties"), "definition":
                           user_defined_or_default(args, "definition", "ObservedProperties")}) + "\n"
 
+    if ogc_type == "Datastreams":
+        return json.dumps({"name": user_defined_or_default(args, "name", "Datastreams"),
+                           "description": user_defined_or_default(args, "description", "Datastreams"),
+                           "observationType": user_defined_or_default(args, "observationType", "Datastreams"),
+                           "unitOfMeasurement": {
+                                "definition": user_defined_or_default(args, "unitOfMeasurement_definition",
+                                                                      "Datastreams"),
+                                "name": user_defined_or_default(args, "unitOfMeasurement_name",
+                                                                "Datastreams"),
+                                "symbol": user_defined_or_default(args, "unitOfMeasurement_symbol",
+                                                                  "Datastreams")},
+                           "Thing": {
+                                "@iot.id": user_defined_or_default(args, "Thing_id", "Datastreams"),},
+                            "ObservedProperty": {
+                                "@iot.id": user_defined_or_default(args, "ObservedProperty_id", "Datastreams"),
+                            },
+                            "Sensor": {
+                                "@iot.id": user_defined_or_default(args, "Sensor_id", "Datastreams"),
+    }
+}
+) + "\n"
+
     else:
         return {"error": "incorrect ogc type"}
 
@@ -97,8 +118,10 @@ def user_defined_or_default(args, field_name, ogc_type=None):
 
     elif field_name == "name":
         return valid_random_name(ogc_type)
+
     elif field_name == "encodingType" and ogc_type == "Locations":
         return "application/vnd.geo+json"
+
     else:
         return "default " + field_name
 
