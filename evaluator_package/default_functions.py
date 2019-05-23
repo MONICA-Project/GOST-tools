@@ -111,8 +111,13 @@ def patch(evaluator):
     for x in evaluator.environment["selected_items"]:
         if ("error" not in x) and ("@iot.id" in x):
             patches = args_to_dict(evaluator.args.patch)
+            for key in patches:  # checking if all the patches are for valid entity attributes
+                if key not in x.keys():
+                    evaluator.environment["critical_failures"].append({"error" : f"invalid attribute name: {key}"})
+                    return False
             result = patch_item(patches, str(x.get("@iot.id")), evaluator.args.ogc, evaluator.environment)
             conditions.add_result(evaluator, result, "results")
+    evaluator.environment["selected_items"] = []
 
 
 @conditions.needed_fields(at_least_one_field=["post"], critical_failures_resistant=False,
