@@ -15,16 +15,13 @@ def needed_fields(no_fields=None,at_least_one_field=None,
     :param at_least_one_field: ([str]): the field(s) for which the presence of at least
                             one of them in the current command string
                             is mandatory for the execution of the function
-
     :param all_mandatory_fields: ([str]): the field(s) the presence of all of them in the current
                             command string is mandatory for the execution of the function
-
     :param critical_failures_resistant: if True, the function will be
                             executed regardless of the presence of critical failures,
                             otherwise not
     :param needed_ogc: if True, the command string will be checked for an ogc type:
                         if not found, the user will be asked to provide one
-
     :param needed_items: if True, the current environment will be checked for selected items:
                         if not found, a get with the parameters provided in command string
                         will be executed on GOST
@@ -87,9 +84,7 @@ def get_items(current_evaluator):
                               the query is executed and eventually filtered by --select statement
                               arguments, if provided. The result is appended
                               to current_evaluator.environment["selected_items"]
-    :return:
     """
-
     if not bool(current_evaluator.environment["selected_items"]):  # necessary to avoid getting items more than one time
         if bool(current_evaluator.args.identifier):
             for i in current_evaluator.args.identifier:
@@ -105,13 +100,13 @@ def get_items(current_evaluator):
 
 
 def add_result(evaluator, result, field_name="results", failure_type ="non_critical_failures"):
-    """
+    """Adds a result to the specified field, if there is an error it is added to the specified failure type
 
-    :param evaluator:
-    :param result:
-    :param field_name:
-    :param failure_type:
-    :return:
+
+    :param evaluator: the current evaluator
+    :param result: the result to add
+    :param field_name: the environment field to which append the result
+    :param failure_type: the failure type to which send the result, if it is an error
     """
     if "error" in result:
         evaluator.environment[failure_type].append(result)
@@ -120,10 +115,10 @@ def add_result(evaluator, result, field_name="results", failure_type ="non_criti
 
 
 def select_items(evaluator):
-    """
+    """Remove the selected items that don't match the --select conditions
 
-    :param evaluator:
-    :return:
+
+    :param evaluator: the current evaluator
     """
     if bool(evaluator.environment["selected_items"]):
         for single_item in evaluator.environment["selected_items"].copy():
@@ -136,6 +131,11 @@ def select_items(evaluator):
 
 
 def file_iterator(file_name):
+    """Creates a new evaluator and uses it to evaluate the commands
+    stored in the specified file
+
+    :param file_name: the name of the file
+    """
     from evaluator_package.evaluator import EvaluatorClass  # late import for avoiding cross-import problems
     file_evaluator = EvaluatorClass(["-i"], reading_file = True)
     file = open(file_name)
