@@ -137,7 +137,7 @@ def file_iterator(file_name):
     :param file_name: the name of the file
     """
     from evaluator_package.evaluator import EvaluatorClass  # late import for avoiding cross-import problems
-    file_evaluator = EvaluatorClass(["-i"], reading_file = True)
+    file_evaluator = EvaluatorClass(["-i"], reading_file=True)
     file = open(file_name)
     requests_list = file.readlines()
     for request in requests_list:

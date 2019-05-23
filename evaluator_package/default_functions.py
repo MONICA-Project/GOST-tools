@@ -21,9 +21,9 @@ def get_info(evaluator):
 
 @conditions.needed_fields(at_least_one_field=["store"], needed_items=True)
 def store(evaluator):
-    file = open(evaluator.args.store)
+    file = open(evaluator.args.store, "w")
     for i in evaluator.environment["results"]:
-        file.write(i)
+        file.write(json.dumps(i) + "\n")
 
 
 @conditions.needed_fields(at_least_one_field=["get"], needed_ogc=True,
@@ -251,7 +251,7 @@ def create_records(evaluator):
 
 
 @conditions.needed_fields(at_least_one_field=["execute"], critical_failures_resistant=False)
-def read_file(evaluator):
+def exec_file(evaluator):
     """creates a temporary evaluator_package which evaluates the instructions
     in the file specified by args.file"""
     # TODO recursion control

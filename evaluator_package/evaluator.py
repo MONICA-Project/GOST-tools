@@ -8,8 +8,8 @@ from evaluator_package.environments import default_env, test_env
 always_active = [get_info]
 
 # all the evaluation functions which are used when the mode is set on "default"
-first_initialization = [user_defined_address, saved_address, ping, read_file]
-default_initialization = [user_defined_address, ping, read_file]
+first_initialization = [user_defined_address, saved_address, ping, exec_file]
+default_initialization = [user_defined_address, ping, exec_file]
 
 getting_items = [get_command_line, select_items_command_line]
 create = [create_records]
@@ -44,11 +44,11 @@ class EvaluatorClass:
         self.args = self.parser.parse_args(args)
         self.environment = default_env()
         self.evaluation_steps = []
-        self.first_time = args  # stores the first argument given AND indicate that it is the first execution
+        self.first_time = args  # stores the first argument given at creation time
+                                # AND indicates that it is the first execution
 
     def evaluate(self, args=False):
         """evaluate args using the current evaluator's evaluation steps
-
 
         :param args: the command provided from the upper layer, if defined, otherwise the one stored
                     as evaluator attribute
@@ -83,7 +83,6 @@ class EvaluatorClass:
 
     def init(self, args):
         """Sets the evaluator variables before the evaluation loop
-
 
         :param args: the args provided from upper layer, if "mode" is in args, change the evaluator modality
         """
