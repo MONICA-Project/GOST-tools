@@ -19,6 +19,13 @@ def get_info(evaluator):
         print("Address : " + evaluator.environment["GOST_address"])
 
 
+@conditions.needed_fields(at_least_one_field=["store"], needed_items=True)
+def store(evaluator):
+    file = open(evaluator.args.store)
+    for i in evaluator.environment["results"]:
+        file.write(i)
+
+
 @conditions.needed_fields(at_least_one_field=["get"], needed_ogc=True,
                           critical_failures_resistant=False, needed_items=True)
 def get_command_line(evaluator):
@@ -227,6 +234,8 @@ def show_failures(evaluator):
 @conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
 def show_results(evaluator):
     """shows the results of evaluation"""
+    if bool(evaluator.environment["selected_items"]):  # final check for seleced items not sent to result
+        evaluator.environment["results"] = copy.deepcopy(evaluator.environment["selected_items"])
     if evaluator.environment["results"]:
         pp = pprint.PrettyPrinter(indent=4)
         for x in evaluator.environment["results"]:

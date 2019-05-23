@@ -17,10 +17,10 @@ mod_items = [delete, patch, post]
 show = [select_result_fields, show_results]
 failure_handling = [show_failures]
 
-first_time_ending = [clear_environment, execute_and_exit]
-default_ending = [clear_environment, exit_function]
+first_time_ending = [store, clear_environment, execute_and_exit]
+default_ending = [store, clear_environment, exit_function]
 
-
+# the steps of evaluation
 first_time_steps = [always_active, first_initialization, create, getting_items, mod_items, show,
                     failure_handling, first_time_ending]
 
@@ -47,8 +47,12 @@ class EvaluatorClass:
         self.first_time = args  # stores the first argument given AND indicate that it is the first execution
 
     def evaluate(self, args=False):
-        """evaluate stored args using previously
-        defined lists of functions"""
+        """evaluate args using the current evaluator's evaluation steps
+
+
+        :param args: the command provided from the upper layer, if defined, otherwise the one stored
+                    as evaluator attribute
+        """
         if args:
             self.init(args)
         elif self.first_time:
@@ -78,6 +82,11 @@ class EvaluatorClass:
                         print('Raised exception: ' + str(e))
 
     def init(self, args):
+        """Sets the evaluator variables before the evaluation loop
+
+
+        :param args: the args provided from upper layer, if "mode" is in args, change the evaluator modality
+        """
         self.args = self.parser.parse_args(args)
         if self.args.mode:
             self.select_mode(args)
