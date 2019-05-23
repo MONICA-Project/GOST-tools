@@ -120,7 +120,7 @@ def select_items(evaluator):
 
     :param evaluator: the current evaluator
     """
-    if bool(evaluator.environment["selected_items"]):
+    if bool(evaluator.environment["selected_items"]) and bool(evaluator.args.select):
         for single_item in evaluator.environment["selected_items"].copy():
             matching = selection_parser.select_parser(evaluator.args.select, single_item)
             if not matching:
