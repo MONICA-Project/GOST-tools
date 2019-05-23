@@ -8,30 +8,27 @@ def needed_fields(no_fields=None,at_least_one_field=None,
                   all_mandatory_fields=None, critical_failures_resistant=False,
                   needed_ogc=False, needed_items = False):
     """Decorator: checks conditions before executing the decorated function.
-    Parameters:
-        no_fields ([str]): the field(s) which presence in current command string
-                           negate the execution of the function
 
-        at_least_one_field ([str]): the field(s) for which the presence of at least
+
+    :param no_fields: ([str]): the field(s) which presence in current command string
+                           negate the execution of the function
+    :param at_least_one_field: ([str]): the field(s) for which the presence of at least
                             one of them in the current command string
                             is mandatory for the execution of the function
 
-        all_mandatory_fields ([str]): the field(s) the presence of all of them in the current
+    :param all_mandatory_fields: ([str]): the field(s) the presence of all of them in the current
                             command string is mandatory for the execution of the function
 
-        critical_failures_resistant (bool): if True, the function will be
+    :param critical_failures_resistant: if True, the function will be
                             executed regardless of the presence of critical failures,
                             otherwise not
+    :param needed_ogc: if True, the command string will be checked for an ogc type:
+                        if not found, the user will be asked to provide one
 
-        needed_ogc (bool): if True, the command string will be checked for an ogc type:
-                            if not found, the user will be asked to provide one
-
-        needed_items (bool): if True, the current environment will be checked for selected items:
-                            if not found, a get with the parameters provided in command string
-                            will be executed on GOST
-
-    Returns:
-        False: if the function is not executed
+    :param needed_items: if True, the current environment will be checked for selected items:
+                        if not found, a get with the parameters provided in command string
+                        will be executed on GOST
+    :return: False if the function is not executed
     """
     def decorator(function):
         def wrapper(evaluator):
@@ -82,25 +79,40 @@ def needed_fields(no_fields=None,at_least_one_field=None,
 
 
 def get_items(current_evaluator):
-    """get the items in identifier and stores them in selected items even if get is not defined"""
+    """Makes a get on GOST based upon current_evaluator args and environment
+
+
+    :param current_evaluator: if current_evaluator.args contains the fields and values
+                              needed to identify an item(s) and there aren't items already selected,
+                              the query is executed and eventually filtered by --select statement
+                              arguments, if provided. The result is appended
+                              to current_evaluator.environment["selected_items"]
+    :return:
+    """
+
     if not bool(current_evaluator.environment["selected_items"]):  # necessary to avoid getting items more than one time
         if bool(current_evaluator.args.identifier):
             for i in current_evaluator.args.identifier:
                 get_result = get_item(i, current_evaluator.args.ogc, current_evaluator.environment)
-                append_result(current_evaluator, get_result, field_name="selected_items")
+                add_result(current_evaluator, get_result, field_name="selected_items")
         else:
             evaluator_utilities.check_and_fix_ogc(current_evaluator)
             result_all = get_all(current_evaluator.args.ogc, current_evaluator.environment)
             for i in result_all:
-                append_result(current_evaluator, i, field_name="selected_items")
+                add_result(current_evaluator, i, field_name="selected_items")
         select_items(current_evaluator)
         evaluator_utilities.check_name_duplicates(current_evaluator, "selected_items")
 
 
-def append_result(evaluator, result, field_name="results", failure_type = "non_critical_failures"):
-    """appends the 'result' dict to 'field_name' of evaluator, after having checked
-    if an error field exists in 'result',
-    in which case the result is appended to failure_type"""
+def add_result(evaluator, result, field_name="results", failure_type ="non_critical_failures"):
+    """
+
+    :param evaluator:
+    :param result:
+    :param field_name:
+    :param failure_type:
+    :return:
+    """
     if "error" in result:
         evaluator.environment[failure_type].append(result)
     else:
@@ -108,6 +120,11 @@ def append_result(evaluator, result, field_name="results", failure_type = "non_c
 
 
 def select_items(evaluator):
+    """
+
+    :param evaluator:
+    :return:
+    """
     if bool(evaluator.environment["selected_items"]):
         for single_item in evaluator.environment["selected_items"].copy():
             matching = selection_parser.select_parser(evaluator.args.select, single_item)

@@ -82,7 +82,7 @@ def delete(evaluator):
                         evaluator.environment["non_critical_failures"].append(x["error"])
                     elif "@iot.id" in x:
                         result = delete_item(x.get("@iot.id"), evaluator.args.ogc, evaluator.environment)
-                        conditions.append_result(evaluator, result, "results")
+                        conditions.add_result(evaluator, result, "results")
                 except AttributeError as attr:
                     print("missing" + attr)
                     pass
@@ -104,7 +104,7 @@ def patch(evaluator):
         if ("error" not in x) and ("@iot.id" in x):
             patches = args_to_dict(evaluator.args.patch)
             result = patch_item(patches, str(x.get("@iot.id")), evaluator.args.ogc, evaluator.environment)
-            conditions.append_result(evaluator, result, "results")
+            conditions.add_result(evaluator, result, "results")
 
 
 @conditions.needed_fields(at_least_one_field=["post"], critical_failures_resistant=False,
@@ -130,7 +130,7 @@ def post(evaluator):
             for obj in decode_stacked(json_file.read()):
                 result = add_item(obj, evaluator.args.ogc)
                 json_result = json.loads((result.data).decode('utf-8'))
-                conditions.append_result(evaluator, json_result, "results")
+                conditions.add_result(evaluator, json_result, "results")
 
 
 @conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
