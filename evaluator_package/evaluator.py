@@ -72,6 +72,8 @@ class EvaluatorClass:
                 except BaseException as e:
                     if str(e) == "Exited interactive mode":
                         exit(0)
+                    elif str(e) == "Exited single command mode":
+                        exit(0)
                     else:
                         print('Raised exception: ' + str(e))
 

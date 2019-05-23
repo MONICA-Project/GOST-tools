@@ -4,12 +4,9 @@ from json import JSONDecoder, JSONDecodeError
 import re
 from creation_utilities import create_records_file
 from evaluator_package.environments import default_env
-import shlex
 import copy
 from . import evaluating_conditions_decorator as conditions
 from . import evaluator_utilities
-from . import selection_parser
-
 
 
 @conditions.needed_fields(at_least_one_field=["info"], all_mandatory_fields=[],
@@ -23,18 +20,17 @@ def get_info(evaluator):
 
 
 @conditions.needed_fields(at_least_one_field=["get"], needed_ogc=True,
-                          critical_failures_resistant=False)
+                          critical_failures_resistant=False, needed_items=True)
 def get_command_line(evaluator):
     """gets the items from GOST, used if get or identifier are defined"""
-    get(evaluator)
+    pass
 
 
-@conditions.needed_fields(at_least_one_field=["select"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["select"], critical_failures_resistant=False, needed_items=True)
 def select_items_command_line(evaluator):
     """selects the items matching with the rules defined in evaluator.args.select
     and removes the others"""
-    get_without_line_command(evaluator)
-    select_items(evaluator)
+    conditions.select_items(evaluator)
 
 
 @conditions.needed_fields(at_least_one_field=["show", "get"], critical_failures_resistant=False)
@@ -57,11 +53,10 @@ def select_result_fields(evaluator):
 
 
 @conditions.needed_fields(all_mandatory_fields=["delete"], critical_failures_resistant=False,
-                          needed_ogc=True)
+                          needed_ogc=True, needed_items=True)
 def delete(evaluator):
     """delete from GOST bb the items selected with get:
     befor deleting asks user for confirmation"""
-    get_without_line_command(evaluator)
     if evaluator.environment["selected_items"]:  # deleting selected items
         warning_message = f"You are going to delete the {evaluator.args.ogc} " \
             f"with the following name and id:\n"   # creation of warning message
@@ -87,7 +82,7 @@ def delete(evaluator):
                         evaluator.environment["non_critical_failures"].append(x["error"])
                     elif "@iot.id" in x:
                         result = delete_item(x.get("@iot.id"), evaluator.args.ogc, evaluator.environment)
-                        append_result(evaluator, result, "results")
+                        conditions.append_result(evaluator, result, "results")
                 except AttributeError as attr:
                     print("missing" + attr)
                     pass
@@ -99,18 +94,17 @@ def delete(evaluator):
 
 
 @conditions.needed_fields(all_mandatory_fields=["patch"], critical_failures_resistant=False,
-                          needed_ogc=True)
+                          needed_ogc=True, needed_items=True)
 def patch(evaluator):
     """
     patches the selected fields of the items chosen with get with the selected values
     """
-    get_without_line_command(evaluator)
 
     for x in evaluator.environment["selected_items"]:
         if ("error" not in x) and ("@iot.id" in x):
             patches = args_to_dict(evaluator.args.patch)
             result = patch_item(patches, str(x.get("@iot.id")), evaluator.args.ogc, evaluator.environment)
-            append_result(evaluator, result, "results")
+            conditions.append_result(evaluator, result, "results")
 
 
 @conditions.needed_fields(at_least_one_field=["post"], critical_failures_resistant=False,
@@ -119,6 +113,7 @@ def post(evaluator):
     for file in evaluator.args.post:
         with open(file) as json_file:
             NOT_WHITESPACE = re.compile(r'[^\s]')
+
             def decode_stacked(document, pos=0, decoder=JSONDecoder()):
                 while True:
                     match = NOT_WHITESPACE.search(document, pos)
@@ -135,7 +130,7 @@ def post(evaluator):
             for obj in decode_stacked(json_file.read()):
                 result = add_item(obj, evaluator.args.ogc)
                 json_result = json.loads((result.data).decode('utf-8'))
-                append_result(evaluator, json_result, "results")
+                conditions.append_result(evaluator, json_result, "results")
 
 
 @conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
@@ -164,6 +159,7 @@ def execute_and_exit(evaluator):
     elif evaluator.reading_file:
         pass
     else:
+        raise ValueError('Exited single command mode')
         exit(0)
 
 
@@ -245,13 +241,13 @@ def create_records(evaluator):
     create(evaluator)
 
 
-@conditions.needed_fields(at_least_one_field=["exec"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["execute"], critical_failures_resistant=False)
 def read_file(evaluator):
     """creates a temporary evaluator_package which evaluates the instructions
     in the file specified by args.file"""
     # TODO recursion control
-    if evaluator.args.file:
-        file_iterator(evaluator.args.file)
+    if evaluator.args.execute:
+        conditions.file_iterator(evaluator.args.execute)
 
 
 def clear_environment(evaluator):
@@ -271,76 +267,6 @@ def format_multi_options(args):
                                                                                        # for each query
             args.__dict__[key] = evaluator_utilities.custom_split(args.__dict__[key], ['"'])
     return args
-
-
-def file_iterator(file_name):
-    from evaluator_package.evaluator import EvaluatorClass  # late import for avoiding cross-import problems
-    file_evaluator = EvaluatorClass(["-i"], reading_file = True)
-    file = open(file_name)
-    requests_list = file.readlines()
-    for request in requests_list:
-        file_evaluator.evaluate(shlex.split(request))
-    file.close()
-
-
-def append_result(evaluator, result, field_name="results", failure_type = "non_critical_failures"):
-    """appends the 'result' dict to 'field_name' of evaluator, after having checked
-    if an error field exists in 'result',
-    in which case the result is appended to failure_type"""
-    if "error" in result:
-        evaluator.environment[failure_type].append(result)
-    else:
-        evaluator.environment[field_name].append(result)
-
-
-def get(evaluator):
-    """gets the items from GOST, used as auxilliary method by other commands"""
-    if evaluator.args.identifier == ["all"] or ((not evaluator.args.identifier)
-                                                and evaluator.args.get):
-        results = get_all(evaluator.args.ogc, evaluator.environment)
-        evaluator.environment["selected_items"] = results
-
-    else:
-        if evaluator.args.get:
-            if type(evaluator.args.get) is list:
-                for get_identifier in evaluator.args.get:
-                    result = get_item(get_identifier, evaluator.args.ogc, evaluator.environment)
-                    append_result(evaluator, result, "selected_items")
-
-            if evaluator.args.identifier:
-                for current_identifier in evaluator.args.identifier:
-                    result = get_item(current_identifier, evaluator.args.ogc, evaluator.environment)
-                    append_result(evaluator, result, "selected_items")
-
-    evaluator_utilities.check_name_duplicates(evaluator, "selected_items")
-    evaluator_utilities.check_name_duplicates(evaluator, "results")
-
-
-def get_without_line_command(current_evaluator):
-    """get the items in identifier and stores them in selected items even if get is not defined"""
-    if not bool(current_evaluator.environment["selected_items"]):  # necessary to avoid getting items more than one time
-        if bool(current_evaluator.args.identifier):
-            for i in current_evaluator.args.identifier:
-                get_result = get_item(i, current_evaluator.args.ogc, current_evaluator.environment)
-                append_result(current_evaluator, get_result, field_name="selected_items")
-        else:
-            evaluator_utilities.check_and_fix_ogc(current_evaluator)
-            result_all = get_all(current_evaluator.args.ogc, current_evaluator.environment)
-            for i in result_all:
-                append_result(current_evaluator, i, field_name="selected_items")
-
-            select_items(current_evaluator)
-            evaluator_utilities.check_name_duplicates(current_evaluator, "selected_items")
-
-
-def select_items(evaluator):
-    for single_item in evaluator.environment["selected_items"].copy():
-        matching = selection_parser.select_parser(evaluator.args.select, single_item)
-        if not matching:
-            evaluator.environment["selected_items"].remove(single_item)
-    if len(evaluator.environment["selected_items"]) == 0:
-        evaluator.environment["non_critical_failures"] += [f"error: no {evaluator.args.ogc} found "
-                                                           f"with select statement conditions"]
 
 
 def create(evaluator):

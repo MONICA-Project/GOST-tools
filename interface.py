@@ -13,7 +13,7 @@ def main():
     except SystemExit as e:
         exit(e.code)
     except BaseException as e:
-        print('Raised exception: ' + str(e))
+        print('Raised exception : ' + str(e))
         exit(1)
 
     while True:

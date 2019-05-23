@@ -9,8 +9,8 @@ def common_commands_parser():
                                            "or 'all' for all the items of chosen type",
                         nargs='*', default=False)
 
-    parser.add_argument("--exec", help="choose a FILE from which execute a list of commands",
-                        action="store", dest="file", default=False)
+    parser.add_argument("--execute", help="choose a FILE from which execute a list of commands",
+                        action="store", default=False)
 
     parser.add_argument("-t", "--ogc", "--type",
                         help="select the OGC Model name of the items to process")
