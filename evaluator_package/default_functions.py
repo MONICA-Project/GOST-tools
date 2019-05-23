@@ -83,17 +83,18 @@ def delete(evaluator):
         proceed = input(warning_message + "\nProceed?(y/N)")
 
         if proceed == "y":  # elimination of items
-            for x in evaluator.environment["selected_items"]:
-                try:
-                    if "error" in x:
-                        evaluator.environment["non_critical_failures"].append(x["error"])
-                    elif "@iot.id" in x:
-                        result = delete_item(x.get("@iot.id"), evaluator.args.ogc, evaluator.environment)
-                        conditions.add_result(evaluator, result, "results")
-                except AttributeError as attr:
-                    print("missing" + attr)
-                    pass
-            evaluator.environment["selected_items"] = []
+            if bool(evaluator.environment["selected_items"]):
+                for x in evaluator.environment["selected_items"]:
+                    try:
+                        if "error" in x:
+                            evaluator.environment["non_critical_failures"].append(x["error"])
+                        elif "@iot.id" in x:
+                            result = delete_item(x.get("@iot.id"), evaluator.args.ogc, evaluator.environment)
+                            conditions.add_result(evaluator, result, "results")
+                    except AttributeError as attr:
+                        print("missing" + attr)
+                        pass
+                evaluator.environment["selected_items"] = []
         else:
             evaluator.environment["selected_items"] = []
             print("Aborted deletion")

@@ -137,10 +137,13 @@ def a(tokens, record):
 def parse_error():
     return "parsing error"
 
+
 def is_field(token):
     return token in ["name", "description", "encodingType", "location", "properties", "metadata",
                      "definition", "phenomenonTime", "resultTime", "observedArea", "result", "@iot.id",
                      "resultQuality","validTime", "time", "parameters", "feature"]
+
+
 def is_value(token):
     return not (is_field(token) or token in ["(", ")", "and", "or", "in", "not"])
 

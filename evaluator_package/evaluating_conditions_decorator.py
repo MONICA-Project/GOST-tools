@@ -129,7 +129,7 @@ def select_items(evaluator):
             if not matching:
                 evaluator.environment["selected_items"].remove(single_item)
         if len(evaluator.environment["selected_items"]) == 0:
-            evaluator.environment["non_critical_failures"] += [f"error: no {evaluator.args.ogc} found "
+            evaluator.environment["critical_failures"] += [f"error: no {evaluator.args.ogc} found "
                                                                f"with select statement conditions"]
 
 
