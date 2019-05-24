@@ -16,8 +16,10 @@ def evaluate(file_path):
     left_result = None
     right_result = None
     try:
-        evaluator = EvaluatorClass(parsed_values["left_side"])
-        left_result = evaluator.evaluate(silent=True)["results"]
+        left_side = parsed_values["left_side"]
+        left_side += ["--silent"]
+        evaluator = EvaluatorClass(left_side)
+        left_result = evaluator.evaluate()["results"]
 
     except SystemExit as e:
         if e.code == 0:
@@ -28,6 +30,8 @@ def evaluate(file_path):
         print('Raised exception : ' + str(e))
         exit(1)
     try:
+        right_side = parsed_values["right_side"]
+        right_side += ["--silent"]
         right_result = evaluator.evaluate(parsed_values["right_side"])["results"]
 
     except SystemExit as e:

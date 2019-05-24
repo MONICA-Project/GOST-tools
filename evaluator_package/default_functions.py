@@ -45,13 +45,15 @@ def select_result_fields(evaluator):
     """selects which fields of the record in result will be showed.
     If get is defined but there is no result, all the getted items will be
     showed"""
-    if not bool(evaluator.environment["results"]) and bool(evaluator.environment["selected_items"]):
+    if evaluator.args.show == "silent":
+        pass
+    elif not bool(evaluator.environment["results"]) and bool(evaluator.environment["selected_items"]):
         # if at the end of the execution of the command there are some selected items, they are added
         # to the result
         evaluator.environment["results"] = copy.deepcopy(evaluator.environment["selected_items"])
         evaluator.environment["selected_items"] = []
 
-    if evaluator.args.show:
+    elif evaluator.args.show:
         if "all" not in evaluator.args.show:
             for x in evaluator.environment["results"]:
                 for field in x.copy():
@@ -233,15 +235,17 @@ def show_failures(evaluator):
             print(x)
         print("Found "+ str(len(evaluator.environment["critical_failures"])) + " critical_failures\n")
 
-    if evaluator.environment["non_critical_failures"]:
+    elif evaluator.environment["non_critical_failures"]:
         for x in evaluator.environment["non_critical_failures"]:
             print(x)
         print("Found " + str(len(evaluator.environment["non_critical_failures"])) + " non_critical_failures\n")
 
 
-@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False, silent_resistant=False)
+@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False,
+                          no_fields=["silent"])
 def show_results(evaluator):
     """shows the results of evaluation"""
+
     if bool(evaluator.environment["selected_items"]):  # final check for seleced items not sent to result
         evaluator.environment["results"] = copy.deepcopy(evaluator.environment["selected_items"])
     if evaluator.environment["results"]:

@@ -32,6 +32,9 @@ def common_commands_parser():
     parser.add_argument("-i", "--info", help="shows the current GOST address and operation mode",
                         action="store_true")
 
+    parser.add_argument("--silent", help="shuts all the screen outputs of evaluation",
+                        action="store_true")
+
     parser.add_argument("-p", "--patch", nargs='*', help="patch the choosen item FIELD with selected VALUE,accepts "
                                                          "multiple values at once"
                                                           "examples:\n--p id <newId> name <newName>"
