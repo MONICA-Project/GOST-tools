@@ -173,8 +173,7 @@ def execute_and_exit(evaluator):
     elif evaluator.reading_file:
         pass
     else:
-        raise ValueError('Exited single command mode')
-        exit(0)
+        raise pass_environment_Exception(evaluator.return_environment)
 
 
 @conditions.needed_fields(at_least_one_field=["pingconnection"], critical_failures_resistant=True)
@@ -250,11 +249,38 @@ def show_results(evaluator):
         print(str(len(evaluator.environment["results"])) + " results found\n")
 
 
-@conditions.needed_fields(at_least_one_field=["create"], critical_failures_resistant=False,
-                          needed_ogc=True)
+@conditions.needed_fields(no_fields=["template"], at_least_one_field=["create"],
+                          critical_failures_resistant=False, needed_ogc=True)
 def create_records(evaluator):
     """create records to store in a file"""
     create(evaluator)
+
+
+@conditions.needed_fields(all_mandatory_fields=["template", "create"], critical_failures_resistant=False)
+def template(evaluator):
+    template_file = open(evaluator.args.template)
+    template_lines = template_file.readlines()
+    template_string = ""
+    for line in template_lines:
+        template_string += line
+    template_dict = json.loads(template_string)
+    created_entities = []
+    creation_values = args_to_dict(evaluator.args.create)
+    for x in range(int(creation_values["num"])):
+        created_entities.append(fill_template(template_dict, creation_values))
+
+    target_file = open(creation_values["file"], "w")
+    for entity in created_entities:
+        print(entity)
+        target_file.write(json.dumps(entity))
+
+
+def fill_template(template, optional_values):
+    result = copy.deepcopy(template)
+    for key in optional_values:
+        if key in template:
+            result[key] = optional_values[key]
+    return result
 
 
 @conditions.needed_fields(at_least_one_field=["execute"], critical_failures_resistant=False)
@@ -268,6 +294,7 @@ def exec_file(evaluator):
 
 def clear_environment(evaluator):
     """clear the environment between different requests in the same session in default mode"""
+    evaluator.return_environment = evaluator.environment  # needed as temporary value for the exit function
     temp_address = evaluator.environment["GOST_address"]
     temp_mode = evaluator.environment["mode"]
     evaluator.environment = default_env(GOST_address=temp_address, mode=temp_mode)
@@ -292,3 +319,8 @@ def create(evaluator):
     if evaluator.args.show:
         if result["created_name_list"]:
             evaluator.environment["results"] += result["created_name_list"]
+
+
+class pass_environment_Exception(Exception):
+    def __init__(self, environment):
+        self.passed_environment = environment

@@ -1,8 +1,10 @@
 from evaluator_package.default_functions import *
 from evaluator_package.test_functions import *
+from evaluator_package.sql_functions import *
 from evaluator_package.evaluator_utilities import *
-from parser_definitions import init_default_parser, init_test_parser
-from evaluator_package.environments import default_env, test_env
+from parser_definitions import *
+from evaluator_package.environments import *
+import evaluator_package.sql_mode as sql_mode
 
 # all the evaluation functions which are always used and are checked before all other methods
 always_active = [get_info]
@@ -12,7 +14,7 @@ first_initialization = [user_defined_address, saved_address, ping, exec_file]
 default_initialization = [user_defined_address, ping, exec_file]
 
 getting_items = [get_command_line, select_items_command]
-create_functions = [create_records]
+create_functions = [template, create_records]
 mod_items = [delete, patch, post]
 show = [select_result_fields, show_results]
 failure_handling = [show_failures]
@@ -34,6 +36,14 @@ test_ending = [clear_test_environment, exit_function]
 
 test_steps = [always_active, test_initialization, test_actions, test_ending]
 
+# all the evaluation functions which are used when the mode is set on "sql"
+sql_initialization = [started_session, sql_parsing]
+sql_actions = []
+sql_ending = [exit_function]
+
+sql_steps = [always_active, sql_initialization, default_ending]
+
+
 
 class EvaluatorClass:
     """reads a list of arguments and evaluates them"""
@@ -52,6 +62,8 @@ class EvaluatorClass:
 
         :param args: the command provided from the upper layer, if defined, otherwise the one stored
                     as evaluator attribute
+
+        :returns : returns the results of the user defined request
         """
         if args:
             self.init(args)
@@ -73,7 +85,9 @@ class EvaluatorClass:
             for function in step:
                 try:
                     function(self)
-                except BaseException as e:
+                except pass_environment_Exception as e:
+                    if bool(e.passed_environment):
+                        return e.passed_environment
                     if str(e) == "Exited interactive mode":
                         exit(0)
                     elif str(e) == "Exited single command mode":
@@ -86,14 +100,20 @@ class EvaluatorClass:
 
         :param args: the args provided from upper layer, if "mode" is in args, change the evaluator modality
         """
-        self.args = self.parser.parse_args(args)
-        if self.args.mode:
-            self.select_mode(args)
-        elif self.first_time:
-            self.set_evaluation_steps(first_time_steps)
-            self.first_time = False
-        elif not self.args.mode and self.environment["mode"] == "default":  # necessary for the second execution of
-            self.set_evaluation_steps(default_steps)                        # evaluation, if mode is not provided
+
+        if self.environment["mode"] == "sql":
+            sql_mode.evaluate(args)
+            exit(0)
+
+        else:
+            self.args = self.parser.parse_args(args)
+            if self.args.mode:
+                self.select_mode(args)
+            elif self.first_time:
+                self.set_evaluation_steps(first_time_steps)
+                self.first_time = False
+            elif not self.args.mode and self.environment["mode"] == "default":  # necessary for the second execution of
+                self.set_evaluation_steps(default_steps)                        # evaluation, if mode is not provided
 
     def select_mode(self, args):
         changed_mode = False
@@ -106,6 +126,12 @@ class EvaluatorClass:
             print("entered test mode")
             self.set_evaluation_steps(test_steps)
             self.environment = test_env()
+            self.parser = init_sql_parser()
+
+        elif self.args.mode == "sql" and changed_mode:
+            print("entered sql mode")
+            self.set_evaluation_steps(sql_steps)
+            self.environment = sql_env()
             self.parser = init_test_parser()
 
         elif self.args.mode == "default":
@@ -129,3 +155,4 @@ class EvaluatorClass:
 
     def set_evaluation_steps(self, steps_list):
         self.evaluation_steps = steps_list
+
