@@ -4,7 +4,7 @@ import copy
 S    -> (S) S_1 | a_1 S_1 | not (S) S_1
 S_1  -> bool S S_1 | epsilon
 a_1  -> a | not a
-a    -> record_field comp value | value in record_field | value not in field
+a    -> record_field comp record_field | record_field in record_field | record_field not in record_field
 
 bool -> and | or
 comp -> == | != | > | < | >= | <= | <> | gt | lt | gteq |  lteq | diff
@@ -39,13 +39,9 @@ def S(left, right, tokens):
                 return not (S_1(left, right, tokens, temp_result))
             else:
                 return parse_error()
-
-    elif is_field(tokens[0]) or is_value(tokens[0]) or tokens[0] == "not":
+    else:
         temp_result = a_1(left, right, tokens)
         return S_1(left, right, tokens, temp_result)
-
-    else:
-        return parse_error()
 
 
 def S_1(left, right, tokens, previous_result):
@@ -74,62 +70,43 @@ def a_1(left, right, tokens):
 
 
 def a(left, right, tokens):
-    if is_value(tokens[0]):
-        temp_val = tokens[0]
-        tokens.pop(0)
-        if tokens[0] == "not":
-            tokens.pop(0)
-            if tokens[0] == "in":
-                tokens.pop(0)
-                temp_field = record[tokens[0]]
-                tokens.pop(0)
-                return not (temp_val in temp_field)
-            else:
-                return parse_error()
-        elif tokens[0] == "in":
-            tokens.pop(0)
-            temp_field = record[tokens[0]]
-            tokens.pop(0)
-            return temp_val in temp_field
+    temp_val_1 = get_value(left,right, tokens[0])
+    tokens.pop(0)
+    comparator = []
+    comparator.append(tokens[0])
+    tokens.pop(0)
 
-    elif is_field(tokens[0]):
-        temp_field = record[tokens[0]]
+    if comparator[0] == "not":
+        comparator.append(tokens[0])
         tokens.pop(0)
-        if tokens[0] == "==":
-            tokens.pop(0)
-            temp_val = tokens[0]
-            tokens.pop(0)
-            if isinstance(temp_field, int):  # necessary for checking @iot.id
-                temp_val = int(temp_val)
-            return temp_val == temp_field
-        elif tokens[0] == "!=":
-            tokens.pop(0)
-            temp_val = tokens[0]
-            if isinstance(temp_field, int):  # necessary for checking @iot.id
-                temp_val = int(temp_val)
-            tokens.pop(0)
-            return temp_val != temp_field
-        elif tokens[0] == "<" or tokens[0] == ">" or tokens[0] == "<=" or tokens[0] == ">=" or tokens[0] == "<>"\
-                or tokens[0] == "gt" or tokens[0] == "lt" or tokens[0] == "gteq" \
-                or tokens[0] == "lteq" or tokens[0] == "diff":
-            comparator = tokens[0]
-            tokens.pop(0)
-            temp_val = tokens[0]
-            temp_val = int(temp_val)
-            temp_field = int(temp_field)
-            tokens.pop(0)
-            if comparator == "<" or comparator == "lt":
-                return  temp_field < temp_val
-            if comparator == "<=" or comparator == "lteq":
-                return temp_field <= temp_val
-            if comparator == ">" or comparator == "gt":
-                return temp_field > temp_val
-            if comparator == ">=" or comparator == "gteq":
-                return temp_field >= temp_val
-            if comparator == "<>" or comparator == "diff":
-                return not temp_field == temp_val
+
+    temp_val_2 = get_value(left, right, tokens[0])
+    tokens.pop(0)
+
+    if comparator[0] == "not":
+        if comparator[1] == "in":
+            return not (temp_val_1 in temp_val_2)
         else:
             return parse_error()
+    elif comparator[0] == "in":
+        return temp_val_1 in temp_val_2
+
+    elif comparator[0] == "==":
+        return temp_val_1 == temp_val_2
+
+    elif comparator[0] == "!=":
+        return temp_val_1 != temp_val_2
+
+    elif comparator[0] == "<" or comparator[0] == "lt":
+            return  temp_val_1 < temp_val_2
+    elif comparator[0] == "<=" or comparator[0] == "lteq":
+        return temp_val_1 <= temp_val_2
+    elif comparator[0] == ">" or comparator[0] == "gt":
+        return temp_val_1 > temp_val_2
+    elif comparator[0] == ">=" or comparator[0] == "gteq":
+        return temp_val_1 >= temp_val_2
+    elif comparator[0] == "<>" or comparator[0] == "diff":
+        return not (temp_val_1 == temp_val_2)
     else:
         return parse_error()
 
@@ -169,4 +146,12 @@ def tokenize_parentheses(tokens):
                 tokens.insert(index, right_side)
 
 
-
+def get_value(l, r, token):
+    if token in l:
+        result = l[token]
+        return result
+    elif token in r:
+        result = r[token]
+        return result
+    else:
+        parse_error()
