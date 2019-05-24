@@ -164,7 +164,7 @@ def exit_function(evaluator):
     if evaluator.reading_file:
         pass
     elif evaluator.args.exit:
-        raise ValueError('Exited interactive mode')
+        raise pass_environment_Exception(exit_interactive_mode=True)
         exit(0)
     else:
         raise pass_environment_Exception(evaluator.return_environment)
@@ -329,5 +329,8 @@ def create(evaluator):
 
 
 class pass_environment_Exception(Exception):
-    def __init__(self, environment):
+    def __init__(self, environment=None, exit_interactive_mode = False, exit_single_command_mode = False):
         self.passed_environment = environment
+        self.exit_interactive_mode = exit_interactive_mode
+        self.exit_single_command_mode = exit_single_command_mode
+

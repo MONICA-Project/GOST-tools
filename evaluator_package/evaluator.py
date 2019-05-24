@@ -93,9 +93,9 @@ class EvaluatorClass:
                 except pass_environment_Exception as e:
                     if bool(e.passed_environment):
                         return e.passed_environment
-                    if str(e) == "Exited interactive mode":
+                    if e.exit_interactive_mode:
                         exit(0)
-                    elif str(e) == "Exited single command mode":
+                    if e.exit_single_command_mode:
                         exit(0)
                     else:
                         print('Raised exception: ' + str(e))
@@ -108,7 +108,6 @@ class EvaluatorClass:
 
         if self.environment["mode"] == "sql":
             sql_mode.evaluate(args[0])
-            exit(0)
 
         else:
             self.args = self.parser.parse_args(args)
