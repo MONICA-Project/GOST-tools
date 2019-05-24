@@ -37,7 +37,7 @@ test_ending = [clear_test_environment, exit_function]
 test_steps = [always_active, test_initialization, test_actions, test_ending]
 
 # all the evaluation functions which are used when the mode is set on "sql"
-sql_initialization = [started_session, sql_parsing]
+sql_initialization = [sql_parsing]
 sql_actions = []
 sql_ending = [exit_function]
 

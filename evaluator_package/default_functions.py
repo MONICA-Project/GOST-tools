@@ -164,6 +164,8 @@ def exit_function(evaluator):
     elif evaluator.args.exit:
         raise ValueError('Exited interactive mode')
         exit(0)
+    else:
+        raise pass_environment_Exception(evaluator.return_environment)
 
 
 @conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
