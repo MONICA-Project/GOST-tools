@@ -2,7 +2,7 @@
 
 def default_env(selected_items=None, results=None, critical_failures=None,
                 non_critical_failures=None, mode="default",
-                GOST_address=None):
+                GOST_address=None, silent=False):
     if selected_items is None:
         selected_items = []
     if results is None:
@@ -17,7 +17,8 @@ def default_env(selected_items=None, results=None, critical_failures=None,
             "critical_failures": critical_failures,
             "non_critical_failures": non_critical_failures,
             "mode": mode,
-            "GOST_address": GOST_address
+            "GOST_address": GOST_address,
+            "silent": silent
             }
 
 
@@ -47,7 +48,7 @@ def test_env(selected_items=None, results=None, critical_failures=None,
 
 def sql_env(selected_items=None, results=None, critical_failures=None,
                 non_critical_failures=None, mode="sql",
-                GOST_address=None):
+                GOST_address=None, silent=False):
     if selected_items is None:
         selected_items = []
     if results is None:
@@ -62,5 +63,7 @@ def sql_env(selected_items=None, results=None, critical_failures=None,
             "critical_failures": critical_failures,
             "non_critical_failures": non_critical_failures,
             "mode": mode,
-            "GOST_address": GOST_address
+            "GOST_address": GOST_address,
+            "silent": silent
+
             }

@@ -4,9 +4,9 @@ from . import selection_parser
 import shlex
 
 
-def needed_fields(no_fields=None,at_least_one_field=None,
+def needed_fields(no_fields=None, at_least_one_field=None,
                   all_mandatory_fields=None, critical_failures_resistant=False,
-                  needed_ogc=False, needed_items = False):
+                  needed_ogc=False, needed_items = False, silent_resistant=True):
     """Decorator: checks conditions before executing the decorated function.
 
 
@@ -26,11 +26,16 @@ def needed_fields(no_fields=None,at_least_one_field=None,
                         if not found, a get with the parameters provided in command string
                         will be executed on GOST
     :return: False if the function is not executed
+    :param silent_resistant: (bool): if false, the function will not work if the evaluator "silent" attribute is True
     """
     def decorator(function):
         def wrapper(evaluator):
             if bool(evaluator.environment["critical_failures"]) and not critical_failures_resistant:
                 return False
+
+            if evaluator.environment["silent"]:
+                if not silent_resistant:
+                    return False
 
             if bool(no_fields):  # checking all field that will block the execution
                 for i in no_fields:

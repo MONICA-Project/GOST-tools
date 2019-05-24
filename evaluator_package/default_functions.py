@@ -40,7 +40,7 @@ def select_items_command(evaluator):
     conditions.select_items(evaluator)
 
 
-@conditions.needed_fields(at_least_one_field=["show", "get"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["show", "get"], critical_failures_resistant=False, silent_resistant=False)
 def select_result_fields(evaluator):
     """selects which fields of the record in result will be showed.
     If get is defined but there is no result, all the getted items will be
@@ -225,7 +225,7 @@ def user_defined_address(evaluator, verbose = True):
                 evaluator.environment["critical_failures"].append("error: GOST address not defined")
 
 
-@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=True)
+@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=True, silent_resistant=False)
 def show_failures(evaluator):
     """shows the failures occurred during evaluation"""
     if evaluator.environment["critical_failures"]:
@@ -239,7 +239,7 @@ def show_failures(evaluator):
         print("Found " + str(len(evaluator.environment["non_critical_failures"])) + " non_critical_failures\n")
 
 
-@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False, silent_resistant=False)
 def show_results(evaluator):
     """shows the results of evaluation"""
     if bool(evaluator.environment["selected_items"]):  # final check for seleced items not sent to result
@@ -299,7 +299,8 @@ def clear_environment(evaluator):
     evaluator.return_environment = evaluator.environment  # needed as temporary value for the exit function
     temp_address = evaluator.environment["GOST_address"]
     temp_mode = evaluator.environment["mode"]
-    evaluator.environment = default_env(GOST_address=temp_address, mode=temp_mode)
+    silent = evaluator.environment["silent"]
+    evaluator.environment = default_env(GOST_address=temp_address, mode=temp_mode, silent=silent)
 
 
 def format_multi_options(args):
