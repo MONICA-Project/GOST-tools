@@ -1,4 +1,3 @@
-from evaluator_package.evaluator import *
 from evaluator_package.sql_parser import *
 import shlex
 

@@ -4,7 +4,7 @@ from evaluator_package.sql_functions import *
 from evaluator_package.evaluator_utilities import *
 from parser_definitions import *
 from evaluator_package.environments import *
-import evaluator_package.sql_mode as sql_mode
+from evaluator_package.exceptions import *
 
 # all the evaluation functions which are always used and are checked before all other methods
 always_active = [get_info]
@@ -13,7 +13,7 @@ always_active = [get_info]
 first_initialization = [user_defined_address, saved_address, ping, exec_file]
 default_initialization = [user_defined_address, ping, exec_file]
 
-getting_items = [get_command_line, select_items_command]
+getting_items = [sql_evaluate, get_command_line, select_items_command]
 create_functions = [template, create_records]
 mod_items = [delete, patch, post]
 show = [select_result_fields, show_results]
@@ -37,12 +37,6 @@ test_ending = [clear_test_environment, exit_function]
 test_steps = [always_active, test_initialization, test_actions, test_ending]
 
 # all the evaluation functions which are used when the mode is set on "sql"
-sql_initialization = []
-sql_actions = [sql_parsing, show_results]
-
-sql_ending = [exit_function]
-
-sql_steps = [always_active, sql_initialization, default_ending]
 
 
 class EvaluatorClass:
@@ -74,8 +68,6 @@ class EvaluatorClass:
             print("Insert a valid command")
             exit(0)
 
-
-
         for argument in self.args.__dict__:  # adding the @ to iot.id, for shells who doesn't accept special characters
             current_argument = self.args.__dict__[argument]
             if bool(current_argument) and bool(current_argument) and isinstance(current_argument, list):
@@ -106,18 +98,14 @@ class EvaluatorClass:
         :param args: the args provided from upper layer, if "mode" is in args, change the evaluator modality
         """
 
-        if self.environment["mode"] == "sql":
-            sql_mode.evaluate(args[0])
-
-        else:
-            self.args = self.parser.parse_args(args)
-            if self.args.mode:
-                self.select_mode(args)
-            elif self.first_time:
-                self.set_evaluation_steps(first_time_steps)
-                self.first_time = False
-            elif not self.args.mode and self.environment["mode"] == "default":  # necessary for the second execution of
-                self.set_evaluation_steps(default_steps)                        # evaluation, if mode is not provided
+        self.args = self.parser.parse_args(args)
+        if self.args.mode:
+            self.select_mode(args)
+        elif self.first_time:
+            self.set_evaluation_steps(first_time_steps)
+            self.first_time = False
+        elif not self.args.mode and self.environment["mode"] == "default":  # necessary for the second execution of
+            self.set_evaluation_steps(default_steps)                        # evaluation, if mode is not provided
 
     def select_mode(self, args):
         changed_mode = False
@@ -131,12 +119,6 @@ class EvaluatorClass:
             self.set_evaluation_steps(test_steps)
             self.environment = test_env()
             self.parser = init_sql_parser()
-
-        elif self.args.mode == "sql" and changed_mode:
-            print("entered sql mode")
-            self.set_evaluation_steps(sql_steps)
-            self.environment = sql_env()
-            self.parser = init_test_parser()
 
         elif self.args.mode == "default":
             if self.first_time:
@@ -162,3 +144,5 @@ class EvaluatorClass:
 
     def mute(self):
         self.silent = True
+
+

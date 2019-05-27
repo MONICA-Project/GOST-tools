@@ -7,6 +7,9 @@ from evaluator_package.environments import default_env
 import copy
 from . import evaluating_conditions_decorator as conditions
 from . import evaluator_utilities
+from . import exceptions as exception
+from . import sql_mode as sql
+
 
 
 @conditions.needed_fields(at_least_one_field=["info"], all_mandatory_fields=[],
@@ -164,10 +167,10 @@ def exit_function(evaluator):
     if evaluator.reading_file:
         pass
     elif evaluator.args.exit:
-        raise pass_environment_Exception(exit_interactive_mode=True)
+        raise exception.pass_environment_Exception(exit_interactive_mode=True)
         exit(0)
     else:
-        raise pass_environment_Exception(evaluator.return_environment)
+        raise exception.pass_environment_Exception(evaluator.return_environment)
 
 
 @conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
@@ -177,7 +180,7 @@ def execute_and_exit(evaluator):
     elif evaluator.reading_file:
         pass
     else:
-        raise pass_environment_Exception(evaluator.return_environment)
+        raise exception.pass_environment_Exception(evaluator.return_environment)
 
 
 @conditions.needed_fields(at_least_one_field=["pingconnection"], critical_failures_resistant=True)
@@ -239,6 +242,11 @@ def show_failures(evaluator):
         for x in evaluator.environment["non_critical_failures"]:
             print(x)
         print("Found " + str(len(evaluator.environment["non_critical_failures"])) + " non_critical_failures\n")
+
+
+@conditions.needed_fields(at_least_one_field=["sql"])
+def sql_evaluate(evaluator):
+    sql.evaluate(evaluator.args.sql)
 
 
 @conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False,
@@ -326,11 +334,4 @@ def create(evaluator):
     if evaluator.args.show:
         if result["created_name_list"]:
             evaluator.environment["results"] += result["created_name_list"]
-
-
-class pass_environment_Exception(Exception):
-    def __init__(self, environment=None, exit_interactive_mode = False, exit_single_command_mode = False):
-        self.passed_environment = environment
-        self.exit_interactive_mode = exit_interactive_mode
-        self.exit_single_command_mode = exit_single_command_mode
 

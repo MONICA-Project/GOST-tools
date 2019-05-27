@@ -182,7 +182,7 @@ def append_name_to_key(entities, name):
     for item in entities:
         temp_item = {}
         for key, value in item.items():
-            temp_item[f"{name}_{key}"] = item[key]
+            temp_item[f"[{name}]{key}"] = item[key]
         temp_result.append((temp_item))
     return temp_result
 
