@@ -18,7 +18,7 @@ def get_specs(ogc_name):
         return thingSpecs
     if ogc_name == "ObservedProperties":
         return observedPropertySpecs
-    if ogc_name == "DataStreams":
+    if ogc_name == "DataStreams" or ogc_name == "Datastreams":
         return dataStreamSpecs
     if ogc_name == "Observations":
         return observationSpecs

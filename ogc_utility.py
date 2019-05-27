@@ -88,7 +88,7 @@ def add_item(req, type, spec = None):
         else:
             content = req.get_json()
 
-        if not spec:
+        if not bool(spec):
             spec = get_specs(type)
 
         conditions_results = checkConditions(spec, content)

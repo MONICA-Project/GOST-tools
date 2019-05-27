@@ -152,6 +152,9 @@ def user_defined_or_default(args, field_name, ogc_type=None):
     elif field_name == "name":
         return valid_random_name(ogc_type)
 
+    elif field_name == "observationType":
+        return "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement"
+
     elif field_name == "encodingType" and ogc_type == "Locations":
         return "application/vnd.geo+json"
 
