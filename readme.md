@@ -38,28 +38,45 @@ positional arguments:
                         'all' for all the items of chosen type
 
 optional arguments:
-  -h, --help            show this help message and exit
-  
+  --create [CREATE [CREATE ...]]
+                        Creates n items of type t in created_files/<type>,
+                        or in the file defined with 'file <filename>
+                        you can define field values for created records
+                        otherwise default value will be used
+                        (ex: --create num 2 description new_description --type Sensors)
+                        
+  -d, --delete          delete the items chosen with get or selected
+                        giving id or name: 
+                        example:
+                         --get 15 -t Sensors --delete
+                          15 16 -t Sensors --delete  
   --execute             execute a of commands, this command
                         requires the absolute file path inside ""
                         example:
                          --exec "absolute_filepath"
                          --exec "absolute_filepath_1" "absolute_filepath_2"
-                         
-  -t OGC, --ogc OGC, --type OGC
-                        select the OGC Model name of the items to process
+  
+  --exit                exits from the program when you are in an interactive session
+  
+  -g, --get             get the items of the currently selected ogc type.If
+                        one or more item identifiers or names are definited those items
+                        will be selected, otherwise all the items of the currently selected 
+                        type if no id or name will be chosen. The query results are
+                        stored for successive operations like delete or patch
+  
+  -G GOSTADDRESS, --GOSTaddress GOSTADDRESS, --address GOSTADDRESS
+                        sets a new address (IP and port) for GOST
+  
+  -h, --help            show this help message and exit
+  
+  -i, --info            shows the current GOST address and operation mode
+  
+  --interactive         starts an interactive session, accepting new commands until the --exit 
+                        command is given to return to the shell
                         
   -m MODE, --mode MODE  Select an alternative mode of operation. Currently
                         available modes: 
                          - default
-                         
-  -d, --delete          delete the items chosen with get or selected
-                        giving id or name: 
-                        example:
-                         --get 15 -t Sensors --delete
-                          15 16 -t Sensors --delete
-
-  -i, --info            shows the current GOST address and operation mode
   
   -p [PATCH [PATCH ...]], --patch [PATCH [PATCH ...]]
                         patch the choosen item FIELD with selected VALUE,usable
@@ -67,6 +84,16 @@ optional arguments:
                         examples: 
                         15 -t Sensors --p id <newId> name <newName>
                         --p description <newDescription> 
+                          
+  --post [POST [POST ...]]
+                        posts records from user defined file/s to currently
+                        selected OGC types(
+                        examples:
+                        --post <file_name> -t <type> 
+                        --post <file_name_1> <file_name_2> -t <type>
+                        
+  --pingconnection, --connectiontest, --conntest
+                        sends a ping to test the connection and shows the output
                         
   -s [SELECT [SELECT ...]], --select [SELECT [SELECT ...]]
                         selection of the items to process,
@@ -87,42 +114,17 @@ optional arguments:
                         to show all fields
                         
   --sql [FILE]          select a file from which to execute a sql-like query
-  
-                        
-  -G GOSTADDRESS, --GOSTaddress GOSTADDRESS, --address GOSTADDRESS
-                        sets a new address (IP and port) for GOST
-                        
-  --pingconnection, --connectiontest, --conntest
-                        sends a ping to test the connection and shows the output
-                        
-  -g, --get             get the items of the currently selected ogc type.If
-                        one or more item identifiers or names are definited those items
-                        will be selected, otherwise all the items of the currently selected 
-                        type if no id or name will be chosen. The query results are
-                        stored for successive operations like delete or patch
-                        
-  --interactive         starts an interactive session, accepting new commands until the --exit 
-                        command is given to return to the shell
-                        
-  --exit                exit from the program when you are in an interactive session
-  
-  --post [POST [POST ...]]
-                        posts records from user defined file/s to currently
-                        selected OGC types(
-                        examples:
-                        --post <file_name> -t <type> 
-                        --post <file_name_1> <file_name_2> -t <type>
 
-  
-  --create [CREATE [CREATE ...]]
-                        Creates n items of type t in created_files/<type>,
-                        or in the file defined with 'file <filename>
-                        you can define field values for created records
-                        otherwise default value will be used
-                        (ex: --create num 2 description new_description --type Sensors)
-                        
   --store STORE         store the results of command execution in the
                         specified file
+                        
+  -t OGC, --ogc OGC, --type OGC
+                        select the OGC Model name of the items to process
+                        
+  --template [FILE]     must be used with --create num [number] type [entity type] file [storing file]:
+                        creates [number] records with a valid random name for [entity type] in [storing file],
+                        following the template stored in FILE. More fields can be added in the form of [field, 
+                        value] as --create additional arguments
 ```
 
 More details about GOST-CLI implementation:
@@ -245,14 +247,22 @@ Format of the stored query:
 on <comparisons between fields of the results>
 show <results to show>
 ```
-Sql-like query to find all the Datastreams linked to Things with "Temperature" in name
+Sql-like query to find all the Datastreams linked to Things with "Temperature" in name and showing their id's
 ```
--t Things --select Temperature in name as Temp_Thing join
+-t Things --select "Temperature" in name as Temp_Thing join
 -g -t Datastreams as Streams 
 on [Streams]Thing@iot.navigationLink == [Temp_Thing]@iot.selfLink
 show [Streams]@iot.id [Temp_Thing]@iot.id
 ```
-
+Creating 20 Sensors from the template stored in <template file path>,
+adding a <custom description> and storing them in <storing file path>.
+Below the command, an example of the template
+```
+--template <template file path> --create num 20 type Sensors file <storing file path> description <custom description>
+Template file content:
+{"encodingType": "application/pdf",
+"metadata": "default metadata"}
+```
 
 ## Next steps
 GOST-CLI is still under active development. Several extensions will be available soon.
