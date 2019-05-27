@@ -42,6 +42,7 @@ def create_random_item(args, ogc_type=False):
     arguments given by the user"""
     if not ogc_type:
         ogc_type = args["type"]
+
     if ogc_type == "Sensors":
         return json.dumps({
             "name": user_defined_or_default(args, "name", "Sensors"),
@@ -51,19 +52,25 @@ def create_random_item(args, ogc_type=False):
         }) + "\n"
 
     if ogc_type == "Observations":
-        if "Datastream" not in args:
-            return {"error": "missing datastream"}
+        missing_fields = needed_user_defined_fields(args, ["Datastream"])
+        if bool(missing_fields):
+            return missing_fields
         return json.dumps({
             "result": user_defined_or_default(args, "result"),
             "Datastream": {"@iot.id": args["datastream"]},
             "FeatureOfInterest": {"@iot.id": args["feature_of_interest"]}}) + "\n"
+
     if ogc_type == "Things":
         return json.dumps({
             "name": user_defined_or_default(args, "name", "Things"),
             "description": user_defined_or_default(args, "description"),
             "properties": {"organisation": user_defined_or_default(args, "organisation"),
                            "owner": user_defined_or_default(args, "owner")}}) + "\n"
+
     if ogc_type == "Locations":
+        missing_fields = needed_user_defined_fields(args, ["Location"])
+        if bool(missing_fields):
+            return missing_fields
         return json.dumps({"name": user_defined_or_default(args, "name", "Locations"),
                            "description": user_defined_or_default(args, "description"),
                            "encodingType": user_defined_or_default(args, "encodingType", "Locations"),
@@ -71,11 +78,17 @@ def create_random_item(args, ogc_type=False):
                                         "type": user_defined_or_default(args, "type")}}) + "\n"
 
     if ogc_type == "ObservedProperties":
+        missing_fields = needed_user_defined_fields(args, ["Definition"])
+        if bool(missing_fields):
+            return missing_fields
         return json.dumps({"name": user_defined_or_default(args, "name", "ObservedProperties"), "description":
                           user_defined_or_default(args, "description", "ObservedProperties"), "definition":
                           user_defined_or_default(args, "definition", "ObservedProperties")}) + "\n"
 
     if ogc_type == "Datastreams":
+        missing_fields = needed_user_defined_fields(args, ["Thing_id", "ObservedProperty_id", "Sensor_id"])
+        if bool(missing_fields):
+            return missing_fields
         return json.dumps({"name": user_defined_or_default(args, "name", "Datastreams"),
                            "description": user_defined_or_default(args, "description", "Datastreams"),
                            "observationType": user_defined_or_default(args, "observationType", "Datastreams"),
@@ -100,6 +113,15 @@ def create_random_item(args, ogc_type=False):
     else:
         return {"error": "incorrect ogc type"}
 
+def needed_user_defined_fields(args, fields_list):
+    result = {}
+    for field in fields_list:
+        if field not in args:
+            if "error" in result:
+                result["error"] = result["error"] + f"\nmissing {field} value"
+            else:
+                result["error"] = f"missing {field} value"
+    return result
 
 def random_name_generator(range, ogc_type):
     """creates a random name for the new record, composed by a number <= 10^range,
