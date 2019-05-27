@@ -39,7 +39,13 @@ def create_records_file(args, ogc_type=False):
 
 def create_random_item(args, ogc_type=False):
     """Creates a random item of given type, with fields filled with the
-    arguments given by the user"""
+    arguments given by the user, or the default value.
+    The type can be provided as argument or as 'type' key of args
+
+    :param args: user provided values for the new item field
+    :param ogc_type: entity type of the created item
+    :return: a string representation of the created item
+    """
     if not ogc_type:
         ogc_type = args["type"]
 
@@ -120,19 +126,25 @@ def create_random_item(args, ogc_type=False):
 
 
 def needed_user_defined_fields(args, fields_list):
+    """Verifies if the list of needed fields has been provided by the user
+
+    :param args: user provided arguments
+    :param fields_list: needed fields name
+    :return: if missing, a list of the missing fields names
+    """
     result = {}
     for field in fields_list:
         if field not in args:
             if "error" in result:
-                result["error"] = result["error"] + f"\nmissing {field} value"
+                result["error"] = result["error"] + f", {field} value"
             else:
                 result["error"] = f"missing {field} value"
     return result
 
 
 def random_name_generator(range, ogc_type):
-    """creates a random name for the new record, composed by a number <= 10^range,
-    padded on the left with zeroes if shorter than range"""
+    """creates a random name for the new record, composed by a number of <range> figures,
+    followed by '_<ogc_type>' """
     numerical_name_side = str(random.randint(0, 10**range)).zfill(range)
     return numerical_name_side + "_" + ogc_type
 
@@ -181,6 +193,7 @@ def user_defined_or_default(args, field_name, ogc_type=None):
 
 
 def string_to_coordinates(coordinate_string):
+    """Converts a string representing coordinates to a list of coordinates"""
     result = coordinate_string.split(",")
     for i in result:
         i = float(i)
