@@ -52,13 +52,14 @@ def create_random_item(args, ogc_type=False):
         }) + "\n"
 
     if ogc_type == "Observations":
-        missing_fields = needed_user_defined_fields(args, ["Datastream"])
+        missing_fields = needed_user_defined_fields(args, ["Datastream_id"])
         if bool(missing_fields):
             return missing_fields
         return json.dumps({
             "result": user_defined_or_default(args, "result"),
-            "Datastream": {"@iot.id": args["datastream"]},
-            "FeatureOfInterest": {"@iot.id": args["feature_of_interest"]}}) + "\n"
+            "Datastream": {"@iot.id": args["Datastream_id"]},
+            "FeatureOfInterest": user_defined_or_default(args, "FeatureOfInterest")
+            }) + "\n"
 
     if ogc_type == "Things":
         return json.dumps({
@@ -105,13 +106,18 @@ def create_random_item(args, ogc_type=False):
                                 "@iot.id": user_defined_or_default(args, "ObservedProperty_id", "Datastreams"),
                             },
                             "Sensor": {
-                                "@iot.id": user_defined_or_default(args, "Sensor_id", "Datastreams"),
-    }
-}
-) + "\n"
+                                "@iot.id": user_defined_or_default(args, "Sensor_id", "Datastreams"),}}) + "\n"
+
+    if ogc_type == "FeaturesOfInterest":
+        return json.dumps({"name": user_defined_or_default(args, "name"),
+                "description": user_defined_or_default(args, "description"),
+                "encodingType": user_defined_or_default(args, "encodingType"),
+                "feature": user_defined_or_default(args, "feature")}) + "\n"
+
 
     else:
         return {"error": "incorrect ogc type"}
+
 
 def needed_user_defined_fields(args, fields_list):
     result = {}
@@ -122,6 +128,7 @@ def needed_user_defined_fields(args, fields_list):
             else:
                 result["error"] = f"missing {field} value"
     return result
+
 
 def random_name_generator(range, ogc_type):
     """creates a random name for the new record, composed by a number <= 10^range,
@@ -142,6 +149,8 @@ def valid_random_name(ogc_type):
 def user_defined_or_default(args, field_name, ogc_type=None):
     """Given a field name, returns its default value or the user-defined
     one if present"""
+    if bool(args["type"]):
+        ogc_type = args["type"]
     if field_name in args:  # using user-defined value for the field
         if (field_name == "coordinates") and (bool(args["coordinates"])):
             result = string_to_coordinates(args["coordinates"])
@@ -152,10 +161,19 @@ def user_defined_or_default(args, field_name, ogc_type=None):
     elif field_name == "name":
         return valid_random_name(ogc_type)
 
+    elif field_name == "feature":
+        return {"coordinates": [4.9132, 52.34227],"type": "Point"}
+
+    elif field_name == "FeatureOfInterest":
+        if args["feature_of_interest_id"]:
+            return {"@iot.id": args["feature_of_interest"]}
+        else:
+            return ""
+
     elif field_name == "observationType":
         return "http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement"
 
-    elif field_name == "encodingType" and ogc_type == "Locations":
+    elif field_name == "encodingType":
         return "application/vnd.geo+json"
 
     else:
