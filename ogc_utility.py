@@ -50,6 +50,11 @@ def send_json(provided_load=None, ogc_name=None, sending_address=None, request_t
 
 def get_item_id_by_name(name, type, environment = None):
     """finds the id of the item of type "type" with a given name
+
+    :param name: name or id of the item
+    :param type: entity type of the item to get
+    :param environment: the current environment
+    :return: the item id
     """
     json_response = get_all(type, environment)
     for x in json_response:
@@ -167,14 +172,6 @@ def delete_all(entity_name, environment):
     for x in all_list:
         environment.selected_item.append(delete_by_id(x, entity_name, environment))
     return environment
-
-
-def add_observation(req, client) :
-    """add an observation to a topic"""
-    content = req.get_json()
-    datastream_id = content.get('Datastream').get('@iot.id')
-    topic = "GOST/Datastreams("+str(datastream_id)+")/Observations"
-    return client.publish(topic=topic, payload=str(content), qos=2)
 
 
 def args_to_dict(args):

@@ -249,8 +249,10 @@ show <results to show>
 ```
 Sql-like query to find all the Datastreams linked to Things with "Temperature" in name and showing their id's
 ```
--t Things --select "Temperature" in name as Temp_Thing join
+-t Things --select "Temperature" in name as Temp_Thing 
+join
 -g -t Datastreams as Streams 
+
 on [Streams]Thing@iot.navigationLink == [Temp_Thing]@iot.selfLink
 show [Streams]@iot.id [Temp_Thing]@iot.id
 ```

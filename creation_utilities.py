@@ -3,8 +3,15 @@ from checking_functions import item_is_already_present
 import random
 
 
-def create_records_file(args, ogc_type):
-    """create records in default file or in a specified file, if provided"""
+def create_records_file(args, ogc_type=False):
+    """create records in default file or in a specified file, if provided
+
+    :param args:the command line args provided for "create" command
+    :param ogc_type: the entity type of the created records
+    :return: a list of the created items and a list of the eventual errors
+    """
+    if not ogc_type:
+        ogc_type = args["type"]
     result = {"created_name_list" : [],"errors" : []}
     if "file" in args:
         file_name = args["file"]
@@ -12,24 +19,29 @@ def create_records_file(args, ogc_type):
         file_name = "created_files/" + ogc_type
 
     my_file = open(file_name, "w")
+    number_of_items = 0
 
     for x in range(int(args["num"])):
         item = create_random_item(args, ogc_type)
         if "error" in item:
             result["errors"].append(item["error"])
+            break
         else:
             my_file.write(item)
-            result["created_name_list"].append(json.loads(item))
+            number_of_items += 1
 
     my_file.close()
-    print("Created a file in " + file_name
-          + " with " + str(len(result["created_name_list"])) + " " + ogc_type)
+    if number_of_items > 0:
+        print("Created a file in " + file_name
+              + " with " + str(number_of_items) + " " + ogc_type)
     return result
 
 
-def create_random_item(args, ogc_type):
+def create_random_item(args, ogc_type=False):
     """Creates a random item of given type, with fields filled with the
     arguments given by the user"""
+    if not ogc_type:
+        ogc_type = args["type"]
     if ogc_type == "Sensors":
         return json.dumps({
             "name": user_defined_or_default(args, "name", "Sensors"),
@@ -109,8 +121,7 @@ def user_defined_or_default(args, field_name, ogc_type=None):
     """Given a field name, returns its default value or the user-defined
     one if present"""
     if field_name in args:  # using user-defined value for the field
-        result = None
-        if field_name == "coordinates" and bool(args["coordinates"]):
+        if (field_name == "coordinates") and (bool(args["coordinates"])):
             result = string_to_coordinates(args["coordinates"])
         else:
             result = args[field_name]

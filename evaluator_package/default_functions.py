@@ -279,31 +279,17 @@ def template(evaluator):
     for line in template_lines:
         template_string += line + " "
     template_dict = json.loads(template_string)
-    created_entities = []
     creation_values = args_to_dict(evaluator.args.create)
 
-    number_of_entities = int(creation_values["num"])
-    target_file = open(creation_values["file"], "w")
-    type = creation_values["type"]
+    for key in creation_values:
+        template_dict[key] = creation_values[key]
 
-    creation_values.pop("num")
-    creation_values.pop("file")
-    creation_values.pop("type")
-
-    for x in range(1, number_of_entities):
-        created_entities.append(fill_template(template_dict, creation_values, type))
-
-    for entity in created_entities:
-        target_file.write(json.dumps(entity) + "\n")
-
-
-def fill_template(template, optional_values, ogc_name):
-    result = copy.deepcopy(template)
-    result["name"] = valid_random_name(ogc_name)
-    for key in optional_values:
-        if key in template:
-            result[key] = optional_values[key]
-    return result
+    result = create_records_file(template_dict)
+    if result["errors"]:
+        evaluator.environment["non_critical_failures"] += result["errors"]
+    if evaluator.args.show:
+        if result["created_name_list"]:
+            evaluator.environment["results"] += result["created_name_list"]
 
 
 @conditions.needed_fields(at_least_one_field=["execute"], critical_failures_resistant=False)
