@@ -86,6 +86,9 @@ optional arguments:
                         Usable with multiple values at once, use 'all'
                         to show all fields
                         
+  --sql [FILE]          select a file from which to execute a sql-like query
+  
+                        
   -G GOSTADDRESS, --GOSTaddress GOSTADDRESS, --address GOSTADDRESS
                         sets a new address (IP and port) for GOST
                         
@@ -230,6 +233,24 @@ Executing a list  of commands stored in a file with absolute path = "file_path"
 Storing all sensor in a file with absolute path = "file_path"
 ```
 --get --type Sensors --store "file_path"
+```
+
+Make a sql-like query from a file with path "file_path"
+```
+--sql "file_path"
+
+Format of the stored query:
+<conditions on an entity type> as <name of the first result> join
+<conditions on an entity type> as <name of the second result>
+on <comparisons between fields of the results>
+show <results to show>
+```
+Sql-like query to find all the Datastreams linked to Things with "Temperature" in name
+```
+-t Things --select Temperature in name as Temp_Thing join
+-g -t Datastreams as Streams 
+on [Streams]Thing@iot.navigationLink == [Temp_Thing]@iot.selfLink
+show [Streams]@iot.id [Temp_Thing]@iot.id
 ```
 
 
