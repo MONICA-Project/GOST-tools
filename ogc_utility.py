@@ -6,8 +6,10 @@ import json
 
 
 def get_id_list(dict_list):
-    """returns a list of all IDs of the items
-    in dict_list, received as <GOST response>.json()
+    """returns a list of all IDs of the items in a list of dictionaries
+
+    :param dict_list: a list of entities in form of dictionaries
+    :return: a list of all the entities id's
     """
     values_array = []
     items_array = dict_list.get('value')
@@ -18,9 +20,14 @@ def get_id_list(dict_list):
 
 
 def send_json(provided_load=None, ogc_name=None, sending_address=None, request_type='POST'):
-    """ sends a http request with json body, ogcName is the name in OGC data model. The
-    default request type is POST, sending address if not provided is derived from
-    ogc type
+    """ sends a http request with provided load and type = request_type
+
+
+    :param provided_load: the load to send, accepts both dictionaries or strings
+    :param ogc_name: the ogc name of the entity, used if no sending_address is provided
+    :param sending_address: the address to which to send the request
+    :param request_type: the type of the request, default is POST
+    :return:
     """
     if not sending_address:
         sending_address = connection_config.get_address_from_file() + "/" + ogc_name
@@ -112,25 +119,12 @@ def patch_item(options_dict, identifier, ogc_type, environment):
     return send_json(provided_load=options_dict, sending_address=address, request_type='PATCH').json()
 
 
-def add_data_stream(req, spec):
-    content = req.get_json()
-    conditions_results = checkConditions(spec, content)
-
-    if error_exists(conditions_results):
-        return make_response(jsonify(error="missing conditions " + str(conditions_results)), 400)
-
-    else:
-        destinationAddress = f"{connection_config.GOST_address}Things({content.get('thingId')})/Datastreams"
-        s = send_json(content, 'DataStreams', destinationAddress)
-
-        if (s) :
-            return make_response(jsonify(success="added datastream", id = str(get_item_id_by_name(content.get('name'), 'Datastreams'))), 201)
-
-        else :
-            return make_response(jsonify(error="not added to datastreams", brokerErrorMessage = s.json()), 400)
-
-
 def check_id(item_identifier):
+    """get the id of the item identified by item_identifier, which can be a name or an id
+
+    :param item_identifier: the name or id of an item
+    :return: the item identifier if the item exists, an error otherwise
+    """
     if not item_identifier.isnumeric():
         item_identifier = get_item_id_by_name(item_identifier, type)
     if not item_identifier:
@@ -147,6 +141,13 @@ def delete_by_id(id, ogcName, environment):
 
 
 def delete_item(item_identifier, type, environment):
+    """delete a single item
+
+    :param item_identifier: the id of the item to delete
+    :param type: the entity type of the item to delete
+    :param environment: the current evaluating environment
+    :return: returns a message of success or error as a dictionary
+    """
     check_id(str(item_identifier))
     return_value = delete_by_id(str(item_identifier), type, environment)
     if return_value.ok:
@@ -155,12 +156,16 @@ def delete_item(item_identifier, type, environment):
         return {"error": "delete failed"}
 
 
-def delete_all(ogc_name, environment):
-    """delete all the items of type ogcName
+def delete_all(entity_name, environment):
+    """delete all the items of a single entity type
+
+    :param entity_name: the name of the entity type to delete
+    :param environment: the current evaluation environment
+    :return: the current environment
     """
-    all_list = get_id_list(get_all(ogc_name, environment).json())
+    all_list = get_id_list(get_all(entity_name, environment).json())
     for x in all_list:
-        environment.selected_item.append(delete_by_id(x, ogc_name, environment))
+        environment.selected_item.append(delete_by_id(x, entity_name, environment))
     return environment
 
 
@@ -172,28 +177,13 @@ def add_observation(req, client) :
     return client.publish(topic=topic, payload=str(content), qos=2)
 
 
-def matching_fields(item, options_dict, mode):
-    """check if item fields match with options_dict fields with
-    same value. If mode is set to 'and', returns true if all options match.
-    If set to 'or', returns true if at least one option matches"""
-    for key in options_dict:
-        if mode == "and":
-            if not(str(item[key]) == str(options_dict[key])):
-                return False
-        elif mode == "or":
-            field = item[key]
-            option = options_dict[key]
-            if isinstance(field, str) and isinstance(option,str):
-                if option == field:
-                    return True
-            elif str(field) == str(option):
-                return True
-    if mode == "or":
-        return False
-    return True
-
-
 def args_to_dict(args):
+    """converts an array of strings [val_0, val_1,..., val_n]
+    to a dictionary {val_0 : val_1,..., val_m - 1: val_m]
+
+    :param args: the array to convert
+    :return: the dictionary conversion
+    """
     i = iter(args)
     dict_result = dict(zip(i, i))
     return dict_result
