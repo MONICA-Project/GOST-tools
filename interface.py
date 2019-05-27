@@ -8,7 +8,7 @@ def main():
     specified with the --interactive option starts a loop of
     requests"""
     try:
-        evaluator = EvaluatorClass(args=sys.argv[1:])
+        evaluator = EvaluatorClass(args=sys.argv[1:], single_command=True)
         evaluator.evaluate()
     except SystemExit as e:
         exit(e.code)

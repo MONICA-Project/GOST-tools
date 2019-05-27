@@ -2,7 +2,8 @@ from evaluator_package.sql_parser import *
 import shlex
 
 
-def evaluate(file_path):
+def evaluate(evaluator):
+    file_path = evaluator.args.sql
     if "--exit" in file_path:
         exit(0)
     file = open(file_path)
@@ -50,5 +51,4 @@ def evaluate(file_path):
 
     show_result = show_filter(result, parsed_values['show'])
 
-    for i in show_result:
-        print(i)
+    return show_result

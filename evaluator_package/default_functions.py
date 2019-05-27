@@ -3,6 +3,7 @@ import pprint
 from json import JSONDecoder, JSONDecodeError
 import re
 from creation_utilities import create_records_file
+from creation_utilities import valid_random_name
 from evaluator_package.environments import default_env
 import copy
 from . import evaluating_conditions_decorator as conditions
@@ -43,7 +44,7 @@ def select_items_command(evaluator):
     conditions.select_items(evaluator)
 
 
-@conditions.needed_fields(at_least_one_field=["show", "get"], critical_failures_resistant=False, silent_resistant=False)
+@conditions.needed_fields(at_least_one_field=["show", "get"], critical_failures_resistant=False)
 def select_result_fields(evaluator):
     """selects which fields of the record in result will be showed.
     If get is defined but there is no result, all the getted items will be
@@ -230,7 +231,7 @@ def user_defined_address(evaluator, verbose = True):
                 evaluator.environment["critical_failures"].append("error: GOST address not defined")
 
 
-@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=True, silent_resistant=False)
+@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=True)
 def show_failures(evaluator):
     """shows the failures occurred during evaluation"""
     if evaluator.environment["critical_failures"]:
@@ -246,7 +247,7 @@ def show_failures(evaluator):
 
 @conditions.needed_fields(at_least_one_field=["sql"])
 def sql_evaluate(evaluator):
-    sql.evaluate(evaluator.args.sql)
+    evaluator.environment["selected_items"] = sql.evaluate(evaluator)
 
 
 @conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False,
@@ -276,21 +277,29 @@ def template(evaluator):
     template_lines = template_file.readlines()
     template_string = ""
     for line in template_lines:
-        template_string += line
+        template_string += line + " "
     template_dict = json.loads(template_string)
     created_entities = []
     creation_values = args_to_dict(evaluator.args.create)
-    for x in range(int(creation_values["num"])):
-        created_entities.append(fill_template(template_dict, creation_values))
 
+    number_of_entities = int(creation_values["num"])
     target_file = open(creation_values["file"], "w")
+    type = creation_values["type"]
+
+    creation_values.pop("num")
+    creation_values.pop("file")
+    creation_values.pop("type")
+
+    for x in range(1, number_of_entities):
+        created_entities.append(fill_template(template_dict, creation_values, type))
+
     for entity in created_entities:
-        print(entity)
-        target_file.write(json.dumps(entity))
+        target_file.write(json.dumps(entity) + "\n")
 
 
-def fill_template(template, optional_values):
+def fill_template(template, optional_values, ogc_name):
     result = copy.deepcopy(template)
+    result["name"] = valid_random_name(ogc_name)
     for key in optional_values:
         if key in template:
             result[key] = optional_values[key]
@@ -311,8 +320,7 @@ def clear_environment(evaluator):
     evaluator.return_environment = evaluator.environment  # needed as temporary value for the exit function
     temp_address = evaluator.environment["GOST_address"]
     temp_mode = evaluator.environment["mode"]
-    silent = evaluator.environment["silent"]
-    evaluator.environment = default_env(GOST_address=temp_address, mode=temp_mode, silent=silent)
+    evaluator.environment = default_env(GOST_address=temp_address, mode=temp_mode)
 
 
 def format_multi_options(args):

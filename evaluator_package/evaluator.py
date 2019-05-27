@@ -1,7 +1,4 @@
 from evaluator_package.default_functions import *
-from evaluator_package.test_functions import *
-from evaluator_package.sql_functions import *
-from evaluator_package.evaluator_utilities import *
 from parser_definitions import *
 from evaluator_package.environments import *
 from evaluator_package.exceptions import *
@@ -29,20 +26,10 @@ first_time_steps = [always_active, first_initialization, create_functions, getti
 default_steps = [always_active, default_initialization, create_functions, getting_items, mod_items, show,
                  failure_handling, default_ending]
 
-# all the evaluation functions which are used when the mode is set on "test"
-test_initialization = [started_session, create_test_records]
-test_actions = [post]
-test_ending = [clear_test_environment, exit_function]
-
-test_steps = [always_active, test_initialization, test_actions, test_ending]
-
-# all the evaluation functions which are used when the mode is set on "sql"
-
-
 class EvaluatorClass:
     """reads a list of arguments and evaluates them"""
 
-    def __init__(self, args, reading_file=False, silent=False):
+    def __init__(self, args, reading_file=False, single_command=False):
         self.reading_file = reading_file
         self.parser = init_default_parser()
         self.args = self.parser.parse_args(args)
@@ -50,9 +37,9 @@ class EvaluatorClass:
         self.evaluation_steps = []
         self.first_time = args  # stores the first argument given at creation time
                                 # AND indicates that it is the first execution
-        self.silent = silent
+        self.single_command = single_command
 
-    def evaluate(self, args=False, silent=False):
+    def evaluate(self, args=False):
         """evaluate args using the current evaluator's evaluation steps
 
         :param args: the command provided from the upper layer, if defined, otherwise the one stored
@@ -79,15 +66,13 @@ class EvaluatorClass:
         for step in self.evaluation_steps:
             for function in step:
                 try:
-                    if silent:
-                        self.mute()
                     function(self)
                 except pass_environment_Exception as e:
+                    if self.single_command:
+                        exit(0)
                     if bool(e.passed_environment):
                         return e.passed_environment
                     if e.exit_interactive_mode:
-                        exit(0)
-                    if e.exit_single_command_mode:
                         exit(0)
                     else:
                         print('Raised exception: ' + str(e))
@@ -114,18 +99,12 @@ class EvaluatorClass:
             changed_mode = True
         self.environment["mode"] = self.args.mode
 
-        if self.args.mode == "test" and changed_mode:
-            print("entered test mode")
-            self.set_evaluation_steps(test_steps)
-            self.environment = test_env()
-            self.parser = init_sql_parser()
-
-        elif self.args.mode == "default":
+        if self.args.mode == "default":
             if self.first_time:
                 self.set_evaluation_steps(first_time_steps)
             elif changed_mode:
                 print("entered default mode")
-                self.environment = default_env()
+                self.environment = default_env(single_command=self.single_command)
                 self.set_evaluation_steps(default_steps)
             elif self.evaluation_steps == first_time_steps:  # necessary to change evaluation steps if
                                                              # default mode is selected before other modes
@@ -141,8 +120,5 @@ class EvaluatorClass:
 
     def set_evaluation_steps(self, steps_list):
         self.evaluation_steps = steps_list
-
-    def mute(self):
-        self.silent = True
 
 
