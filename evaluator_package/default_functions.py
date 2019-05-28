@@ -3,7 +3,6 @@ import pprint
 from json import JSONDecoder, JSONDecodeError
 import re
 from creation_utilities import create_records_file
-from creation_utilities import valid_random_name
 from evaluator_package.environments import default_env
 import copy
 from . import evaluating_conditions_decorator as conditions
@@ -12,11 +11,14 @@ from . import exceptions as exception
 from . import sql_mode as sql
 
 
-
 @conditions.needed_fields(at_least_one_field=["info"], all_mandatory_fields=[],
                           critical_failures_resistant=True)
 def get_info(evaluator):
-    """prints the informations about the current evaluator"""
+    """Prints the following informations about the current evaluator:
+    -operation mode
+    -GOST address
+    """
+
     if evaluator.environment["mode"]:
         print("Mode : " + str(evaluator.environment["mode"]))
     if evaluator.environment["GOST_address"]:
@@ -25,28 +27,31 @@ def get_info(evaluator):
 
 @conditions.needed_fields(at_least_one_field=["store"], needed_items=True)
 def store(evaluator):
+    """Stores the current command results in the file defined by user in args.store"""
     file = open(evaluator.args.store, "w")
     for i in evaluator.environment["results"]:
         file.write(json.dumps(i) + "\n")
 
 
 @conditions.needed_fields(at_least_one_field=["get"], needed_ogc=True,
-                          critical_failures_resistant=False, needed_items=True)
+                          critical_failures_resistant=False, needed_items=True)  # the items are retrieved  in the
+                                                                                 # decorator, thanks to the
+                                                                                 # needed_items flag
 def get_command_line(evaluator):
-    """gets the items from GOST, used if get or identifier are defined"""
+    """Gets the items from GOST, used if get or identifier are defined"""
     pass
 
 
 @conditions.needed_fields(at_least_one_field=["select"], critical_failures_resistant=False, needed_items=True)
 def select_items_command(evaluator):
-    """selects the items matching with the rules defined in evaluator.args.select
-    and removes the others"""
+    """Selects from the selected_items all the items matching with the rules
+    defined in evaluator.args.select and removes the others"""
     conditions.select_items(evaluator)
 
 
 @conditions.needed_fields(at_least_one_field=["show", "get"], critical_failures_resistant=False)
 def select_result_fields(evaluator):
-    """selects which fields of the record in result will be showed.
+    """Selects which fields of the record in result will be showed.
     If get is defined but there is no result, all the getted items will be
     showed"""
     if evaluator.args.show == "silent":
@@ -68,8 +73,9 @@ def select_result_fields(evaluator):
 @conditions.needed_fields(all_mandatory_fields=["delete"], critical_failures_resistant=False,
                           needed_ogc=True, needed_items=True)
 def delete(evaluator):
-    """delete from GOST bb the items selected with get:
-    befor deleting asks user for confirmation"""
+    """Delete from GOST db the selected items selected:
+    before deleting asks user for confirmation"""
+
     if evaluator.environment["selected_items"]:  # deleting selected items
         warning_message = f"You are going to delete the {evaluator.args.ogc} " \
             f"with the following name and id:\n"   # creation of warning message
@@ -111,8 +117,7 @@ def delete(evaluator):
 @conditions.needed_fields(all_mandatory_fields=["patch"], critical_failures_resistant=False,
                           needed_ogc=True, needed_items=True)
 def patch(evaluator):
-    """
-    patches the selected fields of the items chosen with get with the selected values
+    """Patches the selected fields of the selected items with the selected values
     """
 
     for x in evaluator.environment["selected_items"]:
@@ -130,6 +135,8 @@ def patch(evaluator):
 @conditions.needed_fields(at_least_one_field=["post"], critical_failures_resistant=False,
                           needed_ogc=True)
 def post(evaluator):
+    """Reads the records (one per line) from a file and posts them to the selected entity type"""
+
     for file in evaluator.args.post:
         with open(file) as json_file:
             NOT_WHITESPACE = re.compile(r'[^\s]')
@@ -155,6 +162,8 @@ def post(evaluator):
 
 @conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
 def connection_test(evaluator):
+    """Tests the connection on the currently defined GOST address"""
+
     if not connection_config.test_connection(evaluator.environment.GOST_address, False):
         print("Network error, failed connection")
         evaluator.environment["critical_failure"].append("failed connection "
@@ -165,6 +174,8 @@ def connection_test(evaluator):
 
 @conditions.needed_fields(critical_failures_resistant=True)
 def exit_function(evaluator):
+    """exits at the end of the current evaluation: not working if is reading a file, used for the first evaluation"""
+
     if evaluator.reading_file:
         pass
     elif evaluator.args.exit:
@@ -176,6 +187,8 @@ def exit_function(evaluator):
 
 @conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
 def execute_and_exit(evaluator):
+    """exits at the end of the current evaluation: used for the evaluations beyond the first"""
+
     if evaluator.args.interactive:
         print("Entering interactive mode: --exit to return to shell")
     elif evaluator.reading_file:
@@ -186,6 +199,8 @@ def execute_and_exit(evaluator):
 
 @conditions.needed_fields(at_least_one_field=["pingconnection"], critical_failures_resistant=True)
 def ping(evaluator):
+    """Tests the connection, used for when id is explicitly asked by the user"""
+
     if evaluator.environment["GOST_address"]:
         connection_config.test_connection(evaluator.environment["GOST_address"][:-5], verbose=True)
     else:
@@ -195,8 +210,9 @@ def ping(evaluator):
 @conditions.needed_fields(no_fields=["GOSTaddress"],at_least_one_field=[],
                           all_mandatory_fields=[], critical_failures_resistant=False)
 def saved_address(evaluator):
-    """checks if there is a saved address, and tries to connect to it.
+    """Checks if there is a saved address, and tries to connect to it.
     This method is intended only for the first evaluation of the session"""
+
     evaluator.environment["GOST_address"] = connection_config.set_GOST_address()
     if not evaluator.environment["GOST_address"]:
         evaluator.environment["critical_failures"].append("error: GOST address missing or not working")
@@ -204,9 +220,10 @@ def saved_address(evaluator):
 
 @conditions.needed_fields(at_least_one_field=["GOSTaddress"], critical_failures_resistant=False)
 def user_defined_address(evaluator, verbose = True):
-    """if the user has defined a GOST address, checks if it is possible to reach it.
+    """If the user has defined a GOST address, checks if it is possible to reach it.
     If it possible, sets the GOST address to the new address, otherwise asks the user if he
     wants to select a different address or wants to keep the non working address"""
+
     working_conn = connection_config.test_connection((evaluator.args.GOSTaddress)[:-5])
     if working_conn:
         valid_conn = connection_config.set_GOST_address(evaluator.args.GOSTaddress)
@@ -233,7 +250,8 @@ def user_defined_address(evaluator, verbose = True):
 
 @conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=True)
 def show_failures(evaluator):
-    """shows the failures occurred during evaluation"""
+    """Shows the failures occurred during evaluation"""
+
     if evaluator.environment["critical_failures"]:
         for x in evaluator.environment["critical_failures"]:
             print(x)
@@ -247,13 +265,13 @@ def show_failures(evaluator):
 
 @conditions.needed_fields(at_least_one_field=["sql"])
 def sql_evaluate(evaluator):
+    """Evaluate a sql-like query stored in the file provided by the user"""
     evaluator.environment["selected_items"] = sql.evaluate(evaluator)
 
 
-@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False,
-                          no_fields=["silent"])
+@conditions.needed_fields(critical_failures_resistant=False, no_fields=["silent"])
 def show_results(evaluator):
-    """shows the results of evaluation"""
+    """Shows the results of evaluation"""
 
     if bool(evaluator.environment["selected_items"]):  # final check for seleced items not sent to result
         evaluator.environment["results"] = copy.deepcopy(evaluator.environment["selected_items"])
@@ -273,6 +291,7 @@ def create_records(evaluator):
 
 @conditions.needed_fields(all_mandatory_fields=["template", "create"], critical_failures_resistant=False)
 def template(evaluator):
+    """Create records filling the fields with a template defined in the user-provided file"""
     template_file = open(evaluator.args.template)
     template_lines = template_file.readlines()
     template_string = ""
@@ -294,34 +313,24 @@ def template(evaluator):
 
 @conditions.needed_fields(at_least_one_field=["execute"], critical_failures_resistant=False)
 def exec_file(evaluator):
-    """creates a temporary evaluator_package which evaluates the instructions
-    in the file specified by args.file"""
+    """Executes a list of commands stored in a file"""
     # TODO recursion control
     if evaluator.args.execute:
         conditions.file_iterator(evaluator.args.execute)
 
 
 def clear_environment(evaluator):
-    """clear the environment between different requests in the same session in default mode"""
+    """Clears the environment keeping the old values of mode and GOST address"""
+
     evaluator.return_environment = evaluator.environment  # needed as temporary value for the exit function
     temp_address = evaluator.environment["GOST_address"]
     temp_mode = evaluator.environment["mode"]
     evaluator.environment = default_env(GOST_address=temp_address, mode=temp_mode)
 
 
-def format_multi_options(args):
-    """takes a dictionary and stores each key's value as a list
-    example: {"get" : "102 103"} becomes {"get" : [102] [103]}
-    {"get" : "102 '103 104'"} becomes {"get" : [102] [103 104]}"""
-    for key in args.__dict__:
-        string_arg = args.__dict__[key]
-        if not (key == "ogc") and isinstance(string_arg, str):  # accepts only one ogc type
-                                                                                       # for each query
-            args.__dict__[key] = evaluator_utilities.custom_split(args.__dict__[key], ['"'])
-    return args
-
-
 def create(evaluator):
+    """Create records in a file"""
+
     result = create_records_file(args_to_dict(evaluator.args.create), evaluator.args.ogc)
     if result["errors"]:
         evaluator.environment["non_critical_failures"] += result["errors"]
