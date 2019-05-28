@@ -21,10 +21,11 @@ default_ending = [store, clear_environment, exit_function]
 
 # the steps of evaluation
 first_time_steps = [always_active, first_initialization, create_functions, getting_items, mod_items, show,
-                    failure_handling, first_time_ending]
+                    failure_handling, first_time_ending]  # steps for first evaluation
 
 default_steps = [always_active, default_initialization, create_functions, getting_items, mod_items, show,
                  failure_handling, default_ending]
+
 
 class EvaluatorClass:
     """reads a list of arguments and evaluates them"""
@@ -93,6 +94,9 @@ class EvaluatorClass:
             self.set_evaluation_steps(default_steps)                        # evaluation, if mode is not provided
 
     def select_mode(self, args):
+        """Selects the operation mode
+        """
+
         changed_mode = False
         if not (self.environment["mode"] == self.args.mode):
             print("exited " + self.environment["mode"] + " mode")
