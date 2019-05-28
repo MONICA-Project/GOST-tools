@@ -11,7 +11,14 @@ comp -> == | != | > | < | >= | <= | <> | gt | lt | gteq |  lteq | diff
 """
 
 
-def select_parser(tokens, record = None):
+def select_parser(tokens, record=None):
+    """Evaluates if record is true or false according to the expression in tokens. The expression must follow
+    the grammar at the beginning of this document
+
+    :param tokens: the expression, already tokenized
+    :param record: the record to check
+    :return: true if the record satisfy the expression, otherwise false
+    """
     if not(bool(tokens)):
         return False
     tokenize_parentheses(tokens)
@@ -28,7 +35,7 @@ def S(tokens, record=None):
             tokens.pop(0)
             return S_1(tokens, temp_result, record)
         else:
-            return parse_error()
+            return parse_error(tokens[0])
     elif tokens[0] == "not":
         tokens.pop(0)
         if tokens[0] == "(":
@@ -38,14 +45,14 @@ def S(tokens, record=None):
                 tokens.pop(0)
                 return not (S_1(tokens, temp_result, record))
             else:
-                return parse_error()
+                return parse_error(tokens[0])
 
     elif is_field(tokens[0]) or is_value(tokens[0]) or tokens[0] == "not":
         temp_result = a_1(tokens, record)
         return S_1(tokens, temp_result, record)
 
     else:
-        return parse_error()
+        return parse_error(tokens[0])
 
 
 def S_1(tokens, previous_result, record = None):
@@ -85,7 +92,7 @@ def a(tokens, record):
                 tokens.pop(0)
                 return not (temp_val in temp_field)
             else:
-                return parse_error()
+                return parse_error(tokens[0])
         elif tokens[0] == "in":
             tokens.pop(0)
             temp_field = record[tokens[0]]
@@ -129,16 +136,22 @@ def a(tokens, record):
             if comparator == "<>" or comparator == "diff":
                 return not temp_field == temp_val
         else:
-            return parse_error()
+            return parse_error(tokens[0])
     else:
-        return parse_error()
+        return parse_error(tokens[0])
 
 
-def parse_error():
-    return "parsing error"
+def parse_error(bad_token):
+    """Returns an error message and the token causing it
+    """
+
+    return {"error": f"parsing error, invalid token {bad_token} found"}
 
 
 def is_field(token):
+    """Checks if the token is a valid ogc type field
+    """
+
     return token in ["name", "description", "encodingType", "location", "properties", "metadata",
                      "definition", "phenomenonTime", "resultTime", "observedArea", "result", "@iot.id",
                      "resultQuality","validTime", "time", "parameters", "feature"]
@@ -149,6 +162,11 @@ def is_value(token):
 
 
 def tokenize_parentheses(tokens):
+    """Finds non parsed parentheses in tokens (ex.: ['x(y']['z)'] -> ['x']['(']['y']['z'][')']
+
+    :param tokens: a list of tokens
+    :return: the list with unchecked parenteses tokenized
+    """
     for index, token in enumerate(tokens):
         if ("(" in token or ")" in token) and len(token) > 1:
             parenthesis_index = token.find("(")
