@@ -179,10 +179,10 @@ def exit_function(evaluator):
     if evaluator.reading_file:
         pass
     elif evaluator.args.exit:
-        raise exception.pass_environment_Exception(exit_interactive_mode=True)
+        raise exception.PassEnvironmentException(exit_interactive_mode=True)
         exit(0)
     else:
-        raise exception.pass_environment_Exception(evaluator.return_environment)
+        raise exception.PassEnvironmentException(evaluator.return_environment)
 
 
 @conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
@@ -194,7 +194,7 @@ def execute_and_exit(evaluator):
     elif evaluator.reading_file:
         pass
     else:
-        raise exception.pass_environment_Exception(evaluator.return_environment)
+        raise exception.PassEnvironmentException(evaluator.return_environment)
 
 
 @conditions.needed_fields(at_least_one_field=["pingconnection"], critical_failures_resistant=True)

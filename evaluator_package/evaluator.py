@@ -67,7 +67,7 @@ class EvaluatorClass:
             for function in step:
                 try:
                     function(self)
-                except pass_environment_Exception as e:
+                except PassEnvironmentException as e:
                     if self.single_command:
                         exit(0)
                     if bool(e.passed_environment):
