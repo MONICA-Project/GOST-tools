@@ -2,11 +2,13 @@ from . import evaluator_utilities
 from ogc_utility import *
 from . import selection_parser
 import shlex
+from evaluator_package.environments import default_env
+
 
 
 def needed_fields(no_fields=None, at_least_one_field=None,
                   all_mandatory_fields=None, critical_failures_resistant=False,
-                  needed_ogc=False, needed_items = False):
+                  needed_ogc=False, needed_additional_argument=False, needed_items = False):
     """Decorator: checks conditions before executing the decorated function.
 
 
@@ -29,6 +31,7 @@ def needed_fields(no_fields=None, at_least_one_field=None,
     """
     def decorator(function):
         def wrapper(evaluator):
+
             if bool(evaluator.environment["critical_failures"]) and not critical_failures_resistant:
                 return False
 
@@ -36,7 +39,6 @@ def needed_fields(no_fields=None, at_least_one_field=None,
                 for i in no_fields:
                     if bool(evaluator.args.__dict__[i]):
                         return False
-
             required_at_least = bool(at_least_one_field)
             required_all = bool(all_mandatory_fields)
             required_at_least_confirmed = not required_at_least
@@ -66,8 +68,12 @@ def needed_fields(no_fields=None, at_least_one_field=None,
                         return False
                 if bool(needed_items):
                     get_items(evaluator)
-                return function(evaluator)
 
+                if bool(check_user_defined_arguments(evaluator,all_mandatory_fields,
+                                                at_least_one_field, needed_additional_argument)):
+                    return function(evaluator)
+                else:
+                    return False
             else:
                 return False
 
@@ -146,3 +152,43 @@ def file_iterator(file_name):
     for request in requests_list:
         file_evaluator.evaluate(shlex.split(request))
     file.close()
+
+
+
+def check_user_defined_arguments(evaluator, all_mandatory_fields, at_least_one_field, needed_additional_argument):
+    mandatory_fields = all_mandatory_fields
+    at_least_one = at_least_one_field
+    if not bool(needed_additional_argument):
+        return True
+    elif not bool(all_mandatory_fields):
+        mandatory_fields = []
+    elif not bool(at_least_one_field):
+        at_least_one = []
+    # checking options requiring user-provided values
+    for i in needed_additional_argument:
+        if evaluator.args.__dict__[i] == "MISSING_USER_DEFINED_VALUE" or not bool(evaluator.args.__dict__[i])\
+                and (i in mandatory_fields or i in at_least_one):
+            help_string = ""
+            for j in evaluator.parser._actions:
+                if ("--" + i) in j.option_strings:
+                    help_string = j.help
+                    break
+            value = shlex.split(input(f"Missing value for {i}, insert a valid one or 'exit' to exit\n"
+                                      f"(help: "
+                                      f"{help_string})\n"))
+            if value == ["exit"]:
+                clear_environment_after_failure(evaluator)
+                return False
+            else:
+                evaluator.args.__dict__[i] = value
+                return True
+
+
+def clear_environment_after_failure(evaluator):
+    """Clears the environment keeping the old values of mode and GOST address"""
+
+    evaluator.return_environment = evaluator.environment  # needed as temporary value for the exit function
+    temp_address = evaluator.environment["GOST_address"]
+    temp_mode = evaluator.environment["mode"]
+    evaluator.environment = default_env(GOST_address=temp_address, mode=temp_mode)
+

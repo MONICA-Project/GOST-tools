@@ -9,14 +9,14 @@ def common_commands_parser():
                                            "or 'all' for all the items of chosen type",
                         nargs='*', default=False)
 
-    parser.add_argument("--execute", help="choose a FILE from which execute a list of commands",
+    parser.add_argument("--execute", "--file", help="choose a FILE from which execute a list of commands",
                         action="store", default=False)
 
     parser.add_argument("--sql", help="choose a FILE from which execute a sql-like query",
                         action="store", default=False)
 
     parser.add_argument("--template", help="choose a template from a file to use as base for --create",
-                        action="store", default=False)
+                        default=False, nargs='?', const="MISSING_USER_DEFINED_VALUE")
 
     parser.add_argument("--store", help="store the results of command execution in the specified file",
                         action="store", default=False)
@@ -38,10 +38,10 @@ def common_commands_parser():
     parser.add_argument("--silent", help="shuts all the screen outputs of evaluation",
                         action="store_true")
 
-    parser.add_argument("-p", "--patch", nargs='*', help="patch the choosen item FIELD with selected VALUE,accepts "
-                                                         "multiple values at once"
-                                                          "examples:\n--p id <newId> name <newName>"
-                                                          "\n--p description <newDescription>")
+    parser.add_argument("-p", "--patch", default=False, nargs='?', const="MISSING_USER_DEFINED_VALUE",
+                        help="patch the choosen item FIELD with selected VALUE,accepts "
+                        "multiple values at once\n"
+                        "examples:\n--p id <newId> name <newName>\n--p description <newDescription>")
 
     parser.add_argument("-s", "--select", nargs='*', help="selection of the items from those found with --get,"
                                                           "before any further operation like delete or patch."
@@ -86,12 +86,11 @@ def common_commands_parser():
 
 def init_default_parser():
     parser = common_commands_parser()
-    parser.add_argument("--create", nargs='*', default=False, help="Creates n items of type t "
-                                                                   "in created_files/<type>,"
-                                                                   "or in the file defined with 'file <filename>\n"
-                                                                   "you can define field values for created records\n"
-                                                                   "otherwise default value will be used"
-                                                                   "(ex: --create num 2 description new_description"
-                                                                   " --type Sensors\n)")
+    parser.add_argument("--create", default=False, nargs='?', const="MISSING_USER_DEFINED_VALUE",
+                        help="Creates n items of type t in created_files/<type>,"
+                        "or in the file defined with 'file <filename>\n"
+                        "you can define field values for created records\n"
+                        "otherwise default value will be used\n"
+                        "(ex: --create num 2 type Sensors file <filename> description new_description)")
     parser.description = "Process user-defined GOST operations"
     return parser

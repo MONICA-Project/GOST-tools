@@ -71,7 +71,6 @@ multi_record_test_list.append(tokens_12)
 multi_record_test_list.append(tokens_13)
 
 
-
 def test_single_record():
     print("Testing single record")
     for i in single_record_test_list:
@@ -94,8 +93,6 @@ def test_multi_record():
             print(f"test {i['name']} passed")
         else:
             print(f"test {i['name']} not passed")
-
-
 
 test_single_record()
 test_multi_record()

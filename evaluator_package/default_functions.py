@@ -114,7 +114,9 @@ def delete(evaluator):
         print("trying to delete but no item defined or found")
 
 
-@conditions.needed_fields(all_mandatory_fields=["patch"], critical_failures_resistant=False,
+@conditions.needed_fields(all_mandatory_fields=["patch"],
+                          needed_additional_argument=["patch"],
+                          critical_failures_resistant=False,
                           needed_ogc=True, needed_items=True)
 def patch(evaluator):
     """Patches the selected fields of the selected items with the selected values
@@ -283,13 +285,16 @@ def show_results(evaluator):
 
 
 @conditions.needed_fields(no_fields=["template"], at_least_one_field=["create"],
-                          critical_failures_resistant=False, needed_ogc=True)
+                          needed_additional_argument=["create"],
+                          critical_failures_resistant=False)
 def create_records(evaluator):
     """create records to store in a file"""
     create(evaluator)
 
 
-@conditions.needed_fields(all_mandatory_fields=["template", "create"], critical_failures_resistant=False)
+@conditions.needed_fields(all_mandatory_fields=["template"],
+                          needed_additional_argument=["template", "create"],
+                          critical_failures_resistant=False)
 def template(evaluator):
     """Create records filling the fields with a template defined in the user-provided file"""
     template_file = open(evaluator.args.template)
@@ -331,7 +336,7 @@ def clear_environment(evaluator):
 def create(evaluator):
     """Create records in a file"""
 
-    result = create_records_file(args_to_dict(evaluator.args.create), evaluator.args.ogc)
+    result = create_records_file(args_to_dict(evaluator.args.create))
     if result["errors"]:
         evaluator.environment["non_critical_failures"] += result["errors"]
     if evaluator.args.show:
