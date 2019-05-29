@@ -129,18 +129,62 @@ optional arguments:
                         value] as --create additional arguments
 ```
 
-More details about GOST-CLI implementation:
+#### Use Cases
+#####Posting to the GOST server 10 new Sensors with a specific metadata value
 
-### Special characters
-Some systems do not accept "<" and ">" characters, so those alternatives in conditional
-statements are available:
+This is a two-step operation: first of all, you need to create a local file with 
+the representation of the items that you want to create, then you have to upload the
+represented items to the server
+
+######First step: creating a file with the records
+
+There are two ways of getting this done: using a pre-defined template,
+or without it.
+
+Posting with a template:
+
+The template is a .txt file which should have the following format:
 ```
-"<" --> "lt"
-">" --> "gt"
-"<=" --> "lteq"
-">=" --> "gteq"
+{"field 1 name" : "value 1",
+"field 2 name" : "value 2",
+...
+}
 ```
-### Examples
+In this case:
+```
+{"metadata" : "chosen metadata value",
+}
+```
+Then, when you use the --template command followed by this file path, that template 
+will be used as a base for the new created items, in this case the Sensors
+
+In addition to the --template command, one must use the -create command, to specify:
+
+-how many items create
+
+-in which file store them
+
+Those values are given with the --create command, preceded by respectively
+"num" and "file", so our final command will be:
+```
+--template <template file path> --create num 10 file <storing_file_path>
+```
+
+In the case you don't want to use a template, it is possible to pass as --create arguments
+the custom values that you want to assign to a specified field, precede by the field's value.
+So the command of this use case will be
+```
+--create num 10 file <storing_file_path> metadata "chosen metadata value"
+```
+######Second step: posting the created records to the server
+To post a file of records to the GOST server, you have to use the --post command
+followed by the file path, and the --type command to specify the ogc entity type
+to which post the records. In this case:
+```
+--post <storing_file_path> --type Sensors
+```
+
+### Examples of single commands
 Different ways of getting the Sensor with @iot.id = 1 
 and name = "test_name":
 ```
@@ -249,15 +293,7 @@ Format of the stored query:
 on <comparisons between fields of the results>
 show <results to show>
 ```
-Sql-like query to find all the Datastreams linked to Things with "Temperature" in name and showing their id's
-```
--t Things --select "Temperature" in name as Temp_Thing 
-join
--g -t Datastreams as Streams 
 
-on [Streams]Thing@iot.navigationLink == [Temp_Thing]@iot.selfLink
-show [Streams]@iot.id [Temp_Thing]@iot.id
-```
 Creating 20 Sensors from the template stored in <template file path>,
 adding a <custom description> and storing them in <storing file path>.
 Below the command, an example of the template
@@ -266,6 +302,19 @@ Below the command, an example of the template
 Template file content:
 {"encodingType": "application/pdf",
 "metadata": "default metadata"}
+```
+
+More details about GOST-CLI implementation:
+
+SPECIAL CHARACTERS
+
+Some systems do not accept "<" and ">" characters, so those alternatives in conditional
+statements are available:
+```
+"<" --> "lt"
+">" --> "gt"
+"<=" --> "lteq"
+">=" --> "gteq"
 ```
 
 ## Next steps
