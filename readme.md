@@ -50,11 +50,11 @@ optional arguments:
                         example:
                          --get 15 -t Sensors --delete
                           15 16 -t Sensors --delete  
-  --execute             execute a of commands, this command
+  --file                execute a of commands, this command
                         requires the absolute file path inside ""
                         example:
-                         --exec "absolute_filepath"
-                         --exec "absolute_filepath_1" "absolute_filepath_2"
+                         --file "absolute_filepath"
+                         --file "absolute_filepath_1" "absolute_filepath_2"
   
   --exit                exits from the program when you are in an interactive session
   
@@ -112,6 +112,8 @@ optional arguments:
                         selects which fields of the results to show as output.
                         Usable with multiple values at once, use 'all'
                         to show all fields
+  
+  --silent              shuts all the outputs
                         
   --sql [FILE]          select a file from which to execute a sql-like query
 
@@ -230,7 +232,7 @@ Setting the GOST address to which send requests to http://x.x.x.x:port_number/v1
 
 Executing a list  of commands stored in a file with absolute path = "file_path"
 ```
---execute "file_path"
+--file "file_path"
 ```
 Storing all sensor in a file with absolute path = "file_path"
 ```

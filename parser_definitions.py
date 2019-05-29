@@ -9,8 +9,9 @@ def common_commands_parser():
                                            "or 'all' for all the items of chosen type",
                         nargs='*', default=False)
 
-    parser.add_argument("--execute", "--file", help="choose a FILE from which execute a list of commands",
-                        action="store", default=False)
+    parser.add_argument("--file",
+                        default=False, nargs='?', const="MISSING_USER_DEFINED_VALUE",
+                        help="choose a FILE from which execute a list of commands", action="store")
 
     parser.add_argument("--sql", help="choose a FILE from which execute a sql-like query",
                         action="store", default=False)
@@ -76,10 +77,9 @@ def common_commands_parser():
 
     parser.add_argument("--interactive", help="starts an interactive session, --exit to return to"
                                               "shell", action="store_true")
-    parser.add_argument("--post", nargs='*', help="posts records from user defined file/s to"
-                                                  "currently selected OGC type"
-                                                  "es('--post <file_name> -t <type>'"
-                        , default=False)
+    parser.add_argument("--post", default=False, nargs='?', const="MISSING_USER_DEFINED_VALUE",
+                        help="posts records from user defined file/s to currently selected OGC type\n"
+                        "(ex:'--post <file_name> -t <type>'")
 
     return parser
 

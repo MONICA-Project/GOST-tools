@@ -134,7 +134,8 @@ def patch(evaluator):
     evaluator.environment["selected_items"] = []
 
 
-@conditions.needed_fields(at_least_one_field=["post"], critical_failures_resistant=False,
+@conditions.needed_fields(at_least_one_field=["post"], needed_additional_argument=["post"],
+                          critical_failures_resistant=False,
                           needed_ogc=True)
 def post(evaluator):
     """Reads the records (one per line) from a file and posts them to the selected entity type"""
@@ -265,7 +266,7 @@ def show_failures(evaluator):
         print("Found " + str(len(evaluator.environment["non_critical_failures"])) + " non_critical_failures\n")
 
 
-@conditions.needed_fields(at_least_one_field=["sql"])
+@conditions.needed_fields(at_least_one_field=["sql"], needed_additional_argument=["sql"])
 def sql_evaluate(evaluator):
     """Evaluate a sql-like query stored in the file provided by the user"""
     evaluator.environment["selected_items"] = sql.evaluate(evaluator)
@@ -316,7 +317,8 @@ def template(evaluator):
             evaluator.environment["results"] += result["created_name_list"]
 
 
-@conditions.needed_fields(at_least_one_field=["execute"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["file"], needed_additional_argument=["file"],
+                          critical_failures_resistant=False)
 def exec_file(evaluator):
     """Executes a list of commands stored in a file"""
     # TODO recursion control
