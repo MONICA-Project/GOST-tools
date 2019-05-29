@@ -133,49 +133,50 @@ def patch(evaluator):
     """Patches the selected fields of the selected items with the selected values
     """
     patches = args_to_dict(evaluator.args.patch)
-    for x in evaluator.environment["selected_items"]:
-        if evaluator.environment["selected_items"]:  # patching selected items
-            warning_message = f"You are going to patch the {evaluator.args.ogc} " \
-                f"with the following name and id:\n"  # creation of warning message
-            for x in evaluator.environment["selected_items"]:
-                try:
-                    if "error" in x:
-                        pass
-                    elif "@iot.id" in x:
-                        warning_message += "id = " + str(x["@iot.id"]) + " name = " + str(x["name"]) + "\n"
-                except AttributeError as attr:
-                    print("missing" + attr)
-                    pass
-            for x in evaluator.environment["non_critical_failures"]:
-                if "error" in x:
-                    print(x["error"]["message"])
-
-            proceed = input(warning_message + "\nProceed?(y/N)")
-
-            if proceed == "y":  # elimination of items
-                if bool(evaluator.environment["selected_items"]):
-                    for x in evaluator.environment["selected_items"]:
-                        try:
-                            if "error" in x:
-                                evaluator.environment["non_critical_failures"].append(x["error"])
-                            elif "@iot.id" in x:
-                                for key in patches:  # checking if all the patches are for valid entity attributes
-                                    if key not in x.keys():
-                                        evaluator.environment["critical_failures"].append(
-                                            {"error": f"invalid attribute name: {key}"})
-                                        return False
-                                result = patch_item(patches, str(x.get("@iot.id")), evaluator.args.ogc,
-                                                    evaluator.environment)
-                                conditions.add_result(evaluator, result, "results")
-                        except AttributeError as attr:
-                            print("missing" + attr)
+    if bool(evaluator.environment["selected_items"]):
+        for x in evaluator.environment["selected_items"]:
+            if evaluator.environment["selected_items"]:  # patching selected items
+                warning_message = f"You are going to patch the {evaluator.args.ogc} " \
+                    f"with the following name and id:\n"  # creation of warning message
+                for x in evaluator.environment["selected_items"]:
+                    try:
+                        if "error" in x:
                             pass
+                        elif "@iot.id" in x:
+                            warning_message += "id = " + str(x["@iot.id"]) + " name = " + str(x["name"]) + "\n"
+                    except AttributeError as attr:
+                        print("missing" + attr)
+                        pass
+                for x in evaluator.environment["non_critical_failures"]:
+                    if "error" in x:
+                        print(x["error"]["message"])
+
+                proceed = input(warning_message + "\nProceed?(y/N)")
+
+                if proceed == "y":  # elimination of items
+                    if bool(evaluator.environment["selected_items"]):
+                        for x in evaluator.environment["selected_items"]:
+                            try:
+                                if "error" in x:
+                                    evaluator.environment["non_critical_failures"].append(x["error"])
+                                elif "@iot.id" in x:
+                                    for key in patches:  # checking if all the patches are for valid entity attributes
+                                        if key not in x.keys():
+                                            evaluator.environment["critical_failures"].append(
+                                                {"error": f"invalid attribute name: {key}"})
+                                            return False
+                                    result = patch_item(patches, str(x.get("@iot.id")), evaluator.args.ogc,
+                                                        evaluator.environment)
+                                    conditions.add_result(evaluator, result, "results")
+                            except AttributeError as attr:
+                                print("missing" + attr)
+                                pass
+                        evaluator.environment["selected_items"] = []
+                else:
                     evaluator.environment["selected_items"] = []
-            else:
-                evaluator.environment["selected_items"] = []
-                print("Aborted patching")
-        else:
-            print("trying to patch but no item defined or found")
+                    print("Aborted patching")
+    else:
+        print("trying to patch but no item defined or found")
 
 
 @conditions.needed_fields(at_least_one_field=["post"], needed_additional_argument=["post"],
@@ -233,7 +234,6 @@ def select_result_fields(evaluator):
                 for field in x.copy():
                     if field not in evaluator.args.show:
                         x.pop(field, None)
-
 
 
 @conditions.needed_fields(at_least_one_field=["pingconnection"], critical_failures_resistant=True)
