@@ -11,63 +11,16 @@ from . import exceptions as exception
 from . import sql_mode as sql
 
 
-@conditions.needed_fields(at_least_one_field=["info"], all_mandatory_fields=[],
-                          critical_failures_resistant=True)
-def get_info(evaluator):
-    """Prints the following informations about the current evaluator:
-    -operation mode
-    -GOST address
-    """
+@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
+def connection_test(evaluator):
+    """Tests the connection on the currently defined GOST address"""
 
-    if evaluator.environment["mode"]:
-        print("Mode : " + str(evaluator.environment["mode"]))
-    if evaluator.environment["GOST_address"]:
-        print("Address : " + evaluator.environment["GOST_address"])
-
-
-@conditions.needed_fields(at_least_one_field=["store"], needed_items=True)
-def store(evaluator):
-    """Stores the current command results in the file defined by user in args.store"""
-    file = open(evaluator.args.store, "w")
-    for i in evaluator.environment["results"]:
-        file.write(json.dumps(i) + "\n")
-
-
-@conditions.needed_fields(at_least_one_field=["get"], needed_ogc=True,
-                          critical_failures_resistant=False, needed_items=True)  # the items are retrieved  in the
-                                                                                 # decorator, thanks to the
-                                                                                 # needed_items flag
-def get_command_line(evaluator):
-    """Gets the items from GOST, used if get or identifier are defined"""
-    pass
-
-
-@conditions.needed_fields(at_least_one_field=["select"], critical_failures_resistant=False, needed_items=True)
-def select_items_command(evaluator):
-    """Selects from the selected_items all the items matching with the rules
-    defined in evaluator.args.select and removes the others"""
-    conditions.select_items(evaluator)
-
-
-@conditions.needed_fields(at_least_one_field=["show", "get"], critical_failures_resistant=False)
-def select_result_fields(evaluator):
-    """Selects which fields of the record in result will be showed.
-    If get is defined but there is no result, all the getted items will be
-    showed"""
-    if evaluator.args.show == "silent":
-        pass
-    elif not bool(evaluator.environment["results"]) and bool(evaluator.environment["selected_items"]):
-        # if at the end of the execution of the command there are some selected items, they are added
-        # to the result
-        evaluator.environment["results"] = copy.deepcopy(evaluator.environment["selected_items"])
-        evaluator.environment["selected_items"] = []
-
-    elif evaluator.args.show:
-        if "all" not in evaluator.args.show:
-            for x in evaluator.environment["results"]:
-                for field in x.copy():
-                    if field not in evaluator.args.show:
-                        x.pop(field, None)
+    if not connection_config.test_connection(evaluator.environment.GOST_address, False):
+        print("Network error, failed connection")
+        evaluator.environment["critical_failure"].append("failed connection "
+                                                         "to " + evaluator.environment["GOST_address"][:-5])
+    else:
+        print(f"current GOST address: {evaluator.environment.GOST_address}\n'--address <ip:port>' to change")
 
 
 @conditions.needed_fields(all_mandatory_fields=["delete"], critical_failures_resistant=False,
@@ -112,6 +65,64 @@ def delete(evaluator):
             print("Aborted deletion")
     else:
         print("trying to delete but no item defined or found")
+
+
+@conditions.needed_fields(critical_failures_resistant=True)
+def exit_function(evaluator):
+    """exits at the end of the current evaluation: not working if is reading a file, used for the first evaluation"""
+
+    if evaluator.reading_file:
+        pass
+    elif evaluator.args.exit:
+        raise exception.PassEnvironmentException(exit_interactive_mode=True)
+        exit(0)
+    else:
+        raise exception.PassEnvironmentException(evaluator.return_environment)
+
+
+@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
+def execute_and_exit(evaluator):
+    """exits at the end of the current evaluation: used for the evaluations beyond the first"""
+
+    if evaluator.args.interactive:
+        print("Entering interactive mode: --exit to return to shell")
+    elif evaluator.reading_file:
+        pass
+    else:
+        raise exception.PassEnvironmentException(evaluator.return_environment)
+
+
+
+@conditions.needed_fields(at_least_one_field=["info"], all_mandatory_fields=[],
+                          critical_failures_resistant=True)
+def get_info(evaluator):
+    """Prints the following informations about the current evaluator:
+    -operation mode
+    -GOST address
+    """
+
+    if evaluator.environment["mode"]:
+        print("Mode : " + str(evaluator.environment["mode"]))
+    if evaluator.environment["GOST_address"]:
+        print("Address : " + evaluator.environment["GOST_address"])
+
+
+@conditions.needed_fields(at_least_one_field=["store"], needed_items=True)
+def store(evaluator):
+    """Stores the current command results in the file defined by user in args.store"""
+    file = open(evaluator.args.store, "w")
+    for i in evaluator.environment["results"]:
+        file.write(json.dumps(i) + "\n")
+
+
+@conditions.needed_fields(at_least_one_field=["get"], needed_ogc=True,
+                          critical_failures_resistant=False, needed_items=True)  # the items are retrieved  in the
+                                                                                 # decorator, thanks to the
+                                                                                 # needed_items flag
+def get_command_line(evaluator):
+    """Gets the items from GOST, used if get or identifier are defined"""
+    pass
+
 
 
 @conditions.needed_fields(all_mandatory_fields=["patch"],
@@ -163,41 +174,33 @@ def post(evaluator):
                 conditions.add_result(evaluator, json_result, "results")
 
 
-@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
-def connection_test(evaluator):
-    """Tests the connection on the currently defined GOST address"""
-
-    if not connection_config.test_connection(evaluator.environment.GOST_address, False):
-        print("Network error, failed connection")
-        evaluator.environment["critical_failure"].append("failed connection "
-                                                         "to " + evaluator.environment["GOST_address"][:-5])
-    else:
-        print(f"current GOST address: {evaluator.environment.GOST_address}\n'--address <ip:port>' to change")
+@conditions.needed_fields(at_least_one_field=["select"], critical_failures_resistant=False, needed_items=True)
+def select_items_command(evaluator):
+    """Selects from the selected_items all the items matching with the rules
+    defined in evaluator.args.select and removes the others"""
+    conditions.select_items(evaluator)
 
 
-@conditions.needed_fields(critical_failures_resistant=True)
-def exit_function(evaluator):
-    """exits at the end of the current evaluation: not working if is reading a file, used for the first evaluation"""
-
-    if evaluator.reading_file:
+@conditions.needed_fields(at_least_one_field=["show", "get"], critical_failures_resistant=False)
+def select_result_fields(evaluator):
+    """Selects which fields of the record in result will be showed.
+    If get is defined but there is no result, all the getted items will be
+    showed"""
+    if evaluator.args.show == "silent":
         pass
-    elif evaluator.args.exit:
-        raise exception.PassEnvironmentException(exit_interactive_mode=True)
-        exit(0)
-    else:
-        raise exception.PassEnvironmentException(evaluator.return_environment)
+    elif not bool(evaluator.environment["results"]) and bool(evaluator.environment["selected_items"]):
+        # if at the end of the execution of the command there are some selected items, they are added
+        # to the result
+        evaluator.environment["results"] = copy.deepcopy(evaluator.environment["selected_items"])
+        evaluator.environment["selected_items"] = []
 
+    elif evaluator.args.show:
+        if "all" not in evaluator.args.show:
+            for x in evaluator.environment["results"]:
+                for field in x.copy():
+                    if field not in evaluator.args.show:
+                        x.pop(field, None)
 
-@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
-def execute_and_exit(evaluator):
-    """exits at the end of the current evaluation: used for the evaluations beyond the first"""
-
-    if evaluator.args.interactive:
-        print("Entering interactive mode: --exit to return to shell")
-    elif evaluator.reading_file:
-        pass
-    else:
-        raise exception.PassEnvironmentException(evaluator.return_environment)
 
 
 @conditions.needed_fields(at_least_one_field=["pingconnection"], critical_failures_resistant=True)
