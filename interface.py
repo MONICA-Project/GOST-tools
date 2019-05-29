@@ -1,6 +1,7 @@
 import shlex
 import sys
 from evaluator_package.evaluator import EvaluatorClass
+import traceback
 
 
 def main():
@@ -14,6 +15,7 @@ def main():
         exit(e.code)
     except BaseException as e:
         print('Raised exception : ' + str(e))
+        print(traceback.format_exc())
         exit(1)
 
     while True:
@@ -28,6 +30,7 @@ def main():
                 print('Raised SystemExit exception, -h to see commands usage')
         except BaseException as e:
             print('Raised exception: ' + str(e))
+            print(traceback.format_exc())
 
 
 if __name__ == "__main__":

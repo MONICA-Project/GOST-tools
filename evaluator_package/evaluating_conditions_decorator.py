@@ -154,7 +154,6 @@ def file_iterator(file_name):
     file.close()
 
 
-
 def check_user_defined_arguments(evaluator, all_mandatory_fields, at_least_one_field, needed_additional_argument):
     mandatory_fields = all_mandatory_fields
     at_least_one = at_least_one_field
@@ -166,8 +165,8 @@ def check_user_defined_arguments(evaluator, all_mandatory_fields, at_least_one_f
         at_least_one = []
     # checking options requiring user-provided values
     for i in needed_additional_argument:
-        if evaluator.args.__dict__[i] == "MISSING_USER_DEFINED_VALUE" or not bool(evaluator.args.__dict__[i])\
-                and (i in mandatory_fields or i in at_least_one):
+        if evaluator.args.__dict__[i] == "MISSING_USER_DEFINED_VALUE" or (not bool(evaluator.args.__dict__[i])\
+                and (i in mandatory_fields or i in at_least_one or i in needed_additional_argument)):
             help_string = ""
             for j in evaluator.parser._actions:
                 if ("--" + i) in j.option_strings:
@@ -181,7 +180,7 @@ def check_user_defined_arguments(evaluator, all_mandatory_fields, at_least_one_f
                 return False
             else:
                 evaluator.args.__dict__[i] = value
-                return True
+    return True
 
 
 def clear_environment_after_failure(evaluator):

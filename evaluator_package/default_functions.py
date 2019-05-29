@@ -223,6 +223,30 @@ def saved_address(evaluator):
     if not evaluator.environment["GOST_address"]:
         evaluator.environment["critical_failures"].append("error: GOST address missing or not working")
 
+@conditions.needed_fields(all_mandatory_fields=["template"],
+                          needed_additional_argument=["template", "create"],
+                          critical_failures_resistant=False)
+def template(evaluator):
+    """Create records filling the fields with a template defined in the user-provided file"""
+    print(evaluator.args.template)
+    template_file = open(evaluator.args.template[0])
+    template_lines = template_file.readlines()
+    template_string = ""
+    for line in template_lines:
+        template_string += line + " "
+    template_dict = json.loads(template_string)
+    creation_values = args_to_dict(evaluator.args.create)
+
+    for key in creation_values:
+        template_dict[key] = creation_values[key]
+
+    result = create_records_file(template_dict)
+    if result["errors"]:
+        evaluator.environment["non_critical_failures"] += result["errors"]
+    if evaluator.args.show:
+        if result["created_name_list"]:
+            evaluator.environment["results"] += result["created_name_list"]
+
 
 @conditions.needed_fields(at_least_one_field=["GOSTaddress"], critical_failures_resistant=False)
 def user_defined_address(evaluator, verbose = True):
@@ -296,28 +320,6 @@ def create_records(evaluator):
     create(evaluator)
 
 
-@conditions.needed_fields(all_mandatory_fields=["template"],
-                          needed_additional_argument=["template", "create"],
-                          critical_failures_resistant=False)
-def template(evaluator):
-    """Create records filling the fields with a template defined in the user-provided file"""
-    template_file = open(evaluator.args.template)
-    template_lines = template_file.readlines()
-    template_string = ""
-    for line in template_lines:
-        template_string += line + " "
-    template_dict = json.loads(template_string)
-    creation_values = args_to_dict(evaluator.args.create)
-
-    for key in creation_values:
-        template_dict[key] = creation_values[key]
-
-    result = create_records_file(template_dict)
-    if result["errors"]:
-        evaluator.environment["non_critical_failures"] += result["errors"]
-    if evaluator.args.show:
-        if result["created_name_list"]:
-            evaluator.environment["results"] += result["created_name_list"]
 
 
 @conditions.needed_fields(at_least_one_field=["file"], needed_additional_argument=["file"],

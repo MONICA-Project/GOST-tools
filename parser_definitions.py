@@ -2,6 +2,11 @@ import argparse
 
 
 def common_commands_parser():
+    """The commands common to all parsers in all mode.
+    If an argument has a const value of 'MISSING_USER_DEFINED_VALUE', a value will be required to the user
+    by 'evaluating conditions decorator' function if the argument is present in the instruction but has no
+    value"""
+
     parser = argparse.ArgumentParser(fromfile_prefix_chars="$")
 
     parser.add_argument("identifier", help="ID or Name of one or more items to process, "

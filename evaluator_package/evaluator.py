@@ -2,6 +2,7 @@ from evaluator_package.default_functions import *
 from parser_definitions import *
 from evaluator_package.environments import *
 from evaluator_package.exceptions import *
+import traceback
 
 # all the evaluation functions which are always used and are checked before all other methods
 always_active = [get_info]
@@ -76,7 +77,8 @@ class EvaluatorClass:
                     if e.exit_interactive_mode:
                         exit(0)
                     else:
-                        print('Raised exception: ' + str(e))
+                        print('Raised exception: ' + str(e))  # managing unexpecte exceptions
+                        print(traceback.format_exc())
 
     def init(self, args):
         """Sets the evaluator variables before the evaluation loop
