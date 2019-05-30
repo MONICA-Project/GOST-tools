@@ -130,7 +130,7 @@ optional arguments:
 ```
 
 #### Use Cases
-#####Posting to the GOST server 10 new Sensors with a specific metadata value
+#####Posting to the GOST server n new items of entity type t with a specific field value
 
 This is a two-step operation: first of all, you need to create a local file with 
 the representation of the items that you want to create, then you have to upload the
@@ -152,7 +152,7 @@ The template is a .txt file which should have the following format:
 ```
 In this case:
 ```
-{"metadata" : "chosen metadata value",
+{"field_name" : "chosen field's value",
 }
 ```
 Then, when you use the --template command followed by this file path, that template 
@@ -160,21 +160,32 @@ will be used as a base for the new created items, in this case the Sensors
 
 In addition to the --template command, one must use the -create command, to specify:
 
--how many items create
 
--in which file store them
+* how many items create
 
-Those values are given with the --create command, preceded by respectively
-"num" and "file", so our final command will be:
+* in which file store them
+
+* the type of the created item (the program will check for the mandatory fields and default fields values,
+according to it)
+
+* other custom field values, if needed (this will override the value definition given in template
+or in default implementation)
+
+Those specifications are preceded respectively by "num", "file", "type" and by < field name >  < field value >
+
+
+So our final command will be:
 ```
---template <template file path> --create num 10 file <storing_file_path>
+--template <template file path> --create num n file <storing_file_path> type t
 ```
 
-In the case you don't want to use a template, it is possible to pass as --create arguments
-the custom values that you want to assign to a specified field, precede by the field's value.
+In the case you don't want to use a template, it is possible to use only the --create command.
+You have to pass as --create arguments the custom values that you want to assign to a specified field, 
+preceded by the field's value.
+
 So the command of this use case will be
 ```
---create num 10 file <storing_file_path> metadata "chosen metadata value"
+--create num n file <storing_file_path> metadata "chosen metadata value" type t
 ```
 ######Second step: posting the created records to the server
 To post a file of records to the GOST server, you have to use the --post command

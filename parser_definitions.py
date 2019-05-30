@@ -1,4 +1,7 @@
 import argparse
+from evaluator_package.evaluator_utilities import is_ogc
+
+field_already_checked = []   # needed because otherwise actions is executed two times
 
 
 def common_commands_parser():
@@ -8,6 +11,7 @@ def common_commands_parser():
     value"""
 
     parser = argparse.ArgumentParser(fromfile_prefix_chars="$")
+    setattr(parser, "already_checked", [])
 
     parser.add_argument("identifier", help="ID or Name of one or more items to process, "
                                            "or '$' followed by the name of a file with a list of them "
@@ -91,7 +95,7 @@ def common_commands_parser():
 
 def init_default_parser():
     parser = common_commands_parser()
-    parser.add_argument("--create", action=UserOptionalValue,
+    parser.add_argument("--create", action=CheckValues,
                         help="Creates n items of type t in created_files/<type>,"
                         "or in the file defined with 'file <filename>\n"
                         "you can define field values for created records\n"
@@ -126,4 +130,95 @@ class UserOptionalValue(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         if not bool(values):
             values = ["MISSING_USER_DEFINED_VALUE"]
+        else:
+            check_values(values, self.dest)
         setattr(namespace, self.dest, values)
+
+
+class CheckValues(argparse.Action):
+    """A custom action for all the values which can be initialized both with or without arguments, but in
+    the second case the user will be asked to provide one"""
+
+    def __init__(self,option_strings,
+                 dest=None,
+                 nargs="*",
+                 default=False,
+                 required=False,
+                 type=None,
+                 metavar=None,
+                 help=None):
+        super(CheckValues, self).__init__(
+            option_strings=option_strings,
+            dest=dest,
+            nargs=nargs,
+            default=default,
+            required=required,
+            metavar=metavar,
+            type=type,
+            help=help)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        global field_already_checked
+        check_values(values, self.dest)
+        setattr(namespace, self.dest, values)
+
+
+def check_values(values, destination):
+    if destination == "info":
+        print("info")
+        values = [True]
+    elif destination == "create":
+        check_create(values)
+
+
+def check_create(values):
+    if "num" not in values:
+        ask_missing_value("num", int, "Missing number of items to create, insert one or 'exit' to exit\n", values)
+
+    if "type" not in values:
+        ask_missing_value("type", str, "Missing entity type of the items to create,\n "
+                                       "choose one or 'exit' to exit\n", values,
+                          optional_check_function=is_ogc, optional_value_type_name="ogc entity type")
+
+
+def ask_missing_value(value_name, value_type, input_request, values,
+                      optional_check_function=False, optional_value_type_name=False):
+    valid_value = False
+    value = input(input_request)
+    if value == "exit":
+        exit(0)
+    elif optional_check_function:
+        if optional_check_function(value):
+            values += [value_name, str(value)]
+            valid_value = True
+    elif is_of_type(value, value_type):
+        values += [value_name, str(value)]
+        valid_value = True
+
+    if not valid_value:
+        while not valid_value:
+            if not optional_value_type_name:
+                value = input(f"Invalid input, needed a {value_type}\n "
+                          f"Insert a valid input or 'exit' to exit\n")
+            else:
+                value = input(f"Invalid input, needed a {optional_value_type_name}\n "
+                              f"Insert a valid input or 'exit' to exit\n")
+
+            if value == "exit":
+                exit(0)
+            elif optional_check_function:
+                if optional_check_function(value):
+                    values += [value_name, str(value)]
+                    valid_value = True
+            elif is_of_type(value, value_type):
+                values += [value_name, str(value)]
+                valid_value = True
+    pass
+
+
+def is_of_type(object_string, type):
+    try:
+        type(object_string)
+        return True
+    except ValueError:
+        return False

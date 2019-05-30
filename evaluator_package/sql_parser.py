@@ -157,8 +157,6 @@ def get_value(l, r, token):
         parse_error()
 
 
-
-
 def parse_args(args):
     left_command_args = copy.deepcopy(args[0: args.index("as")])
     args = args[args.index("as") + 1:]
