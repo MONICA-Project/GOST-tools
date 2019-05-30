@@ -3,6 +3,7 @@ from condition_manager import *
 from condition_config import *
 import connection_config
 import json
+import shlex
 
 
 def get_id_list(dict_list):
@@ -181,6 +182,12 @@ def args_to_dict(args):
     :param args: the array to convert
     :return: the dictionary conversion
     """
-    i = iter(args)
+    new_args = args
+    while (len(new_args) % 2) != 0:
+        new_args = shlex.split(input(f"This command requires an even number of arguments:\n"
+                                     f"<argument 1> <value 1> <argument 2> <value 2> ... <argument n> <value n>\n"
+                                     f"You provided {str(new_args)}\n"
+                                     f"Insert valid args string\n"))
+    i = iter(new_args)
     dict_result = dict(zip(i, i))
     return dict_result
