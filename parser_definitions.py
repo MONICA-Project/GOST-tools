@@ -1,7 +1,7 @@
 import argparse
 from evaluator_package.evaluator_utilities import is_ogc
-
-field_already_checked = []   # needed because otherwise actions is executed two times
+from evaluator_package.selection_expression_validator import *
+import shlex
 
 
 def common_commands_parser():
@@ -11,7 +11,6 @@ def common_commands_parser():
     value"""
 
     parser = argparse.ArgumentParser(fromfile_prefix_chars="$")
-    setattr(parser, "already_checked", [])
 
     parser.add_argument("identifier", help="ID or Name of one or more items to process, "
                                            "or '$' followed by the name of a file with a list of them "
@@ -53,15 +52,16 @@ def common_commands_parser():
                         "multiple values at once\n"
                         "examples:\n--p id <newId> name <newName>\n--p description <newDescription>")
 
-    parser.add_argument("-s", "--select", nargs='*', help="selection of the items from those found with --get,"
-                                                          "before any further operation like delete or patch."
-                                                          "Chosen items are those in which FIELD "
-                                                          "has the selected VALUE. It is usable with " 
-                                                          "multiple values at once, starting with 'and/or' depending " 
-                                                          "if the user wants ALL fields matching or AT LEAST one"
-                                                          "\n(ex: -s id <definedId> name <definedName>)"
-                                                          "\n(ex: -s and id <definedId> name <definedName>)"
-                                                          "\n(ex: -s or id <definedId> name <definedName>)")
+    parser.add_argument("-s", "--select", action=CheckValues,
+                        help="selection of the items from those found with --get,"
+                        "before any further operation like delete or patch."
+                        "Chosen items are those in which FIELD "
+                        "has the selected VALUE. It is usable with " 
+                        "multiple values at once, starting with 'and/or' depending " 
+                        "if the user wants ALL fields matching or AT LEAST one"
+                        "\n(ex: -s id <definedId> name <definedName>)"
+                        "\n(ex: -s and id <definedId> name <definedName>)"
+                        "\n(ex: -s or id <definedId> name <definedName>)")
 
     parser.add_argument("--show", nargs='*', help="select from the results of elaborations"
                                                   "the choosen fields, "
@@ -164,11 +164,10 @@ class CheckValues(argparse.Action):
 
 
 def check_values(values, destination):
-    if destination == "info":
-        print("info")
-        values = [True]
-    elif destination == "create":
+    if destination == "create":
         check_create(values)
+    elif destination == "select":
+        check_select(values)
 
 
 def check_create(values):
@@ -216,9 +215,24 @@ def ask_missing_value(value_name, value_type, input_request, values,
     pass
 
 
+def check_select(values):
+    user_expression = []
+    valid_expression = select_parser_validator(values)
+
+    while not valid_expression:
+        user_expression = input("Error: invalid select expression, insert a valid one or 'exit' to exit\n")
+        if user_expression == "exit":
+            exit(0)
+        valid_expression = select_parser_validator(shlex.split(user_expression))
+
+    values.clear()
+    values += shlex.split(user_expression)
+
+
 def is_of_type(object_string, type):
     try:
         type(object_string)
         return True
     except ValueError:
         return False
+
