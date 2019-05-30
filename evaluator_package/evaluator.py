@@ -34,7 +34,7 @@ class EvaluatorClass:
     def __init__(self, args, reading_file=False, single_command=False):
         self.reading_file = reading_file
         self.parser = init_default_parser()
-        self.args = self.parser.parse_args(args)
+        self.args = args
         self.environment = default_env()
         self.evaluation_steps = []
         self.first_time = args  # stores the first argument given at creation time
