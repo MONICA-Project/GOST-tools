@@ -22,7 +22,12 @@ def select_parser_validator(tokens):
     tokenize_parentheses(tokens)
     local_tokens_copy = copy.deepcopy(tokens)  # necessary because the parser removes all the elements from
                                                # tokens list during evaluation
-    return S(local_tokens_copy)
+    try:
+        result = S(local_tokens_copy)
+        return result
+
+    except:
+        return False
 
 
 def S(tokens, record=None):
@@ -154,6 +159,3 @@ def tokenize_parentheses(tokens):
             if bool(right_side):
                 index += 1
                 tokens.insert(index, right_side)
-
-
-

@@ -50,7 +50,7 @@ def common_commands_parser():
                         action=UserOptionalValue,
                         help="patch the chosen item FIELD with selected VALUE,accepts "
                         "multiple values at once\n"
-                        "examples:\n--p id <newId> name <newName>\n--p description <newDescription>")
+                        "examples:\n--patch id <newId> name <newName>\n--patch description <newDescription>")
 
     parser.add_argument("-s", "--select", action=CheckValues,
                         help="selection of the items from those found with --get,"
@@ -168,6 +168,7 @@ def check_values(values, destination):
         check_create(values)
     elif destination == "select":
         check_select(values)
+        print("ok")
 
 
 def check_create(values):
@@ -216,17 +217,17 @@ def ask_missing_value(value_name, value_type, input_request, values,
 
 
 def check_select(values):
-    user_expression = []
     valid_expression = select_parser_validator(values)
+    if not valid_expression:
 
-    while not valid_expression:
-        user_expression = input("Error: invalid select expression, insert a valid one or 'exit' to exit\n")
-        if user_expression == "exit":
-            exit(0)
-        valid_expression = select_parser_validator(shlex.split(user_expression))
+        while not valid_expression:
+            user_expression = input("Error: invalid select expression, insert a valid one or 'exit' to exit\n")
+            if user_expression == "exit":
+                exit(0)
+            valid_expression = select_parser_validator(shlex.split(user_expression))
 
-    values.clear()
-    values += shlex.split(user_expression)
+        values.clear()
+        values += shlex.split(user_expression)
 
 
 def is_of_type(object_string, type):
