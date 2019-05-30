@@ -83,7 +83,6 @@ def a_1(tokens):
 
 def a(tokens):
     if is_value(tokens[0]):
-        temp_val = tokens[0]
         tokens.pop(0)
         if tokens[0] == "not":
             tokens.pop(0)
@@ -102,7 +101,6 @@ def a(tokens):
         tokens.pop(0)
         if tokens[0] == "==":
             tokens.pop(0)
-            temp_val = tokens[0]
             tokens.pop(0)
             return True
         elif tokens[0] == "!=":

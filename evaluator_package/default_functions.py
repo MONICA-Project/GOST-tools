@@ -214,7 +214,8 @@ def select_items_command(evaluator):
     conditions.select_items(evaluator)
 
 
-@conditions.needed_fields(at_least_one_field=["show", "get"], critical_failures_resistant=False)
+@conditions.needed_fields(at_least_one_field=["show"], critical_failures_resistant=False,
+                          needed_additional_argument=["show"])
 def select_result_fields(evaluator):
     """Selects which fields of the record in result will be showed.
     If get is defined but there is no result, all the getted items will be
@@ -227,9 +228,10 @@ def select_result_fields(evaluator):
         evaluator.environment["results"] = copy.deepcopy(evaluator.environment["selected_items"])
         evaluator.environment["selected_items"] = []
 
-    elif evaluator.args.show:
+    if evaluator.args.show:
         if "all" not in evaluator.args.show:
             for x in evaluator.environment["results"]:
+                print("ok")
                 for field in x.copy():
                     if field not in evaluator.args.show:
                         x.pop(field, None)

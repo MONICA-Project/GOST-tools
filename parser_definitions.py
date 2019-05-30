@@ -63,11 +63,12 @@ def common_commands_parser():
                         "\n(ex: -s and id <definedId> name <definedName>)"
                         "\n(ex: -s or id <definedId> name <definedName>)")
 
-    parser.add_argument("--show", nargs='*', help="select from the results of elaborations"
-                                                  "the choosen fields, "
-                                                  "usable with multiple values at once "
-                                                  "Use 'all' to show all fields "
-                                                  "(ex: --show id name)", default=False)
+    parser.add_argument("--show", action=UserOptionalValue,
+                        help="select from the results of elaborations"
+                        "the choosen fields, "
+                        "usable with multiple values at once "
+                        "Use 'all' to show all fields "
+                        "(ex: --show id name)", default=False)
 
     parser.add_argument("-G", "--GOSTaddress", "--address",
                         help="sets a new address (IP and port) for GOST")
@@ -168,7 +169,6 @@ def check_values(values, destination):
         check_create(values)
     elif destination == "select":
         check_select(values)
-        print("ok")
 
 
 def check_create(values):
