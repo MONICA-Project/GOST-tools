@@ -231,7 +231,6 @@ def select_result_fields(evaluator):
     if evaluator.args.show:
         if "all" not in evaluator.args.show:
             for x in evaluator.environment["results"]:
-                print("ok")
                 for field in x.copy():
                     if field not in evaluator.args.show:
                         x.pop(field, None)
