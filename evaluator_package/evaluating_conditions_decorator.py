@@ -134,6 +134,10 @@ def select_items(evaluator):
             matching = selection_parser.select_parser(evaluator.args.select, single_item)
             if not matching:
                 evaluator.environment["selected_items"].remove(single_item)
+            elif isinstance(matching,dict):
+                if "error" in matching:
+                    evaluator.environment["selected_items"].remove(single_item)
+                    evaluator.environment["non_critical_failures"] += [matching]
         if len(evaluator.environment["selected_items"]) == 0:
             evaluator.environment["critical_failures"] += [f"error: no {evaluator.args.ogc} found "
                                                                f"with select statement conditions"]
@@ -165,7 +169,7 @@ def check_user_defined_arguments(evaluator, all_mandatory_fields, at_least_one_f
         at_least_one = []
     # checking options requiring user-provided values
     for i in needed_additional_argument:
-        if evaluator.args.__dict__[i] == "MISSING_USER_DEFINED_VALUE" or (not bool(evaluator.args.__dict__[i])\
+        if evaluator.args.__dict__[i] == ["MISSING_USER_DEFINED_VALUE"] or (not bool(evaluator.args.__dict__[i])\
                 and (i in mandatory_fields or i in at_least_one or i in needed_additional_argument)):
             help_string = ""
             for j in evaluator.parser._actions:

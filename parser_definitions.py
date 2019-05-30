@@ -14,15 +14,14 @@ def common_commands_parser():
                                            "or 'all' for all the items of chosen type",
                         nargs='*', default=False)
 
-    parser.add_argument("--file",
-                        default=False, nargs='?', const="MISSING_USER_DEFINED_VALUE",
-                        help="choose a FILE from which execute a list of commands", action="store")
+    parser.add_argument("--file", action=UserOptionalValue,
+                        help="choose a FILE from which execute a list of commands")
 
     parser.add_argument("--sql", help="choose a FILE from which execute a sql-like query",
                         action="store", default=False)
 
     parser.add_argument("--template", help="choose a template from a file to use as base for --create",
-                        default=False, nargs='?', const="MISSING_USER_DEFINED_VALUE")
+                        action=UserOptionalValue)
 
     parser.add_argument("--store", help="store the results of command execution in the specified file",
                         action="store", default=False)
@@ -44,8 +43,9 @@ def common_commands_parser():
     parser.add_argument("--silent", help="shuts all the screen outputs of evaluation",
                         action="store_true")
 
-    parser.add_argument("-p", "--patch", default=False, nargs='?', const="MISSING_USER_DEFINED_VALUE",
-                        help="patch the choosen item FIELD with selected VALUE,accepts "
+    parser.add_argument("-p", "--patch",
+                        action=UserOptionalValue,
+                        help="patch the chosen item FIELD with selected VALUE,accepts "
                         "multiple values at once\n"
                         "examples:\n--p id <newId> name <newName>\n--p description <newDescription>")
 
@@ -82,7 +82,7 @@ def common_commands_parser():
 
     parser.add_argument("--interactive", help="starts an interactive session, --exit to return to"
                                               "shell", action="store_true")
-    parser.add_argument("--post", default=False, nargs='?', const="MISSING_USER_DEFINED_VALUE",
+    parser.add_argument("--post", action=UserOptionalValue,
                         help="posts records from user defined file/s to currently selected OGC type\n"
                         "(ex:'--post <file_name> -t <type>'")
 
@@ -91,7 +91,7 @@ def common_commands_parser():
 
 def init_default_parser():
     parser = common_commands_parser()
-    parser.add_argument("--create", default=False, nargs='?', const="MISSING_USER_DEFINED_VALUE",
+    parser.add_argument("--create", action=UserOptionalValue,
                         help="Creates n items of type t in created_files/<type>,"
                         "or in the file defined with 'file <filename>\n"
                         "you can define field values for created records\n"
@@ -99,3 +99,31 @@ def init_default_parser():
                         "(ex: --create num 2 type Sensors file <filename> description new_description)")
     parser.description = "Process user-defined GOST operations"
     return parser
+
+
+class UserOptionalValue(argparse.Action):
+    """A custom action for all the values which can be initialized both with or without arguments, but in
+    the second case the user will be asked to provide one"""
+
+    def __init__(self,option_strings,
+                 dest=None,
+                 nargs="*",
+                 default=False,
+                 required=False,
+                 type=None,
+                 metavar=None,
+                 help=None):
+        super(UserOptionalValue, self).__init__(
+            option_strings=option_strings,
+            dest=dest,
+            nargs=nargs,
+            default=default,
+            required=required,
+            metavar=metavar,
+            type=type,
+            help=help)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        if not bool(values):
+            values = ["MISSING_USER_DEFINED_VALUE"]
+        setattr(namespace, self.dest, values)

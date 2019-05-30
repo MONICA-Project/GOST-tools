@@ -183,6 +183,17 @@ to which post the records. In this case:
 ```
 --post <storing_file_path> --type Sensors
 ```
+Then will be showed the outcome of the posting operation
+
+#####Patching an item's "description" field to a desired value, knowing the item's @iot.id
+
+You need only one step to achieve this result: first of all you have to specify the item to patch,
+which can be done in several ways:
+```
+--get <@iot.id value> -t <item's ogc entity type>
+--select @iot.id == <@iot.id value> -t <item's ogc entity type> 
+```
+
 
 ### Examples of single commands
 Different ways of getting the Sensor with @iot.id = 1 

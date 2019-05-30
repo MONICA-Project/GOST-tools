@@ -124,7 +124,6 @@ def get_command_line(evaluator):
     pass
 
 
-
 @conditions.needed_fields(all_mandatory_fields=["patch"],
                           needed_additional_argument=["patch"],
                           critical_failures_resistant=False,
@@ -320,7 +319,7 @@ def show_failures(evaluator):
             print(x)
         print("Found "+ str(len(evaluator.environment["critical_failures"])) + " critical_failures\n")
 
-    elif evaluator.environment["non_critical_failures"]:
+    if evaluator.environment["non_critical_failures"]:
         for x in evaluator.environment["non_critical_failures"]:
             print(x)
         print("Found " + str(len(evaluator.environment["non_critical_failures"])) + " non_critical_failures\n")

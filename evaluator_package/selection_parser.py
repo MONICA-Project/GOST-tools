@@ -145,7 +145,7 @@ def parse_error(bad_token):
     """Returns an error message and the token causing it
     """
 
-    return {"error": f"parsing error, invalid token {bad_token} found"}
+    return {"error": f"parsing error, invalid token [{bad_token}] found"}
 
 
 def is_field(token):
