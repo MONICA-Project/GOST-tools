@@ -24,7 +24,13 @@ def select_parser(tokens, record=None):
     tokenize_parentheses(tokens)
     local_tokens_copy = copy.deepcopy(tokens)  # necessary because the parser removes all the elements from
                                                # tokens list during evaluation
-    return S(local_tokens_copy, record)
+    result = S(local_tokens_copy, record)
+    if isinstance(result, dict):  # bad parsing error checking
+        return result
+    elif bool(local_tokens_copy):  # error if there are non checked tokens or error messages
+        return {"error": "bad expression, unused tokens found"}
+    else:
+        return result
 
 
 def S(tokens, record=None):
@@ -40,10 +46,10 @@ def S(tokens, record=None):
         tokens.pop(0)
         if tokens[0] == "(":
             tokens.pop(0)
-            temp_result = S(tokens, record)
+            temp_result = not S(tokens, record)
             if tokens[0] == ")":
                 tokens.pop(0)
-                return not (S_1(tokens, temp_result, record))
+                return  S_1(tokens, temp_result, record)
             else:
                 return parse_error(tokens[0])
 

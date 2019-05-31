@@ -1,5 +1,10 @@
 from evaluator_package import selection_parser
 
+
+"""
+A test file for the parser of select expressions
+"""
+
 items = [{"name": "timer", "description": "default description", "metadata": "meta 1", "@iot.id": "1"},
          {"name": "thermometer", "description": "default description", "metadata": "meta 2", "@iot.id": "2"},
          {"name": "photometer", "description": "default description", "metadata": "meta 3", "@iot.id": "3"}]
@@ -43,6 +48,18 @@ tokens_11 = {"name": "11",
              "tokens": ["name", "==", "timer", "or", "@iot.id", "==", "1"],
              "expected_result": True}
 
+tokens_11_1 = {"name": "11_1",
+             "tokens": ["name", "==", "timer", "or", "@iot.id", "==", "1", "random_value_1", "random_value_2"],
+             "expected_result": "error"}
+
+tokens_11_2 = {"name": "11_2",
+             "tokens": ["not", "(", "name", "==", "timer", ")"],
+             "expected_result": False}
+
+tokens_11_3 = {"name": "11_3",
+             "tokens": ["(", "name", "==", "timer", ")"],
+             "expected_result": True}
+
 single_record_test_list = []
 
 single_record_test_list.append(tokens_1)
@@ -56,6 +73,9 @@ single_record_test_list.append(tokens_8)
 single_record_test_list.append(tokens_9)
 single_record_test_list.append(tokens_10)
 single_record_test_list.append(tokens_11)
+single_record_test_list.append(tokens_11_1)
+single_record_test_list.append(tokens_11_2)
+single_record_test_list.append(tokens_11_3)
 
 
 tokens_12 = {"name": "12",
@@ -75,7 +95,14 @@ def test_single_record():
     print("Testing single record")
     for i in single_record_test_list:
         result = selection_parser.select_parser(i["tokens"], items[0])
-        if (result and i["expected_result"]) or ((not result) and (not i["expected_result"])):
+        if isinstance(result, dict):
+            if "error" in result:
+                if i["expected_result"] == "error":
+                    print(f"test {i['name']} passed")
+                else:
+                    print(f"test {i['name']} not passed, {result}")
+
+        elif (result and i["expected_result"]) or ((not result) and (not i["expected_result"])):
             print(f"test {i['name']} passed")
         else:
             print(f"test {i['name']} not passed")
@@ -93,6 +120,7 @@ def test_multi_record():
             print(f"test {i['name']} passed")
         else:
             print(f"test {i['name']} not passed")
+
 
 test_single_record()
 test_multi_record()
