@@ -11,7 +11,7 @@ always_active = [get_info]
 first_initialization = [user_defined_address, saved_address, ping, exec_file]
 default_initialization = [user_defined_address, ping, exec_file]
 
-getting_items = [sql_evaluate, get_command_line, select_items_command]
+getting_items = [sql_evaluate, get_command_line, select_items_command, related_items]
 create_functions = [template, create_records]
 mod_items = [delete, patch, post]
 show = [select_result_fields, show_results]

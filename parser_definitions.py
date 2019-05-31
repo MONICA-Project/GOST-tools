@@ -26,6 +26,9 @@ def common_commands_parser():
     parser.add_argument("--template", help="choose a template from a file to use as base for --create",
                         action=UserOptionalValue)
 
+    parser.add_argument("--related", help="find related items of the choosen type",
+                        action=UserOptionalValue)
+
     parser.add_argument("--store", help="store the results of command execution in the specified file",
                         action="store", default=False)
 

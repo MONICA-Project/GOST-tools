@@ -3,16 +3,18 @@ import connection_config
 import urllib.parse as urlparse
 
 
-def get_all(ogc_name, environment = None, payload = None, sending_address=None):
+def get_all(ogc_name=None, environment=None, payload=None, sending_address=False):
     """sends a GET request for the list of all OGC items of ogcName type
     Returns an array of Ogc items in form of a dictionary
     """
     result = []
     if environment:
         GOST_address = environment["GOST_address"]
-    else:
+        sending_address = GOST_address + "/" + ogc_name
+    elif not sending_address:
         GOST_address = connection_config.get_address_from_file()
-    sending_address = GOST_address + "/" + ogc_name
+        sending_address = GOST_address + "/" + ogc_name
+
     r = requests.get(sending_address, payload)
     response = r.json()
     if "value" in response:
@@ -24,7 +26,7 @@ def get_all(ogc_name, environment = None, payload = None, sending_address=None):
         new_payload = {}
         for x, y in params:
             new_payload[x] = y
-        partial_result = get_all(ogc_name, payload=new_payload, sending_address=next_page_address)
+        partial_result = get_all(payload=new_payload, sending_address=next_page_address)
         (result).extend(partial_result)
 
     return result

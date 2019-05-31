@@ -178,6 +178,16 @@ def patch(evaluator):
         print("trying to patch but no item defined or found")
 
 
+@conditions.needed_fields(at_least_one_field=["pingconnection"], critical_failures_resistant=True)
+def ping(evaluator):
+    """Tests the connection, used for when id is explicitly asked by the user"""
+
+    if evaluator.environment["GOST_address"]:
+        connection_config.test_connection(evaluator.environment["GOST_address"][:-5], verbose=True)
+    else:
+        evaluator.environment["non_critical_failures"].append("GOST address undefined, ping not possible")
+
+
 @conditions.needed_fields(at_least_one_field=["post"], needed_additional_argument=["post"],
                           critical_failures_resistant=False,
                           needed_ogc=True)
@@ -205,6 +215,16 @@ def post(evaluator):
                 result = add_item(obj, evaluator.args.ogc)
                 json_result = json.loads((result.data).decode('utf-8'))
                 conditions.add_result(evaluator, json_result, "results")
+
+
+
+@conditions.needed_fields(at_least_one_field=["related"], needed_additional_argument=["related"], needed_items=True)
+def related_items(evaluator):
+    """find the items of the choosen type which share a datastream with the currently selected item"""
+    result = []
+    for item in evaluator.environment["selected_items"]:
+        result += find_related(item, evaluator.args.ogc, evaluator.args.related[0], evaluator.environment["GOST_address"])
+    evaluator.environment["selected_items"] = result
 
 
 @conditions.needed_fields(at_least_one_field=["select"], critical_failures_resistant=False, needed_items=True)
@@ -235,15 +255,6 @@ def select_result_fields(evaluator):
                     if field not in evaluator.args.show:
                         x.pop(field, None)
 
-
-@conditions.needed_fields(at_least_one_field=["pingconnection"], critical_failures_resistant=True)
-def ping(evaluator):
-    """Tests the connection, used for when id is explicitly asked by the user"""
-
-    if evaluator.environment["GOST_address"]:
-        connection_config.test_connection(evaluator.environment["GOST_address"][:-5], verbose=True)
-    else:
-        evaluator.environment["non_critical_failures"].append("GOST address undefined, ping not possible")
 
 
 @conditions.needed_fields(no_fields=["GOSTaddress"],at_least_one_field=[],
@@ -383,3 +394,34 @@ def create(evaluator):
         if result["created_name_list"]:
             evaluator.environment["results"] += result["created_name_list"]
 
+
+def find_related(item, item_type, related_type, address):
+    """Returns a list of the entities of related_type which share a datastream with item"""
+    datastreams = related_datastreams(item['@iot.id'], item_type, address)
+    related_type_entities = get_all(ogc_name=related_type)
+    result = []
+    for related_entity in related_type_entities:
+        temp_datastreams = related_datastreams(related_entity['@iot.id'], related_type, address)
+        if match(datastreams, temp_datastreams, "@iot.id"):
+            result.append(related_entity)
+
+    for r in result:
+        print(r)
+    return True
+
+
+def related_datastreams(id, type, base_address):
+    """Returns a list of all the datastreams related with the item with id = id and type = type"""
+
+    related_datastreams_address = f"{base_address}/{type}({id})/Datastreams"
+    return get_all(related_datastreams_address)
+
+
+def match(first_list, second_list, attribute_name):
+    """Compares two lists and returns true if in both there is at least one element which
+    has the same value for the attribute 'attribute_name' """
+    for i in first_list:
+        for j in second_list:
+            if i[attribute_name] == j[attribute_name]:
+                return True
+    return False
