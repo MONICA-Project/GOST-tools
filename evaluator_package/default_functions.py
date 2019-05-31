@@ -403,18 +403,21 @@ def find_related(item, item_type, related_type, address):
     for related_entity in related_type_entities:
         temp_datastreams = related_datastreams(related_entity['@iot.id'], related_type, address)
         if match(datastreams, temp_datastreams, "@iot.id"):
+            related_entity[f"related {item_type} id"] = item["@iot.id"]
             result.append(related_entity)
-
-    for r in result:
-        print(r)
-    return True
+    return result
 
 
 def related_datastreams(id, type, base_address):
     """Returns a list of all the datastreams related with the item with id = id and type = type"""
 
     related_datastreams_address = f"{base_address}/{type}({id})/Datastreams"
-    return get_all(related_datastreams_address)
+    result = get_all(sending_address=related_datastreams_address)
+    if not bool(result):
+        related_datastreams_address = f"{base_address}/{type}({id})/Datastream"  # for some type of entities
+                                                                        # like Observations GOST remove the final 's'
+        result = get_all(sending_address=related_datastreams_address)
+    return result
 
 
 def match(first_list, second_list, attribute_name):

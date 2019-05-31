@@ -71,8 +71,9 @@ def create_random_item(args, ogc_type=False):
         return json.dumps({
             "name": user_defined_or_default(args, "name", "Things"),
             "description": user_defined_or_default(args, "description"),
-            "properties": {"organisation": user_defined_or_default(args, "organisation"),
-                           "owner": user_defined_or_default(args, "owner")}}) + "\n"
+            "properties": {"organization": user_defined_or_default(args, "organization"),
+                           "owner": user_defined_or_default(args, "owner")},
+        }) + "\n"
 
     if ogc_type == "Locations":
         missing_fields = needed_user_defined_fields(args, ["Location"])
@@ -177,8 +178,8 @@ def user_defined_or_default(args, field_name, ogc_type=None):
         return {"coordinates": [4.9132, 52.34227],"type": "Point"}
 
     elif field_name == "FeatureOfInterest":
-        if args["feature_of_interest_id"]:
-            return {"@iot.id": args["feature_of_interest"]}
+        if args["FeatureOfInterest_id"]:
+            return {"@iot.id": args["FeatureOfInterest_id"]}
         else:
             return ""
 

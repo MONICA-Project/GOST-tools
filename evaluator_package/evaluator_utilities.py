@@ -54,7 +54,8 @@ def check_name_duplicates(evaluator, list_name):
 
     names_list = []
     for i in evaluator.environment[list_name]:
-        names_list.append(i["name"])
+        if "name" in i:  # necessary for nameless entities like Observations
+            names_list.append(i["name"])
     duplicate_dict = {}
     for j in names_list:
         if j in duplicate_dict:

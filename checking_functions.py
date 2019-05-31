@@ -20,7 +20,10 @@ def get_all(ogc_name=None, environment=None, payload=None, sending_address=False
     if "value" in response:
         result = response["value"]
     if "@iot.nextLink" in response:  # iteration for getting results beyond first page
-        next_page_address = "http://" + response["@iot.nextLink"]
+        if "GOST_address" not in locals():
+            GOST_address = sending_address.split("/v1.0")[0]
+            GOST_address += "/v1.0"
+        next_page_address = GOST_address + response["@iot.nextLink"].split("/v1.0")[1]
         parsed = urlparse.urlparse(next_page_address)
         params = urlparse.parse_qsl(parsed.query)
         new_payload = {}
@@ -28,7 +31,9 @@ def get_all(ogc_name=None, environment=None, payload=None, sending_address=False
             new_payload[x] = y
         partial_result = get_all(payload=new_payload, sending_address=next_page_address)
         (result).extend(partial_result)
-
+    elif isinstance(response, dict) and "value" not in response :  # condition for when the response is a single item
+        if any(response):
+            result.append(response)
     return result
 
 
