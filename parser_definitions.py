@@ -20,17 +20,18 @@ def common_commands_parser():
     parser.add_argument("--file", action=UserOptionalValue,
                         help="choose a FILE from which execute a list of commands")
 
-    parser.add_argument("--sql", help="choose a FILE from which execute a sql-like query",
+    parser.add_argument("--sql", help="choose a FILE from which execute a sql-like query, or write "
+                                      "directly the query",
                         action="store", default=False)
 
     parser.add_argument("--template", help="choose a template from a file to use as base for --create",
                         action=UserOptionalValue)
 
-    parser.add_argument("--related", help="find related items of the choosen type",
+    parser.add_argument("--related", help="find related items of the choosen type\n",
                         action=UserOptionalValue)
 
-    parser.add_argument("--store", help="store the results of command execution in the specified file",
-                        action="store", default=False)
+    parser.add_argument("--store", help="store the results of command execution in the specified file\n",
+                        action=CheckValues)
 
     parser.add_argument("-t", "--ogc", "--type",
                         help="select the OGC Model name of the items to process")
@@ -67,10 +68,8 @@ def common_commands_parser():
                         "\n(ex: -s or id <definedId> name <definedName>)")
 
     parser.add_argument("--show", action=CheckValues,
-                        help="select from the results of elaborations"
-                        "the choosen fields, "
+                        help="select from the results of the elaboration the fields, to show\n"
                         "usable with multiple values at once "
-                        "Use 'all' to show all fields "
                         "(ex: --show id name)")
 
     parser.add_argument("-G", "--GOSTaddress", "--address",
@@ -162,17 +161,19 @@ class CheckValues(argparse.Action):
             help=help)
 
     def __call__(self, parser, namespace, values, option_string=None):
-        check_values(values, self.dest)
+        check_values(values, self.dest, self.help)
         setattr(namespace, self.dest, values)
 
 
-def check_values(values, destination):
+def check_values(values, destination, help_message):
     if destination == "create":
         check_create(values)
     elif destination == "select":
         check_select(values)
     else:  # default missing value check
-        ask_missing_value(destination, str, f"Missing {destination} value/s, insert one or 'exit' to exit\n", values)
+        ask_missing_value(destination, str, f"Missing {destination} value/s, insert one or 'exit' to exit\n"
+        f"[help: {help_message}]\n"
+        f"", values)
 
 
 def check_create(values):
