@@ -45,6 +45,9 @@ optional arguments:
                         otherwise default value will be used
                         (ex: --create num 2 description new_description --type Sensors)
                         
+  --exit                exits from the program when you are in an interactive session
+ 
+                        
   -d, --delete          delete the items chosen with get or selected
                         giving id or name: 
                         example:
@@ -55,9 +58,7 @@ optional arguments:
                         example:
                          --file "absolute_filepath"
                          --file "absolute_filepath_1" "absolute_filepath_2"
-  
-  --exit                exits from the program when you are in an interactive session
-  
+   
   -g, --get             get the items of the currently selected ogc type.If
                         one or more item identifiers or names are definited those items
                         will be selected, otherwise all the items of the currently selected 
@@ -94,6 +95,8 @@ optional arguments:
                         
   --pingconnection, --connectiontest, --conntest
                         sends a ping to test the connection and shows the output
+                        
+  --related
                         
   -s [SELECT [SELECT ...]], --select [SELECT [SELECT ...]]
                         selection of the items to process,

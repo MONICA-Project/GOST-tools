@@ -31,13 +31,16 @@ def delete(evaluator):
 
     if evaluator.environment["selected_items"]:  # deleting selected items
         warning_message = f"You are going to delete the {evaluator.args.ogc} " \
-            f"with the following name and id:\n"   # creation of warning message
+            f"with the following name (if available) and id:\n"   # creation of warning message
         for x in evaluator.environment["selected_items"]:
             try:
                 if "error" in x:
                     pass
                 elif "@iot.id" in x:
-                    warning_message += "id = " +  str(x["@iot.id"]) + " name = " + str(x["name"]) + "\n"
+                    if "name" in x:
+                        warning_message += f"id = {str(x['@iot.id'])} - name = {str(x['name'])}\n"
+                    else:
+                        warning_message += f"id = {str(x['@iot.id'])}\n"
             except AttributeError as attr:
                 print("missing" + attr)
                 pass
@@ -221,11 +224,13 @@ def post(evaluator):
 def related_items(evaluator):
     """find the items of the choosen type which share a datastream with the currently selected item"""
     result = []
-    starting_items_indexes = []
     for item in evaluator.environment["selected_items"]:
         result += find_related(item, evaluator.args.ogc, evaluator.args.related[0],
                                evaluator.environment["GOST_address"])
     evaluator.environment["selected_items"] = result
+
+    evaluator.args.ogc = evaluator.args.related[0]  # change the selected items type to the result type
+    # for future operations
 
 
 @conditions.needed_fields(at_least_one_field=["select"], critical_failures_resistant=False, needed_items=True)
@@ -268,6 +273,7 @@ def saved_address(evaluator):
     evaluator.environment["GOST_address"] = connection_config.set_GOST_address()
     if not evaluator.environment["GOST_address"]:
         evaluator.environment["critical_failures"].append("error: GOST address missing or not working")
+
 
 @conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=True, no_fields=["silent"])
 def show_failures(evaluator):
@@ -399,18 +405,13 @@ def find_related(item, item_type, related_type, address):
     """Returns a list of the entities of related_type which share a datastream with item"""
     datastreams = related_datastreams(item['@iot.id'], item_type, address)
     result = []
-    #related_type_entities = get_all(ogc_name=related_type)
-    #for related_entity in related_type_entities:
-    #    temp_datastreams = related_datastreams(related_entity['@iot.id'], related_type, address)
-    #    if match(datastreams, temp_datastreams, "@iot.id"):
-    #        related_entity[f"related {item_type} id"] = item["@iot.id"]
-    #        result.append(related_entity)
-    #return result
     for related_datastream in datastreams:
         related_result = get_entities_from_datastream(related_datastream, related_type, address)
         if bool(related_result):
             result += related_result
     result = remove_duplicates_by_key(result, "@iot.id")
+    for i in result:
+        i[f"related {item_type} id"] = item["@iot.id"]
     return result
 
 
@@ -437,6 +438,7 @@ def match(first_list, second_list, attribute_name):
 
 
 def get_entities_from_datastream(datastream, entity_type, base_address):
+    """Returns a list of all the entities of type entity_type related to datastream"""
     address = f"{base_address}/Datastreams({datastream['@iot.id']})/{entity_type}"
     result = get_all(sending_address=address)
     if not bool(result):
