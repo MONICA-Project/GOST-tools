@@ -5,7 +5,6 @@ import shlex
 from evaluator_package.environments import default_env
 
 
-
 def needed_fields(no_fields=None, at_least_one_field=None,
                   all_mandatory_fields=None, critical_failures_resistant=False,
                   needed_ogc=False, needed_additional_argument=False, needed_items = False):

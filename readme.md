@@ -335,7 +335,13 @@ Template file content:
 {"encodingType": "application/pdf",
 "metadata": "default metadata"}
 ```
-
+Getting all the Observations which both share a Datastream with Sensors with @iot.id < 10 
+and have a result greater than 100
+```
+--select @iot.id < 10 -t Sensors --related Observations select result > 100
+If you want to delete those Observations, you only need to add the --delete command:
+--select @iot.id < 10 -t Sensors --related Observations select result > 100 --delete
+```
 More details about GOST-CLI implementation:
 
 SPECIAL CHARACTERS

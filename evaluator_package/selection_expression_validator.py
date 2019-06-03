@@ -89,7 +89,7 @@ def a_1(tokens, record = None):
         return a(tokens, record)
 
 
-def a(tokens, record):
+def a(tokens):
     if is_value(tokens[0]):
         tokens.pop(0)
         if tokens[0] == "not":

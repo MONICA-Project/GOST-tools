@@ -139,13 +139,18 @@ def patch(evaluator):
         for x in evaluator.environment["selected_items"]:
             if evaluator.environment["selected_items"]:  # patching selected items
                 warning_message = f"You are going to patch the {evaluator.args.ogc} " \
-                    f"with the following name and id:\n"  # creation of warning message
+                    f"with the following name (if available) and id:\n"  # creation of warning message
                 for x in evaluator.environment["selected_items"]:
                     try:
                         if "error" in x:
                             pass
                         elif "@iot.id" in x:
-                            warning_message += "id = " + str(x["@iot.id"]) + " name = " + str(x["name"]) + "\n"
+                            if "name" in x:
+                                warning_message += f"id = {str(x['@iot.id'])} name = {str(x['name'])} :\n"
+                            else:
+                                warning_message += f"id = {str(x['@iot.id'])} :\n"
+                        for key in patches:
+                            warning_message += f"Patching {key} from {x[key]} to {patches[key]}\n"
                     except AttributeError as attr:
                         print("missing" + attr)
                         pass
@@ -319,6 +324,8 @@ def show_results(evaluator):
         for x in evaluator.environment["results"]:
             pp.pprint(x)
         print(str(len(evaluator.environment["results"])) + " results found\n")
+    else:
+        print("no results found")
 
 
 @conditions.needed_fields(all_mandatory_fields=["template"],
