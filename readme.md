@@ -100,8 +100,10 @@ optional arguments:
                         gets the entities of ogc_entity_type which shares a datastream with the
                         currently selected items, and adds a field "related <ogc type of the previously
                         selected items>" to each result
+                        Accepts select <boolean expression> as additional value to filter the results
                         example:
                         1 --type Sensors --related Observations
+                        1 --type Sensor --related Observations select @iot.id > 10
                         
   -s [SELECT [SELECT ...]], --select [SELECT [SELECT ...]]
                         selection of the items to process,

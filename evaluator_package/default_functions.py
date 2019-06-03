@@ -241,8 +241,6 @@ def related_items(evaluator):
                     evaluator.environment["selected_items"].remove(item)
                     evaluator.environment["non_critical_failures"] += [matching]
 
-
-
     evaluator.args.ogc = evaluator.args.related[0]  # change the selected items type to the result type
     # for future operations
 

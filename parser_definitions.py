@@ -27,7 +27,13 @@ def common_commands_parser():
     parser.add_argument("--template", help="choose a template from a file to use as base for --create",
                         action=UserOptionalValue)
 
-    parser.add_argument("--related", help="find related items of the chosen type",
+    parser.add_argument("--related", help="gets the entities of ogc_entity_type which shares a datastream with the"
+                        "currently selected items, and adds a field 'related <ogc type of the previously"
+                        "selected items>' to each result\n"
+                        "Accepts select <boolean expression> as additional value to filter the results\n"
+                        "examples:\n"
+                        "1 --type Sensors --related Observations\n"
+                        "1 --type Sensor --related Observations select @iot.id > 10\n",
                         action=UserOptionalValue)
 
     parser.add_argument("--store", help="store the results of command execution in the specified file\n",
@@ -38,7 +44,7 @@ def common_commands_parser():
 
     parser.add_argument("-m", "--mode", help="Select an alternative mode of operation."
                                              "Actually available modes:\n"
-                                             "- test\n-default")
+                                             "-test\n-default")
 
     parser.add_argument("-d", "--delete", help="delete the items chosen with get"
                                                "es: -g 15 -t Sensors --delete",
@@ -110,7 +116,7 @@ def init_default_parser():
 
 class UserOptionalValue(argparse.Action):
     """A custom action for all the values which can be initialized both with or without arguments, but in
-    the second case the user will be asked to provide one"""
+    the second case a flag 'MISSING_USER_DEFINED_VALUE' will be setted as value"""
 
     def __init__(self,option_strings,
                  dest=None,
