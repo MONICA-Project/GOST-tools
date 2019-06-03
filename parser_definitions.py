@@ -27,7 +27,7 @@ def common_commands_parser():
     parser.add_argument("--template", help="choose a template from a file to use as base for --create",
                         action=UserOptionalValue)
 
-    parser.add_argument("--related", help="find related items of the choosen type\n",
+    parser.add_argument("--related", help="find related items of the chosen type",
                         action=UserOptionalValue)
 
     parser.add_argument("--store", help="store the results of command execution in the specified file\n",
@@ -133,8 +133,6 @@ class UserOptionalValue(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         if not bool(values):
             values = ["MISSING_USER_DEFINED_VALUE"]
-        else:
-            check_values(values, self.dest)
         setattr(namespace, self.dest, values)
 
 
@@ -161,7 +159,8 @@ class CheckValues(argparse.Action):
             help=help)
 
     def __call__(self, parser, namespace, values, option_string=None):
-        check_values(values, self.dest, self.help)
+        if not bool(values):
+            check_values(values, self.dest, self.help)
         setattr(namespace, self.dest, values)
 
 
@@ -172,8 +171,7 @@ def check_values(values, destination, help_message):
         check_select(values)
     else:  # default missing value check
         ask_missing_value(destination, str, f"Missing {destination} value/s, insert one or 'exit' to exit\n"
-        f"[help: {help_message}]\n"
-        f"", values)
+        f"[help: {help_message}]\n", values)
 
 
 def check_create(values):

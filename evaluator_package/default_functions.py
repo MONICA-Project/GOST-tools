@@ -217,13 +217,14 @@ def post(evaluator):
                 conditions.add_result(evaluator, json_result, "results")
 
 
-
 @conditions.needed_fields(at_least_one_field=["related"], needed_additional_argument=["related"], needed_items=True)
 def related_items(evaluator):
     """find the items of the choosen type which share a datastream with the currently selected item"""
     result = []
+    starting_items_indexes = []
     for item in evaluator.environment["selected_items"]:
-        result += find_related(item, evaluator.args.ogc, evaluator.args.related[0], evaluator.environment["GOST_address"])
+        result += find_related(item, evaluator.args.ogc, evaluator.args.related[0],
+                               evaluator.environment["GOST_address"])
     evaluator.environment["selected_items"] = result
 
 
@@ -241,7 +242,7 @@ def select_result_fields(evaluator):
     If get is defined but there is no result, all the getted items will be
     showed"""
     if evaluator.args.show == "silent":
-        pass
+        return False
     elif not bool(evaluator.environment["results"]) and bool(evaluator.environment["selected_items"]):
         # if at the end of the execution of the command there are some selected items, they are added
         # to the result
@@ -249,12 +250,13 @@ def select_result_fields(evaluator):
         evaluator.environment["selected_items"] = []
 
     if evaluator.args.show:
-        if "all" not in evaluator.args.show:
-            for x in evaluator.environment["results"]:
-                for field in x.copy():
-                    if field not in evaluator.args.show:
-                        x.pop(field, None)
-
+        for x in evaluator.environment["results"]:
+            for field in x.copy():
+                if field not in evaluator.args.show:
+                    x.pop(field, None)
+            for show_field in evaluator.args.show:
+                if show_field not in x.copy():
+                    x[show_field] = "ERROR: field not available"
 
 
 @conditions.needed_fields(no_fields=["GOSTaddress"],at_least_one_field=[],
@@ -266,6 +268,40 @@ def saved_address(evaluator):
     evaluator.environment["GOST_address"] = connection_config.set_GOST_address()
     if not evaluator.environment["GOST_address"]:
         evaluator.environment["critical_failures"].append("error: GOST address missing or not working")
+
+@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=True, no_fields=["silent"])
+def show_failures(evaluator):
+    """Shows the failures occurred during evaluation"""
+
+    if evaluator.environment["critical_failures"]:
+        for x in evaluator.environment["critical_failures"]:
+            print(x)
+        print("Found "+ str(len(evaluator.environment["critical_failures"])) + " critical_failures\n")
+
+    if evaluator.environment["non_critical_failures"]:
+        for x in evaluator.environment["non_critical_failures"]:
+            print(x)
+        print("Found " + str(len(evaluator.environment["non_critical_failures"])) + " non_critical_failures\n")
+
+
+@conditions.needed_fields(at_least_one_field=["sql"], needed_additional_argument=["sql"])
+def sql_evaluate(evaluator):
+    """Evaluate a sql-like query stored in the file provided by the user"""
+    evaluator.environment["selected_items"] = sql.evaluate(evaluator)
+
+
+@conditions.needed_fields(critical_failures_resistant=False, no_fields=["silent"])
+def show_results(evaluator):
+    """Shows the results of evaluation"""
+
+    if bool(evaluator.environment["selected_items"]):  # final check for seleced items not sent to result
+        evaluator.environment["results"] = copy.deepcopy(evaluator.environment["selected_items"])
+    if evaluator.environment["results"]:
+        pp = pprint.PrettyPrinter(indent=4)
+        for x in evaluator.environment["results"]:
+            pp.pprint(x)
+        print(str(len(evaluator.environment["results"])) + " results found\n")
+
 
 @conditions.needed_fields(all_mandatory_fields=["template"],
                           needed_additional_argument=["template", "create"],
@@ -322,48 +358,12 @@ def user_defined_address(evaluator, verbose = True):
                 evaluator.environment["critical_failures"].append("error: GOST address not defined")
 
 
-@conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=True)
-def show_failures(evaluator):
-    """Shows the failures occurred during evaluation"""
-
-    if evaluator.environment["critical_failures"]:
-        for x in evaluator.environment["critical_failures"]:
-            print(x)
-        print("Found "+ str(len(evaluator.environment["critical_failures"])) + " critical_failures\n")
-
-    if evaluator.environment["non_critical_failures"]:
-        for x in evaluator.environment["non_critical_failures"]:
-            print(x)
-        print("Found " + str(len(evaluator.environment["non_critical_failures"])) + " non_critical_failures\n")
-
-
-@conditions.needed_fields(at_least_one_field=["sql"], needed_additional_argument=["sql"])
-def sql_evaluate(evaluator):
-    """Evaluate a sql-like query stored in the file provided by the user"""
-    evaluator.environment["selected_items"] = sql.evaluate(evaluator)
-
-
-@conditions.needed_fields(critical_failures_resistant=False, no_fields=["silent"])
-def show_results(evaluator):
-    """Shows the results of evaluation"""
-
-    if bool(evaluator.environment["selected_items"]):  # final check for seleced items not sent to result
-        evaluator.environment["results"] = copy.deepcopy(evaluator.environment["selected_items"])
-    if evaluator.environment["results"]:
-        pp = pprint.PrettyPrinter(indent=4)
-        for x in evaluator.environment["results"]:
-            pp.pprint(x)
-        print(str(len(evaluator.environment["results"])) + " results found\n")
-
-
 @conditions.needed_fields(no_fields=["template"], at_least_one_field=["create"],
                           needed_additional_argument=["create"],
                           critical_failures_resistant=False)
 def create_records(evaluator):
     """create records to store in a file"""
     create(evaluator)
-
-
 
 
 @conditions.needed_fields(at_least_one_field=["file"], needed_additional_argument=["file"],
@@ -398,13 +398,19 @@ def create(evaluator):
 def find_related(item, item_type, related_type, address):
     """Returns a list of the entities of related_type which share a datastream with item"""
     datastreams = related_datastreams(item['@iot.id'], item_type, address)
-    related_type_entities = get_all(ogc_name=related_type)
     result = []
-    for related_entity in related_type_entities:
-        temp_datastreams = related_datastreams(related_entity['@iot.id'], related_type, address)
-        if match(datastreams, temp_datastreams, "@iot.id"):
-            related_entity[f"related {item_type} id"] = item["@iot.id"]
-            result.append(related_entity)
+    #related_type_entities = get_all(ogc_name=related_type)
+    #for related_entity in related_type_entities:
+    #    temp_datastreams = related_datastreams(related_entity['@iot.id'], related_type, address)
+    #    if match(datastreams, temp_datastreams, "@iot.id"):
+    #        related_entity[f"related {item_type} id"] = item["@iot.id"]
+    #        result.append(related_entity)
+    #return result
+    for related_datastream in datastreams:
+        related_result = get_entities_from_datastream(related_datastream, related_type, address)
+        if bool(related_result):
+            result += related_result
+    result = remove_duplicates_by_key(result, "@iot.id")
     return result
 
 
@@ -428,3 +434,28 @@ def match(first_list, second_list, attribute_name):
             if i[attribute_name] == j[attribute_name]:
                 return True
     return False
+
+
+def get_entities_from_datastream(datastream, entity_type, base_address):
+    address = f"{base_address}/Datastreams({datastream['@iot.id']})/{entity_type}"
+    result = get_all(sending_address=address)
+    if not bool(result):
+        address = address[:-1]  # for some type if entities the removal of final -s is needed
+        result = get_all(sending_address=address)
+
+    return result
+
+
+def remove_duplicates_by_key(list_to_clear, key_name):
+    """Removes from list_to_clear, a list of dictionaries, all the elements which have key_name key values equals,
+    lefting only one"""
+
+    result_list = []
+    key_values_list = []
+    for i in list_to_clear:
+        if str(i[key_name]) in key_values_list:
+            pass
+        else:
+            key_values_list.append(str(i[key_name]))
+            result_list.append(i)
+    return result_list
