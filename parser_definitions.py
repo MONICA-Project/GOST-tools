@@ -66,12 +66,12 @@ def common_commands_parser():
                         "\n(ex: -s and id <definedId> name <definedName>)"
                         "\n(ex: -s or id <definedId> name <definedName>)")
 
-    parser.add_argument("--show", action=UserOptionalValue,
+    parser.add_argument("--show", action=CheckValues,
                         help="select from the results of elaborations"
                         "the choosen fields, "
                         "usable with multiple values at once "
                         "Use 'all' to show all fields "
-                        "(ex: --show id name)", default=False)
+                        "(ex: --show id name)")
 
     parser.add_argument("-G", "--GOSTaddress", "--address",
                         help="sets a new address (IP and port) for GOST")
@@ -162,7 +162,6 @@ class CheckValues(argparse.Action):
             help=help)
 
     def __call__(self, parser, namespace, values, option_string=None):
-        global field_already_checked
         check_values(values, self.dest)
         setattr(namespace, self.dest, values)
 
@@ -172,6 +171,8 @@ def check_values(values, destination):
         check_create(values)
     elif destination == "select":
         check_select(values)
+    else:  # default missing value check
+        ask_missing_value(destination, str, f"Missing {destination} value/s, insert one or 'exit' to exit\n", values)
 
 
 def check_create(values):
@@ -184,7 +185,7 @@ def check_create(values):
                           optional_check_function=is_ogc, optional_value_type_name="ogc entity type")
 
 
-def ask_missing_value(value_name, value_type, input_request, values,
+def ask_missing_value(value_name, value_type, input_request="", values=None,
                       optional_check_function=False, optional_value_type_name=False):
     valid_value = False
     value = input(input_request)
