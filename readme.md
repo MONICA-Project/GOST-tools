@@ -96,7 +96,12 @@ optional arguments:
   --pingconnection, --connectiontest, --conntest
                         sends a ping to test the connection and shows the output
                         
-  --related
+  --related [ogc_entity_type]
+                        gets the entities of ogc_entity_type which shares a datastream with the
+                        currently selected items, and adds a field "related <ogc type of the previously
+                        selected items>" to each result
+                        example:
+                        1 --type Sensors --related Observations
                         
   -s [SELECT [SELECT ...]], --select [SELECT [SELECT ...]]
                         selection of the items to process,

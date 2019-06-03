@@ -6,7 +6,7 @@ from creation_utilities import create_records_file
 from evaluator_package.environments import default_env
 import copy
 from . import evaluating_conditions_decorator as conditions
-from . import evaluator_utilities
+from . import selection_parser
 from . import exceptions as exception
 from . import sql_mode as sql
 
@@ -228,6 +228,20 @@ def related_items(evaluator):
         result += find_related(item, evaluator.args.ogc, evaluator.args.related[0],
                                evaluator.environment["GOST_address"])
     evaluator.environment["selected_items"] = result
+
+    if len(evaluator.args.related)>1 and evaluator.args.related[1] == "select":  # checks if there are selection filters
+        ## inside "related" command
+        selection_rules = evaluator.args.related[2:]
+        for item in evaluator.environment["selected_items"].copy():
+            matching = selection_parser.select_parser(selection_rules, item)
+            if not matching:
+                evaluator.environment["selected_items"].remove(item)
+            elif isinstance(matching, dict):
+                if "error" in matching:
+                    evaluator.environment["selected_items"].remove(item)
+                    evaluator.environment["non_critical_failures"] += [matching]
+
+
 
     evaluator.args.ogc = evaluator.args.related[0]  # change the selected items type to the result type
     # for future operations
