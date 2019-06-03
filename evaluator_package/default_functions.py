@@ -95,7 +95,6 @@ def execute_and_exit(evaluator):
         raise exception.PassEnvironmentException(evaluator.return_environment)
 
 
-
 @conditions.needed_fields(at_least_one_field=["info"], all_mandatory_fields=[],
                           critical_failures_resistant=True)
 def get_info(evaluator):
@@ -150,7 +149,10 @@ def patch(evaluator):
                             else:
                                 warning_message += f"id = {str(x['@iot.id'])} :\n"
                         for key in patches:
-                            warning_message += f"Patching {key} from {x[key]} to {patches[key]}\n"
+                            if key in x:
+                                warning_message += f" Patching {key} from {x[key]} to {patches[key]}\n"
+                            else:
+                                warning_message += f" Missing field {key}"
                     except AttributeError as attr:
                         print("missing" + attr)
                         pass
