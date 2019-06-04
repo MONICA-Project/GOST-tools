@@ -148,7 +148,7 @@ def patch(evaluator):
                                 if wrong_key in ["ignore", "changed_name"]:
                                     pass
                                 elif wrong_key == "exit":
-                                    return False
+                                    exit(0)
                         patches = copy.deepcopy(patches_temp_copy)
 
                         for key in patches:
