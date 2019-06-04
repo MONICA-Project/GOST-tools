@@ -144,7 +144,7 @@ def patch(evaluator):
                         patches_temp_copy = copy.deepcopy(patches)
                         for key in patches:
                             if key not in x:
-                                wrong_key = key_warning(patches_temp_copy, x, key)
+                                wrong_key = key_warning(patches_temp_copy, x, key, key)
                                 if wrong_key in ["ignore", "changed_name"]:
                                     pass
                                 elif wrong_key == "exit":
@@ -328,16 +328,13 @@ def show_results(evaluator):
         for x in evaluator.environment["results"]:
             pp.pprint(x)
         print(str(len(evaluator.environment["results"])) + " results found\n")
-    else:
-        print("no results found")
 
 
 @conditions.needed_fields(at_least_one_field=["store"], needed_items=True)
 def store(evaluator):
     """Stores the current command results in the file defined by user in args.store"""
     file = open(evaluator.args.store[0], "w")
-    for i in evaluator.environment["results"]:
-        file.write(json.dumps(i) + "\n")
+    file.write(json.dumps(evaluator.environment["results"]))
 
 
 @conditions.needed_fields(all_mandatory_fields=["template"],
@@ -494,7 +491,7 @@ def remove_duplicates_by_key(list_to_clear, key_name):
     return result_list
 
 
-def key_warning(patches_dictionary, item, key):
+def key_warning(patches_dictionary, item, key, originally_wrong_key = False):
     key_user_warning = input(f"You are trying to patch the field {key} but it does not exists,\n "
                              f"do you want to:\n "
                              f"change field name [type 'name']\n"
@@ -502,8 +499,9 @@ def key_warning(patches_dictionary, item, key):
                              f"exit the patching operation [type 'exit']\n")
     if key_user_warning in "name":
         available_fields = "["
-        for key in item:
-            available_fields += key + "\n"
+        for item_key in item:  # creating a preview of the available fields for the user
+            if item_key not in patches_dictionary:  # checking if the field is not already patched
+                available_fields += item_key + "\n"
         available_fields += "]"
 
         name_warning = input(f"Select a new value for the field name or 'exit' to exit\n"
@@ -512,19 +510,19 @@ def key_warning(patches_dictionary, item, key):
             return "exit"
         else:
             if name_warning in item:
+                if originally_wrong_key:
+                    key = originally_wrong_key
                 patches_dictionary[name_warning] = copy.deepcopy(patches_dictionary[key])
                 patches_dictionary.pop(key, None)
                 return "name_changed"
             else:
-                result = key_warning(patches_dictionary, item, name_warning)
+                result = key_warning(patches_dictionary, item, name_warning, originally_wrong_key)
                 if result == "exit":
                     return "exit"
                 elif result == "ignore":
                     return "ignore"
                 elif result == "name_changed":
                     return "name_changed"
-                else:
-                    return key_warning(patches_dictionary, item, name_warning)
 
     elif key_user_warning in "ignore":
         patches_dictionary.pop(key, None)
@@ -532,4 +530,4 @@ def key_warning(patches_dictionary, item, key):
     elif key_user_warning in "exit":
         return "exit"
     else:
-        return "Insert a valid option\n" + key_warning(patches_dictionary, item, key_user_warning)
+        return "Insert a valid option\n" + key_warning(patches_dictionary, item, key_user_warning, originally_wrong_key)
