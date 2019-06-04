@@ -198,10 +198,10 @@ def ask_missing_value(value_name, value_type, input_request="", values=None,
         exit(0)
     elif optional_check_function:
         if optional_check_function(value):
-            values += [value_name, str(value)]
+            values += [str(value)]
             valid_value = True
     elif is_of_type(value, value_type):
-        values += [value_name, str(value)]
+        values += [str(value)]
         valid_value = True
 
     if not valid_value:
@@ -217,10 +217,10 @@ def ask_missing_value(value_name, value_type, input_request="", values=None,
                 exit(0)
             elif optional_check_function:
                 if optional_check_function(value):
-                    values += [value_name, str(value)]
+                    values += [str(value)]
                     valid_value = True
             elif is_of_type(value, value_type):
-                values += [value_name, str(value)]
+                values += [str(value)]
                 valid_value = True
     pass
 

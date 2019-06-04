@@ -109,13 +109,6 @@ def get_info(evaluator):
         print("Address : " + evaluator.environment["GOST_address"])
 
 
-@conditions.needed_fields(at_least_one_field=["store"], needed_items=True)
-def store(evaluator):
-    """Stores the current command results in the file defined by user in args.store"""
-    file = open(evaluator.args.store, "w")
-    for i in evaluator.environment["results"]:
-        file.write(json.dumps(i) + "\n")
-
 
 @conditions.needed_fields(at_least_one_field=["get"], needed_ogc=True,
                           critical_failures_resistant=False, needed_items=True)  # the items are retrieved  in the
@@ -148,11 +141,20 @@ def patch(evaluator):
                                 warning_message += f"id = {str(x['@iot.id'])} name = {str(x['name'])} :\n"
                             else:
                                 warning_message += f"id = {str(x['@iot.id'])} :\n"
+                        patches_temp_copy = copy.deepcopy(patches)
+                        for key in patches:
+                            if key not in x:
+                                wrong_key = key_warning(patches_temp_copy, x, key)
+                                if wrong_key in ["ignore", "changed_name"]:
+                                    pass
+                                elif wrong_key == "exit":
+                                    return False
+                        patches = copy.deepcopy(patches_temp_copy)
+
                         for key in patches:
                             if key in x:
                                 warning_message += f" Patching {key} from {x[key]} to {patches[key]}\n"
-                            else:
-                                warning_message += f" Missing field {key}"
+
                     except AttributeError as attr:
                         print("missing" + attr)
                         pass
@@ -330,6 +332,14 @@ def show_results(evaluator):
         print("no results found")
 
 
+@conditions.needed_fields(at_least_one_field=["store"], needed_items=True)
+def store(evaluator):
+    """Stores the current command results in the file defined by user in args.store"""
+    file = open(evaluator.args.store[0], "w")
+    for i in evaluator.environment["results"]:
+        file.write(json.dumps(i) + "\n")
+
+
 @conditions.needed_fields(all_mandatory_fields=["template"],
                           needed_additional_argument=["template", "create"],
                           critical_failures_resistant=False)
@@ -482,3 +492,44 @@ def remove_duplicates_by_key(list_to_clear, key_name):
             key_values_list.append(str(i[key_name]))
             result_list.append(i)
     return result_list
+
+
+def key_warning(patches_dictionary, item, key):
+    key_user_warning = input(f"You are trying to patch the field {key} but it does not exists,\n "
+                             f"do you want to:\n "
+                             f"change field name [type 'name']\n"
+                             f"continue with patching ignoring that field [type 'ignore']\n"
+                             f"exit the patching operation [type 'exit']\n")
+    if key_user_warning in "name":
+        available_fields = "["
+        for key in item:
+            available_fields += key + "\n"
+        available_fields += "]"
+
+        name_warning = input(f"Select a new value for the field name or 'exit' to exit\n"
+                             f"available fields:\n" + available_fields + "\n")
+        if name_warning in "exit":
+            return "exit"
+        else:
+            if name_warning in item:
+                patches_dictionary[name_warning] = copy.deepcopy(patches_dictionary[key])
+                patches_dictionary.pop(key, None)
+                return "name_changed"
+            else:
+                result = key_warning(patches_dictionary, item, name_warning)
+                if result == "exit":
+                    return "exit"
+                elif result == "ignore":
+                    return "ignore"
+                elif result == "name_changed":
+                    return "name_changed"
+                else:
+                    return key_warning(patches_dictionary, item, name_warning)
+
+    elif key_user_warning in "ignore":
+        patches_dictionary.pop(key, None)
+        return "ignore"
+    elif key_user_warning in "exit":
+        return "exit"
+    else:
+        return "Insert a valid option\n" + key_warning(patches_dictionary, item, key_user_warning)

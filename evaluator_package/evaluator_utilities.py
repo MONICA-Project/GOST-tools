@@ -9,14 +9,15 @@ def ask_ogc(evaluator):
         evaluator.args.ogc = provided_ogc + "s"
         return True
     if provided_ogc == 'exit':
-        return False
+        exit(0)
     else:
         while not (is_ogc(provided_ogc) or is_ogc(provided_ogc + "s")):
             provided_ogc = input("Invalid Ogc Type, insert one or 'exit' to exit:\n"
                                  "(the types are Things, Sensors, Locations, HystoricalLocations, Datastreams, "
                                  "ObservedProperties, Observations, FeaturesOfInterest)\n")
+
             if provided_ogc == 'exit':
-                return False
+                exit(0)
     if is_ogc(provided_ogc):
         evaluator.args.ogc = provided_ogc
         return True

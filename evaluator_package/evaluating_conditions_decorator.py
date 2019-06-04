@@ -96,7 +96,9 @@ def get_items(current_evaluator):
                 get_result = get_item(i, current_evaluator.args.ogc, current_evaluator.environment)
                 add_result(current_evaluator, get_result, field_name="selected_items")
         else:
-            evaluator_utilities.check_and_fix_ogc(current_evaluator)
+            result = evaluator_utilities.check_and_fix_ogc(current_evaluator)
+            if not result:
+                return False
             result_all = get_all(current_evaluator.args.ogc, current_evaluator.environment)
             for i in result_all:
                 add_result(current_evaluator, i, field_name="selected_items")
