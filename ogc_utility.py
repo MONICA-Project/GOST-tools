@@ -64,12 +64,13 @@ def get_item_id_by_name(name, type, environment = None):
     return False
 
 
-def get_item(identifier, ogc_type, environment):
+def get_item(identifier, ogc_type, environment=None, address=False):
     """finds the id of the item of type "type" with a given name or id
     """
     if not identifier.isdigit():
         identifier = get_item_id_by_name(identifier, ogc_type, environment)
-    address = environment["GOST_address"] + "/"
+    if not address:
+        address = environment["GOST_address"] + "/"
     query_address = f"{address}{ogc_type}({identifier})"
     response = send_json("", sending_address=query_address, request_type= "GET")
     json_response = response.json()
