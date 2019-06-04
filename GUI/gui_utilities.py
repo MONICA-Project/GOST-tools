@@ -1,5 +1,7 @@
 from checking_functions import *
 from ogc_utility import *
+from evaluator_package import selection_parser
+import copy
 
 def populate(elements_list):
     for i in elements_list:

@@ -10,6 +10,7 @@ class GetView:
         self.selected_identifiers= None
         self.result = None
         self.main_view = main_view
+        self.show_fields = "all"
 
         main_view.current_command_view = self
 
@@ -20,12 +21,14 @@ class GetView:
         types = {'Sensors', 'Things'}
         self.selected_type.set("Select an OGC type")
 
+        self.selected_type.trace("w", self.show_options)
+
+
         types_menu = OptionMenu(main_view.window, self.selected_type, *types)
         self.view_elements.append({"item":types_menu, "row": 1, "column" : 1})
 
-
-
-        selected_identifiers_description = Label(main_view.window, text="Insert one or more names or @iot.id")
+        selected_identifiers_description = Label(main_view.window, text="Insert one or more names or @iot.id\n"
+                                                                        "separated by a space")
 
         self.view_elements.append({"item":selected_identifiers_description, "row": 2, "column" : 0})
         self.selected_identifiers = Entry(main_view.window, width=10)
@@ -33,12 +36,19 @@ class GetView:
 
 
 
-
         selected_boolean_expression_description = Label(main_view.window, text="Insert a filter for results\n "
                                                                                "(<,>,==,in,not in)(and or not")
-        self.view_elements.append({"item":selected_boolean_expression_description, "row": 8, "column" : 0})
-        self.selected_boolean_expression = Entry(main_view.window, width=10)
-        self.view_elements.append({"item":self.selected_boolean_expression, "row": 8, "column" : 1})
+        self.view_elements.append({"item":selected_boolean_expression_description, "row": 7, "column" : 0})
+        self.selected_boolean_expression = Entry(main_view.window, width=50)
+        self.view_elements.append({"item":self.selected_boolean_expression, "row": 7, "column" : 1})
+
+
+
+        types_menu_description = Label(main_view.window, text="Select fields to show (default: all)")
+        self.view_elements.append({"item":types_menu_description, "row": 8, "column": 0})
+
+
+
 
 
         search_btn = Button(main_view.window, text="Search!", command=lambda: search(self))
@@ -52,11 +62,28 @@ class GetView:
         for i in self.view_elements:
             i["item"].grid_forget()
 
+    def show_options(self, a, b, c):  # additional parameters a b c needed because it is called by Trace function
+        field_names = None
+        if self.selected_type.get() == "Sensors":
+            field_names = ["name", "description", "encodingType", "metadata", "Datastreams@iot.navigationLink"]
+        elif self.selected_type.get() == "Things":
+            field_names = ["name", "description", "properties"]
+
+        self.show_fields = Listbox(self.main_view.window, selectmode=MULTIPLE)
+
+        self.show_fields.insert(END, "@iot.id")
+
+        for item in field_names:
+            self.show_fields.insert(END, item)
+
+        self.show_fields.grid(column=1, row=8)
+        self.view_elements.append({"item": self.show_fields, "row": 9, "column": 0})
 
 
 def get_command(view):
     view.hide()
     GetView(view)
+
 
 
 def search(self):
@@ -77,7 +104,32 @@ def search(self):
         else:
             selected_items = get_all(self.selected_type.get())
 
-        result = Text(self.main_view.window, width=50, height=30)
+        if bool(self.selected_boolean_expression.get()):  # filtering the results
+            expression = shlex.split(self.selected_boolean_expression.get())
+            for single_item in selected_items.copy():
+                matching = selection_parser.select_parser(expression, single_item)
+                if not matching:
+                    selected_items.remove(single_item)
+                elif isinstance(matching, dict):
+                    if "error" in matching:
+                        selected_items.remove(single_item)
+            if len(selected_items) == 0:
+                selected_items += [f"error: no items found with select statement conditions"]
+
+        if self.show_fields != "all":
+            selected_fields_names = [self.show_fields.get(i) for i in self.show_fields.curselection()]
+            temporary_selected_items = []
+            for i in selected_items:
+                temporary_item = copy.deepcopy(i)
+                for key in i:
+                    if key not in selected_fields_names:
+                        temporary_item.pop(key)
+                temporary_selected_items.append(temporary_item)
+            selected_items = temporary_selected_items
+
+
+
+        result = Text(self.main_view.window, width=50, height=10)
         row = 0
         for i in selected_items:
             result.insert(f"{row}.0", i)
