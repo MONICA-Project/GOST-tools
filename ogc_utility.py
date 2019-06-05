@@ -112,12 +112,13 @@ def add_item(req, type, spec = None):
                                                     + (json.loads(s.text))["error"]["message"][0])), 500)
 
 
-def patch_item(options_dict, identifier, ogc_type, environment):
+def patch_item(options_dict, identifier, ogc_type, environment = False, address = False):
     """patch the item identified by 'identifier' with the fields
     provided with 'options_dict'
     """
-    GOST_address = environment["GOST_address"] + "/"
-    address = f"{GOST_address}{ogc_type}({check_id(identifier)})"
+    if not bool(address):
+        address = environment["GOST_address"] + "/"
+    address = f"{address}{ogc_type}({check_id(identifier)})"
     if "name" in options_dict:
         if item_is_already_present(options_dict["name"], ogc_type):
             return {"error" : f"Trying to patch "
