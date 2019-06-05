@@ -12,6 +12,9 @@ class GetView:
         self.result = None
         self.main_view = main_view
         self.show_fields = "all"
+        self.selected_items = None
+        self.delete_btn = None
+        self.result = None
 
         main_view.current_command_view = self
 
@@ -46,6 +49,9 @@ class GetView:
         search_btn = Button(main_view.window, text="Search!", command=lambda: search(self))
         self.view_elements.append({"item":search_btn, "row": 10, "column" : 0})
 
+        self.delete_btn = Button(main_view.window, text="Delete", command=lambda: delete(self))
+        self.view_elements.append({"item": self.delete_btn, "row": 10, "column": 1})
+
         populate(self.view_elements)
 
     def hide(self):
@@ -70,25 +76,26 @@ class GetView:
         self.view_elements.append({"item": self.show_fields, "row": 9, "column": 0})
 
 
-def get_command(view):
+def get_delete_command(view):
     view.hide()
     GetView(view)
 
 
-def search(self):
+def get_items(self):
     selected_items = []
     if self.selected_type.get() == "Select an OGC type":
         result = Text(self.main_view.window, width=50, height=1)
-        result.insert("1.0","Error: OGC type needed")
+        result.insert("1.0", "Error: OGC type needed")
         result.grid(column=0, row=9)
         self.view_elements.append({"item": result, "row": 9, "column": 0})
+        return "error"
     else:
         if bool(self.selected_identifiers.get()):
             identifiers = shlex.split(self.selected_identifiers.get())
             for i in identifiers:
                 address = self.main_view.model.GOST_address + "/"
                 selected_items.append(get_item(i, self.selected_type.get(),
-                                           address=address))
+                                               address=address))
 
         else:
             selected_items = get_all(self.selected_type.get())
@@ -118,16 +125,74 @@ def search(self):
                             temporary_item.pop(key)
                     temporary_selected_items.append(temporary_item)
             selected_items = temporary_selected_items
+        return selected_items
 
-        result = Text(self.main_view.window, width=50, height=10)
+
+def search(self):
+    selected_items = get_items(self)
+    if selected_items != "error":
+        self.result = Text(self.main_view.window, width=50, height=10)
         row = 0
         for i in selected_items:
             formatted_record = json.dumps(i, sort_keys=True, indent=2) + "\n"
-            result.insert(f"1.0", formatted_record)
+            self.result.insert(f"1.0", formatted_record)
             row += 1
 
-        result.grid(column=0, row=9)
-        self.view_elements.append({"item":result, "row": 9, "column" : 0})
+        self.result.grid(column=0, row=9)
+        self.view_elements.append({"item":self.result, "row": 9, "column": 0, "name": "result"})
 
 
+def delete(self):
+    indexes_to_delete = []  # clearing the results of previous get
+    if bool(self.result):
+        self.result.grid_forget()
+    for index, val in enumerate(self.view_elements):
+        if "name" in val:
+            if val["name"] in ["result"]:
+                indexes_to_delete.append(index)
+    for i in sorted(indexes_to_delete, reverse=True):
+        del self.view_elements[i]
 
+    self.selected_items = get_items(self)
+    if self.selected_items != "error":
+        self.result = Text(self.main_view.window, width=50, height=10)
+        row = 0
+        for i in self.selected_items:
+            formatted_record = json.dumps(i, sort_keys=True, indent=2) + "\n"
+            self.result.insert(f"1.0", formatted_record)
+            row += 1
+
+        self.view_elements.append({"item": self.result, "row": 9, "column": 1, "name" : "result"})
+        self.delete_btn.config(text = "Click here to confirm \nthe deletion of the selected elements",
+                               command = lambda : confirm_deletion(self))
+        self.abort_delete_button = Button(self.main_view.window, text="Click here to abort the deletion",
+                                          command=lambda: abort_deletion(self))
+        self.view_elements.append({"item": self.abort_delete_button, "row": 10, "column": 3,
+                                   "name": "abort_deletion_button"})
+        populate(self.view_elements)
+
+
+def confirm_deletion(self):
+    address = self.main_view.model.GOST_address + "/"
+    for i in self.selected_items:
+        if "@iot.id" in i:
+            delete_item(i["@iot.id"], self.selected_type.get(), address=address)
+
+    self.delete_btn.config(text="Delete",
+                           command=lambda: delete(self))
+    self.selected_items = []
+
+
+def abort_deletion(self):
+    self.selected_items = []
+    self.delete_btn.config(text="Delete",
+                           command=lambda: delete(self))
+    indexes_to_delete = []
+    self.abort_delete_button.grid_forget()
+    self.result.grid_forget()
+    for index, val in enumerate(self.view_elements):
+        if "name" in val:
+            if val["name"] in ["abort_deletion_button", "result"]:
+                indexes_to_delete.append(index)
+    for i in sorted(indexes_to_delete, reverse=True):
+        del self.view_elements[i]

@@ -1,6 +1,6 @@
 from tkinter import *
 from connection_config import *
-from GUI.commands.get_handler import get_command
+from GUI.commands.get_delete_handler import get_delete_command
 from GUI.commands.settings import change_settings
 from GUI.gui_utilities import *
 import copy
@@ -22,8 +22,9 @@ class View():
         self.address_preview = None
         self.confirm_address_button = None
         self.new_address_entry = None
+        self.keep_old_address_button = None
 
-        self.window.geometry('1000x500')
+        self.window.geometry('1000x600')
 
         if bool(self.model.GOST_address):
             info_text = f"Current GOST address: {self.model.GOST_address}"
@@ -35,8 +36,7 @@ class View():
 
         self.address_preview.grid(column=0, row=0)
 
-        GET_btn = Button(self.window, text="GET", command=lambda: get_command(self))
-        DELETE_btn = Button(self.window, text="DELETE")
+        GET_btn = Button(self.window, text="GET/DELETE", command=lambda: get_delete_command(self))
         PATCH_btn = Button(self.window, text="PATCH")
         POST_btn = Button(self.window, text="POST")
         CREATE_btn = Button(self.window, text="CREATE on file")
@@ -45,7 +45,6 @@ class View():
         self.main_view_elements = []
 
         self.main_view_elements.append({"item":GET_btn, "row":1, "column" : 1})
-        self.main_view_elements.append({"item":DELETE_btn, "row":2, "column" : 1})
         self.main_view_elements.append({"item":PATCH_btn, "row":3, "column" : 1})
         self.main_view_elements.append({"item":POST_btn, "row":1, "column" : 2})
         self.main_view_elements.append({"item":CREATE_btn, "row":2, "column" : 2})
@@ -54,7 +53,7 @@ class View():
         populate(self.main_view_elements)
 
         back_button = Button(self.window, text="Back to Main Menu", command =lambda: restore_main(self))
-        back_button.grid(column=3, row=0)
+        back_button.grid(column=4, row=0)
 
         self.window.mainloop()
 
@@ -80,6 +79,12 @@ def change_address_main(self):
     self.view_elements.append({"item": self.confirm_address_button, "row": 0, "column": 2,
                                "name": "new_address_button"})
 
+    self.keep_old_address_button = Button(self.window, text="Keep old address",
+                                         command=lambda: keep_address(self))
+    self.view_elements.append({"item": self.keep_old_address_button, "row": 0, "column": 3,
+                               "name": "keep_old_address_button"})
+
+
     populate(self.view_elements)
 
 
@@ -89,18 +94,31 @@ def try_address(self):
     if working_conn:
         self.address_preview.configure(text=f"Current GOST address: {self.model.GOST_address} "
         f"\nclick here to change address")
-        self.new_address_entry.grid_forget()
-        self.confirm_address_button.grid_forget()
         indexes_to_delete = []
         for index, val in enumerate(self.view_elements):
             if "name" in val:
-                if val["name"] in ["new_address_entry", "new_address_button"]:
+                if val["name"] in ["new_address_entry", "new_address_button", "keep_old_address_button"]:
                     indexes_to_delete.append(index)
         for i in sorted(indexes_to_delete, reverse=True):
+            self.view_elements[i]["item"].grid_forget()
             del self.view_elements[i]
 
     else:
         self.address_preview.configure(text="Invalid address, insert a new address")
+
+
+def keep_address(self):
+    self.address_preview.configure(text=f"Current GOST address: {self.model.GOST_address} "
+    f"\nclick here to change address")
+    indexes_to_delete = []
+    for index, val in enumerate(self.view_elements):
+        if "name" in val:
+            if val["name"] in ["new_address_entry", "new_address_button", "keep_old_address_button"]:
+                indexes_to_delete.append(index)
+    for i in sorted(indexes_to_delete, reverse=True):
+        self.view_elements[i]["item"].grid_forget()
+        del self.view_elements[i]
+
 
 
 if __name__ == '__main__':
