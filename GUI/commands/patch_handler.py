@@ -140,12 +140,13 @@ def confirm_patching(self):
 
 def abort_patching(self):
     self.selected_items = []
-    self.delete_btn.config(text="Delete",
+    self.patch_btn.config(text="Click here to Patch\nwith the following values:\n"
+                                "(an ogc entity type must be selected)",
                            command=lambda: patch(self))
     indexes_to_delete = []
     for index, val in enumerate(self.view_elements):
         if "name" in val:
-            if val["name"] in ["abort_deletion_button", "result", "show_fields"]:
+            if val["name"] in ["abort_patching_button", "result", "show_fields"]:
                 indexes_to_delete.append(index)
     for i in sorted(indexes_to_delete, reverse=True):
         self.view_elements[i]["item"].grid_forget()
