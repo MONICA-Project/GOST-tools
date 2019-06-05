@@ -1,6 +1,8 @@
 from tkinter import *
+from tkinter import messagebox
 from connection_config import *
-from GUI.commands.get_delete_handler import get_delete_command
+from GUI.commands.get_handler import get_command
+from GUI.commands.delete_handler import delete_command
 from GUI.commands.settings import change_settings
 from GUI.gui_utilities import *
 import copy
@@ -36,7 +38,8 @@ class View():
 
         self.address_preview.grid(column=0, row=0)
 
-        GET_btn = Button(self.window, text="GET/DELETE", command=lambda: get_delete_command(self))
+        GET_btn = Button(self.window, text="GET", command=lambda: get_command(self))
+        DELETE_btn = Button(self.window, text="DELETE", command=lambda: delete_command(self))
         PATCH_btn = Button(self.window, text="PATCH")
         POST_btn = Button(self.window, text="POST")
         CREATE_btn = Button(self.window, text="CREATE on file")
@@ -45,6 +48,7 @@ class View():
         self.main_view_elements = []
 
         self.main_view_elements.append({"item":GET_btn, "row":1, "column" : 1})
+        self.main_view_elements.append({"item":DELETE_btn, "row":2, "column" : 1})
         self.main_view_elements.append({"item":PATCH_btn, "row":3, "column" : 1})
         self.main_view_elements.append({"item":POST_btn, "row":1, "column" : 2})
         self.main_view_elements.append({"item":CREATE_btn, "row":2, "column" : 2})
@@ -104,6 +108,7 @@ def try_address(self):
             del self.view_elements[i]
 
     else:
+        messagebox.showinfo("Error", "invalid GOST address")
         self.address_preview.configure(text="Invalid address, insert a new address")
 
 
@@ -118,7 +123,6 @@ def keep_address(self):
     for i in sorted(indexes_to_delete, reverse=True):
         self.view_elements[i]["item"].grid_forget()
         del self.view_elements[i]
-
 
 
 if __name__ == '__main__':

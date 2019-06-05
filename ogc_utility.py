@@ -139,15 +139,16 @@ def check_id(item_identifier):
     return item_identifier
 
 
-def delete_by_id(id, ogcName, environment):
+def delete_by_id(id, ogcName, environment=False, address=False):
     """delete the item of type ogcName with id==n
     """
-    address = environment["GOST_address"] + "/"
+    if not address:
+        address = environment["GOST_address"] + "/"
     r = requests.delete(f"{address}{ogcName}({str(id)})")
     return r
 
 
-def delete_item(item_identifier, type, environment):
+def delete_item(item_identifier, type, environment=False, address=False):
     """delete a single item
 
     :param item_identifier: the id of the item to delete
@@ -156,7 +157,7 @@ def delete_item(item_identifier, type, environment):
     :return: returns a message of success or error as a dictionary
     """
     check_id(str(item_identifier))
-    return_value = delete_by_id(str(item_identifier), type, environment)
+    return_value = delete_by_id(str(item_identifier), type, environment, address)
     if return_value.ok:
         return {"success": f"deleted from {type}, identifier {item_identifier}"}
     else:

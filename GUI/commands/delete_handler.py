@@ -3,7 +3,7 @@ from GUI.gui_utilities import *
 import shlex
 
 
-class GetView:
+class DeleteView:
     def __init__(self, main_view):
         self.view_elements = []
         self.selected_type = None
@@ -43,11 +43,8 @@ class GetView:
         self.selected_boolean_expression = Entry(main_view.window, width=50)
         self.view_elements.append({"item":self.selected_boolean_expression, "row": 7, "column" : 1})
 
-        types_menu_description = Label(main_view.window, text="Select fields to show (default: all)")
-        self.view_elements.append({"item":types_menu_description, "row": 8, "column": 0})
-
-        search_btn = Button(main_view.window, text="Search!", command=lambda: search(self))
-        self.view_elements.append({"item":search_btn, "row": 10, "column" : 0})
+        fields_menu_description = Label(main_view.window, text="Select fields to show (default: all)")
+        self.view_elements.append({"item":fields_menu_description, "row": 8, "column": 0})
 
         self.delete_btn = Button(main_view.window, text="Delete", command=lambda: delete(self))
         self.view_elements.append({"item": self.delete_btn, "row": 10, "column": 1})
@@ -73,85 +70,16 @@ class GetView:
             self.show_fields.insert(END, item)
 
         self.show_fields.grid(column=1, row=8)
-        self.view_elements.append({"item": self.show_fields, "row": 9, "column": 0})
+        self.view_elements.append({"item": self.show_fields, "row": 9, "column": 0, "name": "show_fields"})
 
 
-def get_delete_command(view):
+def delete_command(view):
     view.hide()
-    GetView(view)
-
-
-def get_items(self):
-    selected_items = []
-    if self.selected_type.get() == "Select an OGC type":
-        result = Text(self.main_view.window, width=50, height=1)
-        result.insert("1.0", "Error: OGC type needed")
-        result.grid(column=0, row=9)
-        self.view_elements.append({"item": result, "row": 9, "column": 0})
-        return "error"
-    else:
-        if bool(self.selected_identifiers.get()):
-            identifiers = shlex.split(self.selected_identifiers.get())
-            for i in identifiers:
-                address = self.main_view.model.GOST_address + "/"
-                selected_items.append(get_item(i, self.selected_type.get(),
-                                               address=address))
-
-        else:
-            selected_items = get_all(self.selected_type.get())
-
-        if bool(self.selected_boolean_expression.get()):  # filtering the results
-            expression = shlex.split(self.selected_boolean_expression.get())
-            for single_item in selected_items.copy():
-                matching = selection_parser.select_parser(expression, single_item)
-                if not matching:
-                    selected_items.remove(single_item)
-                elif isinstance(matching, dict):
-                    if "error" in matching:
-                        selected_items.remove(single_item)
-            if len(selected_items) == 0:
-                selected_items += [f"error: no items found with select statement conditions"]
-
-        if len(self.show_fields.curselection()) > 0:
-            selected_fields_names = [self.show_fields.get(i) for i in self.show_fields.curselection()]
-            temporary_selected_items = []
-            for i in selected_items:
-                if "error" in i:
-                    temporary_selected_items.append(copy.deepcopy(i))
-                else:
-                    temporary_item = copy.deepcopy(i)
-                    for key in i:
-                        if key not in selected_fields_names:
-                            temporary_item.pop(key)
-                    temporary_selected_items.append(temporary_item)
-            selected_items = temporary_selected_items
-        return selected_items
-
-
-def search(self):
-    selected_items = get_items(self)
-    if selected_items != "error":
-        self.result = Text(self.main_view.window, width=50, height=10)
-        row = 0
-        for i in selected_items:
-            formatted_record = json.dumps(i, sort_keys=True, indent=2) + "\n"
-            self.result.insert(f"1.0", formatted_record)
-            row += 1
-
-        self.result.grid(column=0, row=9)
-        self.view_elements.append({"item":self.result, "row": 9, "column": 0, "name": "result"})
+    DeleteView(view)
 
 
 def delete(self):
-    indexes_to_delete = []  # clearing the results of previous get
-    if bool(self.result):
-        self.result.grid_forget()
-    for index, val in enumerate(self.view_elements):
-        if "name" in val:
-            if val["name"] in ["result"]:
-                indexes_to_delete.append(index)
-    for i in sorted(indexes_to_delete, reverse=True):
-        del self.view_elements[i]
+    clear_results(self)
 
     self.selected_items = get_items(self)
     if self.selected_items != "error":
@@ -188,11 +116,10 @@ def abort_deletion(self):
     self.delete_btn.config(text="Delete",
                            command=lambda: delete(self))
     indexes_to_delete = []
-    self.abort_delete_button.grid_forget()
-    self.result.grid_forget()
     for index, val in enumerate(self.view_elements):
         if "name" in val:
-            if val["name"] in ["abort_deletion_button", "result"]:
+            if val["name"] in ["abort_deletion_button", "result", "show_fields"]:
                 indexes_to_delete.append(index)
     for i in sorted(indexes_to_delete, reverse=True):
+        self.view_elements[i]["item"].grid_forget()
         del self.view_elements[i]
