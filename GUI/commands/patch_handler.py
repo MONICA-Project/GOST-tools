@@ -58,6 +58,15 @@ class PatchView:
             i["item"].grid_forget()
 
     def show_options(self, a, b, c):  # additional parameters a b c needed because it is called by Trace function
+        indexes_to_delete = []  # clearing the previously set patch options
+        for index, val in enumerate(self.view_elements):
+            if "name" in val:
+                if val["name"] in ["patch_field_name", "patch_field_value"]:
+                    indexes_to_delete.append(index)
+        for i in sorted(indexes_to_delete, reverse=True):
+            self.view_elements[i]["item"].grid_forget()
+            del self.view_elements[i]
+
         field_names = None
         if self.selected_type.get() == "Sensors":
             field_names = ["name", "description", "encodingType", "metadata", "Datastreams@iot.navigationLink"]
@@ -75,14 +84,16 @@ class PatchView:
             self.show_fields.insert(END, item)
             if item != "name":
                 temp_label = Label(self.main_view.window, text=item)
-                self.view_elements.append({"item": temp_label, "row": row, "column": 0, "name" : "patch_field_name"})
+                self.view_elements.append({"item": temp_label, "row": row, "column": 0, "name": "patch_field_name"})
                 temp_entry = Entry(self.main_view.window, width=50)
-                self.view_elements.append({"item": temp_entry, "row": row, "column": 1, "name" : "patch_field_value"})
+                self.view_elements.append({"item": temp_entry, "row": row, "column": 1, "name": "patch_field_value"})
                 row += 1
                 self.patch_values.append({"field_name" : item, "field_entry": temp_entry})
 
         self.show_fields.grid(column=1, row=8)
         self.view_elements.append({"item": self.show_fields, "row": 9, "column": 0, "name": "show_fields"})
+
+
         populate(self.view_elements)
 
 
