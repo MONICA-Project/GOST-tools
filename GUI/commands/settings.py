@@ -45,9 +45,11 @@ def change_address(self):
     if working_conn:
         self.main_view.address_preview.configure(text=f"Current GOST address: {self.main_view.model.GOST_address} "
                                                       f"\nclick here to change address")
-        self.main_view.confirm_address_button.grid_forget()
-        self.main_view.new_address_entry.grid_forget()
+        self.confirm_address_button.configure(text="To change address, insert a new address\nand click here")
+        if bool(self.main_view.confirm_address_button):
+            self.main_view.confirm_address_button.grid_forget()
+            self.main_view.new_address_entry.grid_forget()
     else:
-        self.confirm_address_button.configure(text="Invalid address, insert a new address")
+        self.confirm_address_button.configure(text="Invalid address, insert a new address\nand click here")
 
 

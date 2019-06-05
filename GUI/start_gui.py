@@ -73,11 +73,12 @@ def change_address_main(self):
     self.address_preview.configure(text="Insert a new address\n(format: http://x.x.x.x:port_number/v1.0)")
 
     self.new_address_entry = Entry(self.window, width=40)
-    self.view_elements.append({"item": self.new_address_entry , "row": 0, "column": 1})
+    self.view_elements.append({"item": self.new_address_entry, "row": 0, "column": 1, "name": "new_address_entry"})
 
     self.confirm_address_button = Button(self.window, text="Confirm change",
                                          command=lambda: try_address(self))
-    self.view_elements.append({"item": self.confirm_address_button, "row": 0, "column": 2})
+    self.view_elements.append({"item": self.confirm_address_button, "row": 0, "column": 2,
+                               "name": "new_address_button"})
 
     populate(self.view_elements)
 
@@ -90,6 +91,14 @@ def try_address(self):
         f"\nclick here to change address")
         self.new_address_entry.grid_forget()
         self.confirm_address_button.grid_forget()
+        indexes_to_delete = []
+        for index, val in enumerate(self.view_elements):
+            if "name" in val:
+                if val["name"] in ["new_address_entry", "new_address_button"]:
+                    indexes_to_delete.append(index)
+        for i in sorted(indexes_to_delete, reverse=True):
+            del self.view_elements[i]
+
     else:
         self.address_preview.configure(text="Invalid address, insert a new address")
 
