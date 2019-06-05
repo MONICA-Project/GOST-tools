@@ -109,6 +109,14 @@ def confirm_deletion(self):
     self.delete_btn.config(text="Delete",
                            command=lambda: delete(self))
     self.selected_items = []
+    indexes_to_delete = []
+    for index, val in enumerate(self.view_elements):
+        if "name" in val:
+            if val["name"] in ["abort_deletion_button", "result", "show_fields"]:
+                indexes_to_delete.append(index)
+    for i in sorted(indexes_to_delete, reverse=True):
+        self.view_elements[i]["item"].grid_forget()
+        del self.view_elements[i]
 
 
 def abort_deletion(self):

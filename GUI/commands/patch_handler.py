@@ -49,7 +49,7 @@ class PatchView:
         self.patch_btn = Button(main_view.window, text="Click here to Patch\nwith the following values:\n"
                                                        "(an ogc entity type must be selected)",
                                                         command=lambda: patch(self))
-        self.view_elements.append({"item": self.patch_btn, "row": 10, "column": 1})
+        self.view_elements.append({"item": self.patch_btn, "row": 10, "column": 1, "name": "patching_button"})
 
         populate(self.view_elements)
 
@@ -110,7 +110,7 @@ def patch(self):
         self.abort_patch_btn = Button(self.main_view.window, text="Click here to abort the patching",
                                           command=lambda: abort_patching(self))
         self.view_elements.append({"item": self.abort_patch_btn, "row": 10, "column": 3,
-                                   "name": "abort_deletion_button"})
+                                   "name": "abort_patching_button"})
         populate(self.view_elements)
 
 
@@ -128,6 +128,14 @@ def confirm_patching(self):
                                 "(an ogc entity type must be selected)",
                                 command=lambda: patch(self))
     self.selected_items = []
+    indexes_to_delete = []
+    for index, val in enumerate(self.view_elements):
+        if "name" in val:
+            if val["name"] in ["abort_patching_button", "result", "show_fields"]:
+                indexes_to_delete.append(index)
+    for i in sorted(indexes_to_delete, reverse=True):
+        self.view_elements[i]["item"].grid_forget()
+        del self.view_elements[i]
 
 
 def abort_patching(self):
