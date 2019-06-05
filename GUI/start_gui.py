@@ -1,6 +1,7 @@
 from tkinter import *
 from connection_config import *
 from GUI.commands.get_handler import get_command
+from GUI.commands.settings import change_settings
 from GUI.gui_utilities import *
 import copy
 
@@ -17,22 +18,29 @@ class View():
         self.window = Tk()
         self.current_command_view = None
         self.model = Model()
-
-
         self.window.title("GOST-CONTROLLER")
+        self.address_preview = None
+        self.confirm_address_button = None
+        self.new_address_entry = None
 
-        self.window.geometry('500x480')
+        self.window.geometry('1000x500')
 
-        info_lbl = Label(self.window, text=f"current GOST address: {self.model.GOST_address}")
+        if bool(self.model.GOST_address):
+            info_text = f"Current GOST address: {self.model.GOST_address}"
+        else:
+            info_text = "Invalid GOST address"
 
-        info_lbl.grid(column=0, row=0)
+        self.address_preview = Button(self.window, text=f"{info_text} \nclick here to change address",
+                               command=lambda: change_address_main(self))
+
+        self.address_preview.grid(column=0, row=0)
 
         GET_btn = Button(self.window, text="GET", command=lambda: get_command(self))
         DELETE_btn = Button(self.window, text="DELETE")
         PATCH_btn = Button(self.window, text="PATCH")
         POST_btn = Button(self.window, text="POST")
         CREATE_btn = Button(self.window, text="CREATE on file")
-        SETTINGS_btn = Button(self.window, text="SETTINGS")
+        SETTINGS_btn = Button(self.window, text="SETTINGS", command=lambda: change_settings(self))
 
         self.main_view_elements = []
 
@@ -46,13 +54,14 @@ class View():
         populate(self.main_view_elements)
 
         back_button = Button(self.window, text="Back to Main Menu", command =lambda: restore_main(self))
-        back_button.grid(column=1, row=0)
+        back_button.grid(column=3, row=0)
 
         self.window.mainloop()
 
     def hide(self):
         for i in self.main_view_elements:
-            i["item"].grid_forget()
+            if "item" in i:
+                i["item"].grid_forget()
 
 
 def restore_main(self):
@@ -60,16 +69,29 @@ def restore_main(self):
     populate(self.main_view_elements)
 
 
+def change_address_main(self):
+    self.address_preview.configure(text="Insert a new address\n(format: http://x.x.x.x:port_number/v1.0)")
 
-class Controller():
-    def __init__(self):
-        self.root = Tk.Tk()
-        self.model = Model()
-        self.view = View(self.root)
-        self.view.sidepanel.plotBut.bind("<Button>", self.my_plot)
-        self.view.sidepanel.clearButton.bind("<Button>", self.clear)
+    self.new_address_entry = Entry(self.window, width=40)
+    self.view_elements.append({"item": self.new_address_entry , "row": 0, "column": 1})
+
+    self.confirm_address_button = Button(self.window, text="Confirm change",
+                                         command=lambda: try_address(self))
+    self.view_elements.append({"item": self.confirm_address_button, "row": 0, "column": 2})
+
+    populate(self.view_elements)
 
 
+def try_address(self):
+    new_address = self.new_address_entry.get()
+    working_conn = connection_config.test_connection((new_address))
+    if working_conn:
+        self.address_preview.configure(text=f"Current GOST address: {self.model.GOST_address} "
+        f"\nclick here to change address")
+        self.new_address_entry.grid_forget()
+        self.confirm_address_button.grid_forget()
+    else:
+        self.address_preview.configure(text="Invalid address, insert a new address")
 
 
 if __name__ == '__main__':

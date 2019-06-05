@@ -2,6 +2,7 @@ from tkinter import *
 from GUI.gui_utilities import *
 import shlex
 
+
 class GetView:
     def __init__(self, main_view):
         self.view_elements = []
@@ -23,7 +24,6 @@ class GetView:
 
         self.selected_type.trace("w", self.show_options)
 
-
         types_menu = OptionMenu(main_view.window, self.selected_type, *types)
         self.view_elements.append({"item":types_menu, "row": 1, "column" : 1})
 
@@ -34,27 +34,17 @@ class GetView:
         self.selected_identifiers = Entry(main_view.window, width=10)
         self.view_elements.append({"item": self.selected_identifiers, "row": 2, "column" : 1})
 
-
-
         selected_boolean_expression_description = Label(main_view.window, text="Insert a filter for results\n "
                                                                                "(<,>,==,in,not in)(and or not")
         self.view_elements.append({"item":selected_boolean_expression_description, "row": 7, "column" : 0})
         self.selected_boolean_expression = Entry(main_view.window, width=50)
         self.view_elements.append({"item":self.selected_boolean_expression, "row": 7, "column" : 1})
 
-
-
         types_menu_description = Label(main_view.window, text="Select fields to show (default: all)")
         self.view_elements.append({"item":types_menu_description, "row": 8, "column": 0})
 
-
-
-
-
         search_btn = Button(main_view.window, text="Search!", command=lambda: search(self))
         self.view_elements.append({"item":search_btn, "row": 10, "column" : 0})
-
-
 
         populate(self.view_elements)
 
@@ -83,7 +73,6 @@ class GetView:
 def get_command(view):
     view.hide()
     GetView(view)
-
 
 
 def search(self):
@@ -116,24 +105,26 @@ def search(self):
             if len(selected_items) == 0:
                 selected_items += [f"error: no items found with select statement conditions"]
 
-        if self.show_fields != "all":
+        if len(self.show_fields.curselection()) > 0:
             selected_fields_names = [self.show_fields.get(i) for i in self.show_fields.curselection()]
             temporary_selected_items = []
             for i in selected_items:
-                temporary_item = copy.deepcopy(i)
-                for key in i:
-                    if key not in selected_fields_names:
-                        temporary_item.pop(key)
-                temporary_selected_items.append(temporary_item)
+                if "error" in i:
+                    temporary_selected_items.append(copy.deepcopy(i))
+                else:
+                    temporary_item = copy.deepcopy(i)
+                    for key in i:
+                        if key not in selected_fields_names:
+                            temporary_item.pop(key)
+                    temporary_selected_items.append(temporary_item)
             selected_items = temporary_selected_items
-
-
 
         result = Text(self.main_view.window, width=50, height=10)
         row = 0
         for i in selected_items:
-            result.insert(f"{row}.0", i)
-            row += 2
+            formatted_record = json.dumps(i, sort_keys=True, indent=2) + "\n"
+            result.insert(f"1.0", formatted_record)
+            row += 1
 
         result.grid(column=0, row=9)
         self.view_elements.append({"item":result, "row": 9, "column" : 0})
