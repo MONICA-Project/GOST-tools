@@ -1,4 +1,3 @@
-from tkinter import messagebox
 from connection_config import *
 from GUI.commands.get_handler import get_command
 from GUI.commands.delete_handler import delete_command

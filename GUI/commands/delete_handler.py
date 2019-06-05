@@ -117,6 +117,8 @@ def confirm_deletion(self):
     for i in sorted(indexes_to_delete, reverse=True):
         self.view_elements[i]["item"].grid_forget()
         del self.view_elements[i]
+    messagebox.showinfo("Delete", "DELETION CONFIRMED")
+
 
 
 def abort_deletion(self):

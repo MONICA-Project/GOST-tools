@@ -147,6 +147,7 @@ def confirm_patching(self):
     for i in sorted(indexes_to_delete, reverse=True):
         self.view_elements[i]["item"].grid_forget()
         del self.view_elements[i]
+    messagebox.showinfo("Patch", "PATCH CONFIRMED")
 
 
 def abort_patching(self):
