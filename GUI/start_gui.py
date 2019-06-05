@@ -1,11 +1,10 @@
-from tkinter import *
 from tkinter import messagebox
 from connection_config import *
 from GUI.commands.get_handler import get_command
 from GUI.commands.delete_handler import delete_command
+from GUI.commands.patch_handler import patch_command
 from GUI.commands.settings import change_settings
 from GUI.gui_utilities import *
-import copy
 
 
 class Model():
@@ -40,7 +39,7 @@ class View():
 
         GET_btn = Button(self.window, text="GET", command=lambda: get_command(self))
         DELETE_btn = Button(self.window, text="DELETE", command=lambda: delete_command(self))
-        PATCH_btn = Button(self.window, text="PATCH")
+        PATCH_btn = Button(self.window, text="PATCH", command=lambda: patch_command(self))
         POST_btn = Button(self.window, text="POST")
         CREATE_btn = Button(self.window, text="CREATE on file")
         SETTINGS_btn = Button(self.window, text="SETTINGS", command=lambda: change_settings(self))
