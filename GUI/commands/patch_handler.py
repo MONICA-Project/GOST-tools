@@ -12,6 +12,7 @@ class PatchView:
         self.show_fields = "all"
         self.selected_items = None
         self.patch_btn = None
+        self.abort_patch_btn = None
         self.result = None
         self.patch_values = []
 
@@ -104,27 +105,32 @@ def patch(self):
             row += 1
 
         self.view_elements.append({"item": self.result, "row": 9, "column": 1, "name" : "result"})
-        self.delete_btn.config(text = "Click here to confirm \nthe Patching of the selected elements",
-                               command = lambda : confirm_deletion(self))
-        self.abort_delete_button = Button(self.main_view.window, text="Click here to abort the patching",
-                                          command=lambda: abort_deletion(self))
-        self.view_elements.append({"item": self.abort_delete_button, "row": 10, "column": 3,
+        self.patch_btn.config(text = "Click here to confirm \nthe Patching of the selected elements",
+                               command = lambda : confirm_patching(self))
+        self.abort_patch_btn = Button(self.main_view.window, text="Click here to abort the patching",
+                                          command=lambda: abort_patching(self))
+        self.view_elements.append({"item": self.abort_patch_btn, "row": 10, "column": 3,
                                    "name": "abort_deletion_button"})
         populate(self.view_elements)
 
 
-def confirm_deletion(self):
+def confirm_patching(self):
     address = self.main_view.model.GOST_address + "/"
+    patches = {}
+    for i in self.patch_values:
+        if bool(i["field_entry"].get()):
+            patches[i["field_name"]] = i["field_entry"].get()
     for i in self.selected_items:
         if "@iot.id" in i:
-            delete_item(i["@iot.id"], self.selected_type.get(), address=address)
+            patch_item(patches, str(i.get("@iot.id")), self.selected_type.get(), address=address)
 
-    self.delete_btn.config(text="Delete",
-                           command=lambda: patch(self))
+    self.patch_btn.config(text="Click here to Patch\nwith the following values:\n"
+                                "(an ogc entity type must be selected)",
+                                command=lambda: patch(self))
     self.selected_items = []
 
 
-def abort_deletion(self):
+def abort_patching(self):
     self.selected_items = []
     self.delete_btn.config(text="Delete",
                            command=lambda: patch(self))

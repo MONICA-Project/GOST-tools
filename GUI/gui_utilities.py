@@ -23,6 +23,7 @@ def clear_results(self):
             if val["name"] in ["result"]:
                 indexes_to_delete.append(index)
     for i in sorted(indexes_to_delete, reverse=True):
+        self.view_elements[i]["item"].grid_forget()
         del self.view_elements[i]
 
 
@@ -32,7 +33,7 @@ def get_items(self):
         result = Text(self.main_view.window, width=50, height=1)
         result.insert("1.0", "Error: OGC type needed")
         result.grid(column=0, row=9)
-        self.view_elements.append({"item": result, "row": 9, "column": 0})
+        self.view_elements.append({"item": result, "row": 9, "column": 1, "name" : "result"})
         return "error"
     else:
         if bool(self.selected_identifiers.get()):
