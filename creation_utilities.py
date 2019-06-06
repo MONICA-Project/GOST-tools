@@ -102,7 +102,7 @@ def create_random_item(args, ogc_type=False):
         return json.dumps({"name": user_defined_or_default(args, "name", "Locations"),
                            "description": user_defined_or_default(args, "description"),
                            "encodingType": user_defined_or_default(args, "encodingType", "Locations"),
-                           "location": {"coordinates": user_defined_or_default(args, "coordinates"),
+                           "Location": {"coordinates": user_defined_or_default(args, "coordinates"),
                                         "type": user_defined_or_default(args, "type")}}) + "\n"
 
     if ogc_type == "ObservedProperties":

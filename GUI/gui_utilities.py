@@ -87,3 +87,49 @@ def get_items(self):
         if bool(error_message):
             messagebox.showinfo("ERROR", error_message)
         return selected_items
+
+
+def get_fields_names(ogc_type, needed_for_editing = False):
+    values = []
+    if ogc_type == "Sensors":
+        values = ["name", "description", "encodingType", "metadata"]
+    elif ogc_type == "Things":
+        values =["name", "description"]
+        if needed_for_editing:
+            values += ["organization", "owner"]
+        else:
+            values += ["properties"]
+
+    elif ogc_type == "ObservedProperties":
+        values = ["name", "definition", "description"]
+
+    elif ogc_type == "Datastreams":
+        values = ["name", "description", "observationType", "unitOfMeasurement", "observedArea",
+                "phenomenonTime", "resultTime"]
+        if needed_for_editing:
+            values += ["Thing_id", "ObservedProperty_id", "Sensor_id", "unitOfMeasurement_definition",
+                       "unitOfMeasurement_name",  "unitOfMeasurement_symbol"]
+        else:
+            values += [ "unitOfMeasurement", "Thing", "Sensor", "ObservedProperty"]
+
+    elif ogc_type == "Observations":
+        values = ["result", "FeatureOfInterest"]
+        if needed_for_editing:
+            values += ["Datastream_id"]
+        else:
+            values += ["Datastream", "resultTime", "result", "resultQuality", "validTime", "parameters"]
+
+    elif ogc_type == "FeaturesOfInterest":
+        values = ["name", "description", "encodingType", "feature"]
+
+    elif ogc_type == "Location":
+        values = ["name", "description", "encodingType"]
+        if needed_for_editing:
+            values += ["type", "coordinates"]
+        else:
+            values += ["Location"]
+
+    return values
+
+def get_ogc_types():
+    return {"Sensors", "Things", "Datastreams", "Locations", "ObservedProperties", "Observations", "FeaturesOfInterest"}

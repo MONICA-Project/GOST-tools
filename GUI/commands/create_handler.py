@@ -26,7 +26,7 @@ class CreateView:
         self.view_elements.append({"item":types_menu_description, "row": 1, "column": 0})
 
         self.selected_type = StringVar(main_view.window)
-        types = {'Sensors', 'Things'}
+        types = get_ogc_types()
         self.selected_type.set("Select an OGC type")
 
         self.selected_type.trace("w", self.show_options)
@@ -51,17 +51,13 @@ class CreateView:
         indexes_to_delete = []  # clearing the previously set patch options
         for index, val in enumerate(self.view_elements):
             if "name" in val:
-                if val["name"] in ["patch_field_name", "patch_field_value"]:
+                if val["name"] in ["create_field_name", "create_field_value"]:
                     indexes_to_delete.append(index)
         for i in sorted(indexes_to_delete, reverse=True):
             self.view_elements[i]["item"].grid_forget()
             del self.view_elements[i]
 
-        field_names = None
-        if self.selected_type.get() == "Sensors":
-            field_names = ["name", "description", "encodingType", "metadata", "Datastreams@iot.navigationLink"]
-        elif self.selected_type.get() == "Things":
-            field_names = ["name", "description", "properties"]
+        field_names = get_fields_names(self.selected_type.get(), needed_for_editing=True)
 
         row = 11
 

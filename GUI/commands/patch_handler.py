@@ -22,7 +22,7 @@ class PatchView:
         self.view_elements.append({"item":types_menu_description, "row": 1, "column": 0})
 
         self.selected_type = StringVar(main_view.window)
-        types = {'Sensors', 'Things'}
+        types = get_ogc_types()
         self.selected_type.set("Select an OGC type")
 
         self.selected_type.trace("w", self.show_options)
@@ -68,11 +68,7 @@ class PatchView:
             self.view_elements[i]["item"].grid_forget()
             del self.view_elements[i]
 
-        field_names = None
-        if self.selected_type.get() == "Sensors":
-            field_names = ["name", "description", "encodingType", "metadata", "Datastreams@iot.navigationLink"]
-        elif self.selected_type.get() == "Things":
-            field_names = ["name", "description", "properties"]
+        field_names = get_fields_names(self.selected_type.get(), needed_for_editing=True)
 
         self.show_fields = Listbox(self.main_view.window, selectmode=MULTIPLE)
 
@@ -93,7 +89,6 @@ class PatchView:
 
         self.show_fields.grid(column=1, row=8)
         self.view_elements.append({"item": self.show_fields, "row": 9, "column": 0, "name": "show_fields"})
-
 
         populate(self.view_elements)
 

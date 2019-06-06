@@ -20,7 +20,7 @@ class GetView:
         self.view_elements.append({"item":types_menu_description, "row": 1, "column": 0})
 
         self.selected_type = StringVar(main_view.window)
-        types = {'Sensors', 'Things'}
+        types = get_ogc_types()
         self.selected_type.set("Select an OGC type")
 
         self.selected_type.trace("w", self.show_options)
@@ -51,11 +51,7 @@ class GetView:
             i["item"].grid_forget()
 
     def show_options(self, a, b, c):  # additional parameters a b c needed because it is called by Trace function
-        field_names = None
-        if self.selected_type.get() == "Sensors":
-            field_names = ["name", "description", "encodingType", "metadata", "Datastreams@iot.navigationLink"]
-        elif self.selected_type.get() == "Things":
-            field_names = ["name", "description", "properties"]
+        field_names = get_fields_names(self.selected_type.get())
 
         self.show_fields = Listbox(self.main_view.window, selectmode=MULTIPLE)
 
