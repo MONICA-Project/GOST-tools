@@ -41,7 +41,7 @@ class View():
         DELETE_btn = Button(self.window, text="DELETE", command=lambda: delete_command(self))
         PATCH_btn = Button(self.window, text="PATCH", command=lambda: patch_command(self))
         POST_btn = Button(self.window, text="POST")
-        CREATE_btn = Button(self.window, text="CREATE on file", command=lambda: create_command(self))
+        CREATE_btn = Button(self.window, text="CREATE", command=lambda: create_command(self))
         SETTINGS_btn = Button(self.window, text="SETTINGS", command=lambda: change_settings(self))
 
         self.main_view_elements = []

@@ -14,6 +14,7 @@ class CreateView:
         self.result = None
         self.main_view = main_view
         self.created_items = []
+        self.selected_items = []
         self.post_btn = None
         self.storage_file = None
         self.error_message = ""
@@ -88,43 +89,50 @@ def create_command(view):
 def save(self):
     try:
         int(self.number_to_create.get())
+        if not bool(self.created_items):
+            self.created_items = create_items(self)
 
-        self.storage_file = filedialog.asksaveasfilename(initialdir="/", title="Select file",
-                                                         filetypes=(("jpeg files", "*.txt"), ("all files", "*.*")))
-        if bool(self.storage_file):
-            items = create_items(self)
+        self.error_message = []
+        for k in map(str, self.created_items["errors"]):
+            self.error_message += str(k) + " \n"
 
-            self.selected_items = items["created_items"]
+        if bool(self.error_message):
+            messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
+        elif len(self.created_items["created_items"]) > 0:
 
-            self.error_message = []
-            for k in map(str, items["errors"]):
-                self.error_message += str(k) + " \n"
-
+            self.storage_file = filedialog.asksaveasfilename(initialdir="/", title="Select file",
+                                                             filetypes=(
+                                                             ("jpeg files", "*.txt"), ("all files", "*.*")))
             file_handler = open(self.storage_file, 'w')
-
-            for item in self.selected_items:
+            for item in self.created_items["created_items"]:
                 file_handler.write(json.dumps(item) + "\n")
-            if bool(self.error_message):
-                messagebox.showinfo("ERROR", self.error_message)
-            if len(self.selected_items) > 0:
-                messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}")
+            messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}")
 
     except ValueError:
         messagebox.showinfo("ERROR", "undefinded number\nof items to create")
 
 
 def post(self):
-    items = create_items(self)
+    try:
+        int(self.number_to_create.get())
 
-    self.selected_items = items["created_items"]
+        if not bool(self.created_items):
+            self.created_items = create_items(self)
 
-    for k in map(str, items["errors"]):
-        self.error_message += str(k) + " \n"
+        self.error_message = []
+        for k in map(str, self.created_items["errors"]):
+            self.error_message += str(k) + " \n"
 
-    file_handler = open(self.storage_file, 'w')
+        if bool(self.error_message):
+            messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
+        elif len(self.created_items["created_items"]) > 0:
 
-    for item in self.selected_items:
-        file_handler.write(json.dumps(item) + "\n")
+            for item in self.created_items["created_items"]:
+                send_json(item, ogc_name=self.selected_type.get())
+            messagebox.showinfo("", f"Posted new items to GOST")
+
+    except ValueError:
+        messagebox.showinfo("ERROR", "undefinded number\nof items to create")
 
 
 def create_items(self):
