@@ -6,7 +6,6 @@ import copy
 from tkinter import messagebox
 
 
-
 def populate(elements_list):
     for i in elements_list:
         i["item"].grid(column=i["column"], row=i["row"])
@@ -31,6 +30,7 @@ def clear_results(self):
 
 def get_items(self):
     selected_items = []
+    error_message = []
     if self.selected_type.get() == "Select an OGC type":
         result = Text(self.main_view.window, width=50, height=1)
         result.insert("1.0", "Error: OGC type needed")
@@ -42,8 +42,14 @@ def get_items(self):
             identifiers = shlex.split(self.selected_identifiers.get())
             for i in identifiers:
                 address = self.main_view.model.GOST_address + "/"
-                selected_items.append(get_item(i, self.selected_type.get(),
-                                               address=address))
+                item = get_item(i, self.selected_type.get(),address=address)
+                if "error" in item:
+                    if "message" in item["error"]:
+                        error_message.append(item["error"]["message"])
+                    else:
+                        error_message.append(item["error"])
+                else:
+                    selected_items.append(item)
 
         else:
             selected_items = get_all(self.selected_type.get())
@@ -73,4 +79,6 @@ def get_items(self):
                             temporary_item.pop(key)
                     temporary_selected_items.append(temporary_item)
             selected_items = temporary_selected_items
+        if bool(error_message):
+            messagebox.showinfo("ERROR", error_message)
         return selected_items
