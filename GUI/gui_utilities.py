@@ -30,7 +30,7 @@ def clear_results(self):
 
 def get_items(self):
     selected_items = []
-    error_message = []
+    error_message = ""
     if self.selected_type.get() == "Select an OGC type":
         result = Text(self.main_view.window, width=50, height=1)
         result.insert("1.0", "Error: OGC type needed")
@@ -45,9 +45,14 @@ def get_items(self):
                 item = get_item(i, self.selected_type.get(),address=address)
                 if "error" in item:
                     if "message" in item["error"]:
-                        error_message.append(item["error"]["message"])
+                        for k in map(str, item["error"]["message"]):
+                            error_message += k + " "
+                        error_message += "\n"
+
                     else:
-                        error_message.append(item["error"])
+                        for k in map(str, item["error"]):
+                            error_message += k + " "
+                        error_message += "\n"
                 else:
                     selected_items.append(item)
 
