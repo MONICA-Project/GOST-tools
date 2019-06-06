@@ -53,6 +53,7 @@ class PatchView:
             i["item"].grid_forget()
 
     def show_options(self, a, b, c):  # additional parameters a b c needed because it is called by Trace function
+        clear_results(self)
 
         self.patch_btn = Button(self.main_view.window, text="Patch the selected items\nwith the following values:\n"
                                                        "(an ogc entity type must be selected)",

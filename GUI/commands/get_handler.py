@@ -51,6 +51,8 @@ class GetView:
             i["item"].grid_forget()
 
     def show_options(self, a, b, c):  # additional parameters a b c needed because it is called by Trace function
+        clear_results(self)
+
         field_names = get_fields_names(self.selected_type.get())
 
         self.show_fields = Listbox(self.main_view.window, selectmode=MULTIPLE)
