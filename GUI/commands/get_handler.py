@@ -66,7 +66,7 @@ class GetView:
         self.view_elements.append({"item": self.show_fields, "row": 9, "column": 0, "name": "show_fields"})
 
         search_btn = Button(self.main_view.window, text="Search!", command=lambda: search(self))
-        self.view_elements.append({"item": search_btn, "row": 10, "column": 0})
+        self.view_elements.append({"item": search_btn, "row": 10, "column": 1})
 
         populate(self.view_elements)
 
@@ -88,4 +88,5 @@ def search(self):
             row += 1
 
         self.result.grid(column=0, row=9)
-        self.view_elements.append({"item":self.result, "row": 9, "column": 0, "name": "result"})
+        self.view_elements.append({"item":self.result, "row": 9, "column": 2, "name": "result"})
+        populate(self.view_elements)

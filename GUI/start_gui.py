@@ -27,6 +27,14 @@ class View():
 
         self.window.geometry('1000x600')
 
+        self.window.grid_rowconfigure(0, weight=1)
+        self.window.grid_rowconfigure(1, weight=1)
+        self.window.grid_rowconfigure(2, weight=1)
+        self.window.grid_rowconfigure(3, weight=1)
+        self.window.grid_rowconfigure(4, weight=1)
+
+        self.window.grid_columnconfigure(0, weight=1)
+
         if bool(self.model.GOST_address):
             info_text = f"Current GOST address: {self.model.GOST_address}"
         else:
