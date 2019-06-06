@@ -44,9 +44,6 @@ class GetView:
         fields_menu_description = Label(main_view.window, text="Select fields to show (default: all)")
         self.view_elements.append({"item":fields_menu_description, "row": 8, "column": 0})
 
-        search_btn = Button(main_view.window, text="Search!", command=lambda: search(self))
-        self.view_elements.append({"item":search_btn, "row": 10, "column" : 0})
-
         populate(self.view_elements)
 
     def hide(self):
@@ -69,6 +66,11 @@ class GetView:
 
         self.show_fields.grid(column=1, row=8)
         self.view_elements.append({"item": self.show_fields, "row": 9, "column": 0, "name": "show_fields"})
+
+        search_btn = Button(self.main_view.window, text="Search!", command=lambda: search(self))
+        self.view_elements.append({"item": search_btn, "row": 10, "column": 0})
+
+        populate(self.view_elements)
 
 
 def get_command(view):

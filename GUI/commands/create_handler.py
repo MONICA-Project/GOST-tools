@@ -1,7 +1,7 @@
 from GUI.gui_utilities import *
 
 
-class PatchView:
+class CreateView:
     def __init__(self, main_view):
         self.view_elements = []
         self.selected_type = None
@@ -18,7 +18,8 @@ class PatchView:
 
         main_view.current_command_view = self
 
-        types_menu_description = Label(main_view.window, text="Select OGC entity type (mandatory field)")
+        types_menu_description = Label(main_view.window, text="Select OGC entity type to create\n"
+                                                              "(mandatory field)")
         self.view_elements.append({"item":types_menu_description, "row": 1, "column": 0})
 
         self.selected_type = StringVar(main_view.window)
@@ -46,6 +47,11 @@ class PatchView:
         fields_menu_description = Label(main_view.window, text="Select fields to show (default: all)")
         self.view_elements.append({"item":fields_menu_description, "row": 8, "column": 0})
 
+        self.patch_btn = Button(main_view.window, text="Click here to Patch\nwith the following values:\n"
+                                                       "(an ogc entity type must be selected)",
+                                                        command=lambda: patch(self))
+        self.view_elements.append({"item": self.patch_btn, "row": 10, "column": 1, "name": "patching_button"})
+
         populate(self.view_elements)
 
     def hide(self):
@@ -53,12 +59,6 @@ class PatchView:
             i["item"].grid_forget()
 
     def show_options(self, a, b, c):  # additional parameters a b c needed because it is called by Trace function
-
-        self.patch_btn = Button(self.main_view.window, text="Patch the selected items\nwith the following values:\n"
-                                                       "(an ogc entity type must be selected)",
-                                                       command=lambda: patch(self))
-        self.view_elements.append({"item": self.patch_btn, "row": 10, "column": 1, "name": "patching_button"})
-
         indexes_to_delete = []  # clearing the previously set patch options
         for index, val in enumerate(self.view_elements):
             if "name" in val:
@@ -94,14 +94,12 @@ class PatchView:
         self.show_fields.grid(column=1, row=8)
         self.view_elements.append({"item": self.show_fields, "row": 9, "column": 0, "name": "show_fields"})
 
-
         populate(self.view_elements)
 
 
-
-def patch_command(view):
+def create_command(view):
     view.hide()
-    PatchView(view)
+    CreateView(view)
 
 
 def patch(self):
@@ -153,7 +151,7 @@ def confirm_patching(self):
 
 def abort_patching(self):
     self.selected_items = []
-    self.patch_btn.config(text="Click here to Patch the selected items\nwith the following values:\n"
+    self.patch_btn.config(text="Click here to Patch\nwith the following values:\n"
                                 "(an ogc entity type must be selected)",
                            command=lambda: patch(self))
     indexes_to_delete = []

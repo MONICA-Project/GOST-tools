@@ -46,9 +46,6 @@ class DeleteView:
         fields_menu_description = Label(main_view.window, text="Select fields to show (default: all)")
         self.view_elements.append({"item":fields_menu_description, "row": 8, "column": 0})
 
-        self.delete_btn = Button(main_view.window, text="Delete", command=lambda: delete(self))
-        self.view_elements.append({"item": self.delete_btn, "row": 10, "column": 1})
-
         populate(self.view_elements)
 
     def hide(self):
@@ -71,6 +68,11 @@ class DeleteView:
 
         self.show_fields.grid(column=1, row=8)
         self.view_elements.append({"item": self.show_fields, "row": 9, "column": 0, "name": "show_fields"})
+
+        self.delete_btn = Button(self.main_view.window, text="Delete", command=lambda: delete(self))
+        self.view_elements.append({"item": self.delete_btn, "row": 10, "column": 1})
+
+        populate(self.view_elements)
 
 
 def delete_command(view):
