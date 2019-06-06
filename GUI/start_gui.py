@@ -57,7 +57,7 @@ class View():
         self.main_view_elements.append({"item":GET_btn, "row":1, "column" : 1})
         self.main_view_elements.append({"item":DELETE_btn, "row":2, "column" : 1})
         self.main_view_elements.append({"item":PATCH_btn, "row":3, "column" : 1})
-        self.main_view_elements.append({"item":POST_btn, "row":1, "column" : 2})
+        #self.main_view_elements.append({"item":POST_btn, "row":1, "column" : 2})
         self.main_view_elements.append({"item":CREATE_btn, "row":2, "column" : 2})
         self.main_view_elements.append({"item":SETTINGS_btn, "row":3, "column" : 2})
 

@@ -8,7 +8,7 @@ from tkinter import messagebox
 
 def populate(elements_list):
     for i in elements_list:
-        i["item"].grid(column=i["column"], row=i["row"])
+        i["item"].grid(column=i["column"], row=i["row"], sticky=E+W)
 
 
 def restore(self):
