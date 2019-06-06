@@ -69,7 +69,7 @@ def get_items(self):
                     if "error" in matching:
                         selected_items.remove(single_item)
             if len(selected_items) == 0:
-                selected_items += [f"error: no items found with select statement conditions"]
+                error_message += f"\nNo items found with select statement conditions\n"
 
         if len(self.show_fields.curselection()) > 0:
             selected_fields_names = [self.show_fields.get(i) for i in self.show_fields.curselection()]
