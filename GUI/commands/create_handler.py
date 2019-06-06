@@ -96,6 +96,7 @@ def save(self):
 
             self.selected_items = items["created_items"]
 
+            self.error_message = []
             for k in map(str, items["errors"]):
                 self.error_message += str(k) + " \n"
 
@@ -105,7 +106,8 @@ def save(self):
                 file_handler.write(json.dumps(item) + "\n")
             if bool(self.error_message):
                 messagebox.showinfo("ERROR", self.error_message)
-            messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}")
+            if len(self.selected_items) > 0:
+                messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}")
 
     except ValueError:
         messagebox.showinfo("ERROR", "undefinded number\nof items to create")
