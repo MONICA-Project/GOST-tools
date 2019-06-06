@@ -3,6 +3,26 @@ from checking_functions import item_is_already_present
 import random
 
 
+def create_records(values, number, ogc_type=False):
+    """create a list of records with selected values or default for specified ogc type
+
+    :param values:the created item's field value
+    :param values:number of items to create
+    :param ogc_type: the entity type of the created records
+    :return: a dictionary whit two lists, one of the created items and the other of the eventual errors
+    """
+    result = {"created_items" : [],"errors" : []}
+
+    for x in range(number):
+        item = create_random_item(values, ogc_type)
+        if "error" in item:
+            result["errors"].append(item["error"])
+            break
+        else:
+            result["created_items"].append(json.loads(item))
+    return result
+
+
 def create_records_file(args, ogc_type=False):
     """create records in default file or in a specified file, if provided
 
@@ -162,8 +182,9 @@ def valid_random_name(ogc_type):
 def user_defined_or_default(args, field_name, ogc_type=None):
     """Given a field name, returns its default value or the user-defined
     one if present"""
-    if bool(args["type"]):
-        ogc_type = args["type"]
+    if "type" in args:
+        if bool(args["type"]):
+            ogc_type = args["type"]
     if field_name in args:  # using user-defined value for the field
         if (field_name == "coordinates") and (bool(args["coordinates"])):
             result = string_to_coordinates(args["coordinates"])

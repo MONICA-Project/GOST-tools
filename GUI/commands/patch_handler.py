@@ -98,7 +98,6 @@ class PatchView:
         populate(self.view_elements)
 
 
-
 def patch_command(view):
     view.hide()
     PatchView(view)

@@ -72,7 +72,7 @@ def restore_main(self):
 
 
 def change_address_main(self):
-    self.address_preview.configure(text="Insert a new address\n(format: http://x.x.x.x:port_number/v1.0)")
+    self.address_preview.configure(text="Insert a new address\n(format: http[s]://x.x.x.x:port_number/v1.0)")
 
     self.new_address_entry = Entry(self.window, width=40)
     self.view_elements.append({"item": self.new_address_entry, "row": 0, "column": 1, "name": "new_address_entry"})
