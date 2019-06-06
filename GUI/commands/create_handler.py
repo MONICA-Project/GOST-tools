@@ -10,6 +10,7 @@ class CreateView:
         self.create_entries = []
         self.selected_type = None
         self.save_btn = None
+        self.save_and_post_btn = None
         self.number_to_create = None
         self.result = None
         self.main_view = main_view
@@ -78,6 +79,11 @@ class CreateView:
                                                         command=lambda: post(self))
         self.view_elements.append({"item": self.post_btn, "row": 10, "column": 1, "name": "post_button"})
 
+        self.save_and_post_btn = Button(self.main_view.window, text="Save to a file\nand Post to GOST",
+                               command=lambda: save_and_post(self))
+        self.view_elements.append({"item": self.save_and_post_btn, "row": 10, "column": 2,
+                                   "name": "save_and_post_button"})
+
         populate(self.view_elements)
 
 
@@ -92,7 +98,6 @@ def save(self):
         if not bool(self.created_items):
             self.created_items = create_items(self)
 
-        self.error_message = []
         for k in map(str, self.created_items["errors"]):
             self.error_message += str(k) + " \n"
 
@@ -107,6 +112,7 @@ def save(self):
             for item in self.created_items["created_items"]:
                 file_handler.write(json.dumps(item) + "\n")
             messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}")
+            clear_before_creation(self)
 
     except ValueError:
         messagebox.showinfo("ERROR", "undefinded number\nof items to create")
@@ -119,7 +125,6 @@ def post(self):
         if not bool(self.created_items):
             self.created_items = create_items(self)
 
-        self.error_message = []
         for k in map(str, self.created_items["errors"]):
             self.error_message += str(k) + " \n"
 
@@ -130,6 +135,35 @@ def post(self):
             for item in self.created_items["created_items"]:
                 send_json(item, ogc_name=self.selected_type.get())
             messagebox.showinfo("", f"Posted new items to GOST")
+            clear_before_creation(self)
+
+    except ValueError:
+        messagebox.showinfo("ERROR", "undefinded number\nof items to create")
+
+
+def save_and_post(self):
+    try:
+        int(self.number_to_create.get())
+        if not bool(self.created_items):
+            self.created_items = create_items(self)
+
+        for k in map(str, self.created_items["errors"]):
+            self.error_message += str(k) + " \n"
+
+        if bool(self.error_message):
+            messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
+        elif len(self.created_items["created_items"]) > 0:
+
+            self.storage_file = filedialog.asksaveasfilename(initialdir="/", title="Select file",
+                                                             filetypes=(
+                                                             ("jpeg files", "*.txt"), ("all files", "*.*")))
+            file_handler = open(self.storage_file, 'w')
+            for item in self.created_items["created_items"]:
+                file_handler.write(json.dumps(item) + "\n")
+                send_json(item, ogc_name=self.selected_type.get())
+            messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}\n"
+                                f"and posted them to GOST")
+            clear_before_creation(self)
 
     except ValueError:
         messagebox.showinfo("ERROR", "undefinded number\nof items to create")
@@ -140,3 +174,21 @@ def create_items(self):
         if bool(entry["field_entry"].get()):
             self.create_values[entry["field_name"]] = entry["field_entry"].get()
     return create_records(self.create_values, int(self.number_to_create.get()), self.selected_type.get())
+
+
+def clear_before_creation(self):
+    self.create_values = {}
+    self.error_message = []
+    self.create_entries = []
+    self.created_items = []
+
+
+    indexes_to_delete = []
+    for index, val in enumerate(self.view_elements):
+        if "name" in val:
+            if val["name"] in ["create_field_name", "create_field_value", "save_button",
+                               "post_button", "save_and_post_button"]:
+                indexes_to_delete.append(index)
+    for i in sorted(indexes_to_delete, reverse=True):
+        self.view_elements[i]["item"].grid_forget()
+        del self.view_elements[i]
