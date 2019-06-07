@@ -8,7 +8,6 @@ from GUI.gui_utilities import *
 from GUI.scrollbar import *
 
 
-
 class Model():
     def __init__(self):
         self.GOST_address = set_GOST_address()
@@ -20,13 +19,12 @@ class View():
         self.view_elements = []
         self.window = Tk()
         self.width=750
+        self.height=450
         self.current_command_view = None
         self.model = Model()
         self.window.title("GOST-CONTROLLER")
 
-
-        self.window.geometry(f'{str(self.width)}x500')
-
+        self.window.geometry(f'{str(self.width)}x{str(self.height)}')
 
         # setting the general layout
 
@@ -35,8 +33,6 @@ class View():
         self.main_area = Scrollable(main_area_frame, width=16)
         self.top_bar.pack(side="top", fill="both")
         main_area_frame.pack(side="top", fill="both", expand=True)
-
-
 
         self.address_preview = None
         self.confirm_address_button = None
@@ -54,19 +50,37 @@ class View():
 
         self.address_preview.grid(row=0,column=0)
 
-        GET_btn = Button(self.main_area, text="GET", command=lambda: get_command(self))
-        DELETE_btn = Button(self.main_area, text="DELETE", command=lambda: delete_command(self))
+        button_height = int(int(self.height)/100)
+        button_width = int(int(self.width)/40)
+
+        myFont = font.Font(family='Helvetica', size=20, weight='bold')
+
+        GET_btn = Button(self.main_area, text="GET",height = button_height, width = button_width,
+                         command=lambda: get_command(self))
+        GET_btn["font"] = myFont
+
+        DELETE_btn = Button(self.main_area,height = button_height, width = button_width,
+                            text="DELETE", command=lambda: delete_command(self))
+        DELETE_btn["font"] = myFont
+
         PATCH_btn = Button(self.main_area, text="PATCH", command=lambda: patch_command(self))
-        CREATE_btn = Button(self.main_area, text="CREATE/POST", command=lambda: create_command(self))
+        PATCH_btn["font"] = myFont
+
+        CREATE_btn = Button(self.main_area, text="CREATE/POST",height = button_height, width = button_width,
+                            command=lambda: create_command(self))
+        CREATE_btn["font"] = myFont
+
         SETTINGS_btn = Button(self.main_area, text="SETTINGS", command=lambda: change_settings(self))
+        SETTINGS_btn["font"] = myFont
+
 
         self.main_view_elements = []
 
         self.main_view_elements.append({"item":GET_btn, "row":1, "column" : 0})
         self.main_view_elements.append({"item":DELETE_btn, "row":2, "column" : 0})
-        self.main_view_elements.append({"item":PATCH_btn, "row":3, "column" : 0})
-        self.main_view_elements.append({"item":CREATE_btn, "row":4, "column" : 0})
-        self.main_view_elements.append({"item":SETTINGS_btn, "row":5, "column" : 0})
+        self.main_view_elements.append({"item":PATCH_btn, "row":1, "column" : 1})
+        self.main_view_elements.append({"item":CREATE_btn, "row":2, "column" : 1})
+        self.main_view_elements.append({"item":SETTINGS_btn, "row":3, "column" : 1})
 
         populate(self.main_view_elements, self.main_area)
 

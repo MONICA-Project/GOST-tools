@@ -33,7 +33,9 @@ class DeleteView:
 
         selected_identifiers_description = Label(main_view.main_area, borderwidth=2, relief="solid",
                                                  text="Insert one or more names or @iot.id\n"
-                                                                        "separated by a space")
+                                                                        "separated by a space\n"
+                                                      "(by default all the items of selected type\n"
+                                                      "will be selected)")
 
         self.view_elements.append({"item":selected_identifiers_description, "row": 2, "column" : 0})
         self.selected_identifiers = Entry(main_view.main_area, width=10)

@@ -4,7 +4,7 @@ from ogc_utility import *
 from evaluator_package import selection_parser
 import copy
 from tkinter import messagebox
-
+import tkinter.font as font
 
 def populate(elements_list, scrollable_area = False):
     for i in elements_list:
