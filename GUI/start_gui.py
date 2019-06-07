@@ -137,8 +137,14 @@ def try_address(self):
 
 
 def keep_address(self):
-    self.address_preview.configure(text=f"Current GOST address: {self.model.GOST_address} "
-    f"\nclick here to change address")
+    self.model.GOST_address = set_GOST_address()
+    if bool(self.model.GOST_address):
+        self.address_preview.configure(text=f"Current GOST address: {self.model.GOST_address} "
+        f"\nclick here to change address")
+    else:
+        self.address_preview.configure(text=f"Current GOST address not working"
+        f"\nclick here to change address\n"
+        f"or retry to connect with the last saved address")
     indexes_to_delete = []
     for index, val in enumerate(self.view_elements):
         if "name" in val:
