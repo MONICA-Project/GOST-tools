@@ -18,32 +18,37 @@ class DeleteView:
 
         main_view.current_command_view = self
 
-        types_menu_description = Label(main_view.window, text="Select OGC entity type (mandatory field)")
+        types_menu_description = Label(main_view.main_area, borderwidth=2, relief="solid",
+                                       text="Select OGC entity type (mandatory field)")
         self.view_elements.append({"item":types_menu_description, "row": 1, "column": 0})
 
-        self.selected_type = StringVar(main_view.window)
+        self.selected_type = StringVar(main_view.main_area)
         types = get_ogc_types()
         self.selected_type.set("Select an OGC type")
 
         self.selected_type.trace("w", self.show_options)
 
-        types_menu = OptionMenu(main_view.window, self.selected_type, *types)
+        types_menu = OptionMenu(main_view.main_area, self.selected_type, *types)
         self.view_elements.append({"item":types_menu, "row": 1, "column" : 1})
 
-        selected_identifiers_description = Label(main_view.window, text="Insert one or more names or @iot.id\n"
+        selected_identifiers_description = Label(main_view.main_area, borderwidth=2, relief="solid",
+                                                 text="Insert one or more names or @iot.id\n"
                                                                         "separated by a space")
 
         self.view_elements.append({"item":selected_identifiers_description, "row": 2, "column" : 0})
-        self.selected_identifiers = Entry(main_view.window, width=10)
+        self.selected_identifiers = Entry(main_view.main_area, width=10)
         self.view_elements.append({"item": self.selected_identifiers, "row": 2, "column" : 1})
 
-        selected_boolean_expression_description = Label(main_view.window, text="Insert a filter for results\n "
+        selected_boolean_expression_description = Label(main_view.main_area, borderwidth=2, relief="solid",
+                                                        text="Insert a filter for results\n "
                                                                                "(<,>,==,in,not in)(and or not")
         self.view_elements.append({"item":selected_boolean_expression_description, "row": 7, "column" : 0})
-        self.selected_boolean_expression = Entry(main_view.window, width=50)
+        self.selected_boolean_expression = Entry(main_view.main_area, width=50)
         self.view_elements.append({"item":self.selected_boolean_expression, "row": 7, "column" : 1})
 
-        fields_menu_description = Label(main_view.window, text="Select fields to show (default: all)")
+        fields_menu_description = Label(main_view.main_area, borderwidth=2, relief="solid",
+                                        text="Select fields to show\n"
+                                             "of the items you are going to delete (default: all)")
         self.view_elements.append({"item":fields_menu_description, "row": 8, "column": 0})
 
         populate(self.view_elements)
@@ -57,7 +62,7 @@ class DeleteView:
 
         field_names = get_fields_names(self.selected_type.get())
 
-        self.show_fields = Listbox(self.main_view.window, selectmode=MULTIPLE)
+        self.show_fields = Listbox(self.main_view.main_area, selectmode=MULTIPLE)
 
         self.show_fields.insert(END, "@iot.id")
 
@@ -67,7 +72,7 @@ class DeleteView:
         self.show_fields.grid(column=1, row=8)
         self.view_elements.append({"item": self.show_fields, "row": 9, "column": 0, "name": "show_fields"})
 
-        self.delete_btn = Button(self.main_view.window, text="Delete", command=lambda: delete(self))
+        self.delete_btn = Button(self.main_view.main_area, text="Delete", command=lambda: delete(self))
         self.view_elements.append({"item": self.delete_btn, "row": 10, "column": 1})
 
         populate(self.view_elements)
@@ -83,7 +88,7 @@ def delete(self):
 
     self.selected_items = get_items(self)
     if self.selected_items != "error":
-        self.result = Text(self.main_view.window, width=50, height=10)
+        self.result = Text(self.main_view.main_area, width=50, height=10)
         row = 0
         for i in self.selected_items:
             formatted_record = json.dumps(i, sort_keys=True, indent=2) + "\n"
@@ -93,7 +98,7 @@ def delete(self):
         self.view_elements.append({"item": self.result, "row": 9, "column": 1, "name" : "result"})
         self.delete_btn.config(text = "Click here to confirm \nthe deletion of the selected elements",
                                command = lambda : confirm_deletion(self))
-        self.abort_delete_button = Button(self.main_view.window, text="Click here to abort the deletion",
+        self.abort_delete_button = Button(self.main_view.main_area, text="Click here to abort the deletion",
                                           command=lambda: abort_deletion(self))
         self.view_elements.append({"item": self.abort_delete_button, "row": 10, "column": 3,
                                    "name": "abort_deletion_button"})

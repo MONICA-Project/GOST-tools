@@ -7,6 +7,7 @@ from GUI.commands.settings import change_settings
 from GUI.gui_utilities import *
 
 
+
 class Model():
     def __init__(self):
         self.GOST_address = set_GOST_address()
@@ -20,55 +21,49 @@ class View():
         self.current_command_view = None
         self.model = Model()
         self.window.title("GOST-CONTROLLER")
+
+        self.window.geometry('1000x600')
+
+        # setting the general layout
+
+        self.top_bar = Frame(self.window, width=1000, bg="#ababab")
+        self.main_area = Frame(self.window, width=1000, bg="#ababab")
+        self.top_bar.pack(side="top", fill="both", expand=True)
+        self.main_area.pack(side="top", fill="both", expand=True)
+
         self.address_preview = None
         self.confirm_address_button = None
         self.new_address_entry = None
         self.keep_old_address_button = None
-
-        self.window.geometry('1000x600')
-
-        self.window.grid_rowconfigure(0, weight=1)
-        self.window.grid_rowconfigure(1, weight=1)
-        self.window.grid_rowconfigure(2, weight=1)
-        self.window.grid_rowconfigure(3, weight=1)
-        self.window.grid_rowconfigure(4, weight=1)
-        self.window.grid_columnconfigure(0, weight=1)
-        self.window.grid_columnconfigure(1, weight=1)
-        self.window.grid_columnconfigure(2, weight=1)
-        self.window.grid_columnconfigure(3, weight=1)
-        self.window.grid_columnconfigure(4, weight=1)
-
 
         if bool(self.model.GOST_address):
             info_text = f"Current GOST address: {self.model.GOST_address}"
         else:
             info_text = "Invalid GOST address"
 
-        self.address_preview = Button(self.window, text=f"{info_text} \nclick here to change address",
+        self.address_preview = Button(self.top_bar, text=f"{info_text} \nclick here to change address",
                                command=lambda: change_address_main(self))
 
-        self.address_preview.grid(column=0, row=0)
+        self.address_preview.grid(row=0,column=0)
 
-        GET_btn = Button(self.window, text="GET", command=lambda: get_command(self))
-        DELETE_btn = Button(self.window, text="DELETE", command=lambda: delete_command(self))
-        PATCH_btn = Button(self.window, text="PATCH", command=lambda: patch_command(self))
-        POST_btn = Button(self.window, text="POST")
-        CREATE_btn = Button(self.window, text="CREATE/POST", command=lambda: create_command(self))
-        SETTINGS_btn = Button(self.window, text="SETTINGS", command=lambda: change_settings(self))
+        GET_btn = Button(self.main_area, text="GET", command=lambda: get_command(self))
+        DELETE_btn = Button(self.main_area, text="DELETE", command=lambda: delete_command(self))
+        PATCH_btn = Button(self.main_area, text="PATCH", command=lambda: patch_command(self))
+        CREATE_btn = Button(self.main_area, text="CREATE/POST", command=lambda: create_command(self))
+        SETTINGS_btn = Button(self.main_area, text="SETTINGS", command=lambda: change_settings(self))
 
         self.main_view_elements = []
 
         self.main_view_elements.append({"item":GET_btn, "row":1, "column" : 0})
         self.main_view_elements.append({"item":DELETE_btn, "row":2, "column" : 0})
         self.main_view_elements.append({"item":PATCH_btn, "row":3, "column" : 0})
-        #self.main_view_elements.append({"item":POST_btn, "row":1, "column" : 2})
         self.main_view_elements.append({"item":CREATE_btn, "row":2, "column" : 2})
         self.main_view_elements.append({"item":SETTINGS_btn, "row":3, "column" : 2})
 
         populate(self.main_view_elements)
 
-        back_button = Button(self.window, text="Back to Main Menu", command =lambda: restore_main(self))
-        back_button.grid(column=4, row=0)
+        back_button = Button(self.top_bar, text="Back to Main Menu", command =lambda: restore_main(self))
+        back_button.grid(row=0,column=4)
 
         self.window.mainloop()
 
@@ -86,18 +81,22 @@ def restore_main(self):
 def change_address_main(self):
     self.address_preview.configure(text="Insert a new address\n(format: http[s]://x.x.x.x:port_number/v1.0)")
 
-    self.new_address_entry = Entry(self.window, width=40)
+    self.new_address_entry = Entry(self.top_bar, width=40)
     self.view_elements.append({"item": self.new_address_entry, "row": 0, "column": 1, "name": "new_address_entry"})
 
-    self.confirm_address_button = Button(self.window, text="Confirm change",
+    self.confirm_address_button = Button(self.top_bar, text="Confirm change",
                                          command=lambda: try_address(self))
     self.view_elements.append({"item": self.confirm_address_button, "row": 0, "column": 2,
                                "name": "new_address_button"})
 
-    self.keep_old_address_button = Button(self.window, text="Keep old address",
+    self.keep_old_address_button = Button(self.top_bar, text="Keep old address",
                                          command=lambda: keep_address(self))
     self.view_elements.append({"item": self.keep_old_address_button, "row": 0, "column": 3,
                                "name": "keep_old_address_button"})
+
+    self.new_address_entry.grid(row=0, column=1)
+    self.confirm_address_button.grid(row=0, column=2)
+    self.keep_old_address_button.grid(row=0, column=3)
 
 
     populate(self.view_elements)
