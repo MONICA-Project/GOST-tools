@@ -19,17 +19,19 @@ class View():
     def __init__(self):
         self.view_elements = []
         self.window = Tk()
+        self.width=700
         self.current_command_view = None
         self.model = Model()
         self.window.title("GOST-CONTROLLER")
 
-        self.window.geometry('1000x600')
+
+        self.window.geometry(f'{str(self.width)}x500')
 
 
         # setting the general layout
 
-        self.top_bar = Frame(self.window, width=1000, bg="#ababab")
-        main_area_frame = Frame(self.window, width=1000, bg="#ababab")
+        self.top_bar = Frame(self.window, width=self.width, bg="#ababab")
+        main_area_frame = Frame(self.window, width=self.width, bg="#ababab")
         self.main_area = Scrollable(main_area_frame, width=16)
         self.top_bar.pack(side="top", fill="both")
         main_area_frame.pack(side="top", fill="both", expand=True)
@@ -62,8 +64,8 @@ class View():
         self.main_view_elements.append({"item":GET_btn, "row":1, "column" : 0})
         self.main_view_elements.append({"item":DELETE_btn, "row":2, "column" : 0})
         self.main_view_elements.append({"item":PATCH_btn, "row":3, "column" : 0})
-        self.main_view_elements.append({"item":CREATE_btn, "row":2, "column" : 2})
-        self.main_view_elements.append({"item":SETTINGS_btn, "row":3, "column" : 2})
+        self.main_view_elements.append({"item":CREATE_btn, "row":4, "column" : 0})
+        self.main_view_elements.append({"item":SETTINGS_btn, "row":5, "column" : 0})
 
         populate(self.main_view_elements, self.main_area)
 
@@ -80,6 +82,9 @@ class View():
 
 def restore_main(self):
     self.current_command_view.hide()
+    reset_attribute(self, ["selected_items", "selected_type", "selected_boolean_expression", "selected_identifiers",
+                           "show_fields", "patch_values", "create_values", "create_entries", "created_items",
+                           "storage_file"])
     populate(self.main_view_elements)
 
 

@@ -100,7 +100,7 @@ def delete(self):
                                command = lambda : confirm_deletion(self))
         self.abort_delete_button = Button(self.main_view.main_area, text="Click here to abort the deletion",
                                           command=lambda: abort_deletion(self))
-        self.view_elements.append({"item": self.abort_delete_button, "row": 10, "column": 3,
+        self.view_elements.append({"item": self.abort_delete_button, "row": 11, "column": 1,
                                    "name": "abort_deletion_button"})
         populate(self.view_elements, self.main_view.main_area)
 

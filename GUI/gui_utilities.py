@@ -8,12 +8,24 @@ from tkinter import messagebox
 
 def populate(elements_list, scrollable_area = False):
     for i in elements_list:
-        i["item"].grid(column=i["column"], row=i["row"], sticky=E+W)
+        i["item"].grid(column=i["column"], row=i["row"], sticky=N+S+E+W)
     if scrollable_area:
         scrollable_area.update()
 
 
+def reset_attribute(item, attributes_list):
+    for i in attributes_list:
+        if i in item.__dict__:
+            if isinstance(item.__dict__[i], list):
+                item.__dict__[i] = []
+            else:
+                item.__dict__[i] = None
+
+
 def restore(self):
+    reset_attribute(self, ["selected_items","selected_type", "selected_boolean_expression", "selected_identifiers",
+                           "show_fields", "patch_values", "create_values", "create_entries", "created_items",
+                           "storage_file"])
     populate(self.main_view_elements, self.main_view.main_area)
 
 
