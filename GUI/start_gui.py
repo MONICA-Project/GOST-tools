@@ -31,10 +31,9 @@ class View():
         self.top_bar = Frame(self.window, width=1000, bg="#ababab")
         main_area_frame = Frame(self.window, width=1000, bg="#ababab")
         self.main_area = Scrollable(main_area_frame, width=16)
-        self.top_bar.pack(side="top", fill="both", expand=True)
+        self.top_bar.pack(side="top", fill="both")
         main_area_frame.pack(side="top", fill="both", expand=True)
 
-        # adding the scroll bar
 
 
         self.address_preview = None
