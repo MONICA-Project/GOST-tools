@@ -129,7 +129,6 @@ def patch_item(options_dict, identifier, ogc_type, environment = False, address 
 
 def check_id(item_identifier):
     """get the id of the item identified by item_identifier, which can be a name or an id
-
     :param item_identifier: the name or id of an item
     :return: the item identifier if the item exists, an error otherwise
     """
