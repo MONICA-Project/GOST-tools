@@ -32,8 +32,12 @@ class View():
         self.window.grid_rowconfigure(2, weight=1)
         self.window.grid_rowconfigure(3, weight=1)
         self.window.grid_rowconfigure(4, weight=1)
-
         self.window.grid_columnconfigure(0, weight=1)
+        self.window.grid_columnconfigure(1, weight=1)
+        self.window.grid_columnconfigure(2, weight=1)
+        self.window.grid_columnconfigure(3, weight=1)
+        self.window.grid_columnconfigure(4, weight=1)
+
 
         if bool(self.model.GOST_address):
             info_text = f"Current GOST address: {self.model.GOST_address}"
@@ -49,14 +53,14 @@ class View():
         DELETE_btn = Button(self.window, text="DELETE", command=lambda: delete_command(self))
         PATCH_btn = Button(self.window, text="PATCH", command=lambda: patch_command(self))
         POST_btn = Button(self.window, text="POST")
-        CREATE_btn = Button(self.window, text="CREATE", command=lambda: create_command(self))
+        CREATE_btn = Button(self.window, text="CREATE/POST", command=lambda: create_command(self))
         SETTINGS_btn = Button(self.window, text="SETTINGS", command=lambda: change_settings(self))
 
         self.main_view_elements = []
 
-        self.main_view_elements.append({"item":GET_btn, "row":1, "column" : 1})
-        self.main_view_elements.append({"item":DELETE_btn, "row":2, "column" : 1})
-        self.main_view_elements.append({"item":PATCH_btn, "row":3, "column" : 1})
+        self.main_view_elements.append({"item":GET_btn, "row":1, "column" : 0})
+        self.main_view_elements.append({"item":DELETE_btn, "row":2, "column" : 0})
+        self.main_view_elements.append({"item":PATCH_btn, "row":3, "column" : 0})
         #self.main_view_elements.append({"item":POST_btn, "row":1, "column" : 2})
         self.main_view_elements.append({"item":CREATE_btn, "row":2, "column" : 2})
         self.main_view_elements.append({"item":SETTINGS_btn, "row":3, "column" : 2})

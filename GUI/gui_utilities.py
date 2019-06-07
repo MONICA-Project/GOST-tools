@@ -117,7 +117,7 @@ def get_fields_names(ogc_type, needed_for_editing = False):
         if needed_for_editing:
             values += ["Datastream_id"]
         else:
-            values += ["Datastream", "resultTime", "result", "resultQuality", "validTime", "parameters"]
+            values += ["Datastream", "resultTime", "resultQuality", "validTime", "parameters"]
 
     elif ogc_type == "FeaturesOfInterest":
         values = ["name", "description", "encodingType", "feature"]
