@@ -19,7 +19,7 @@ class View():
         self.view_elements = []
         self.window = Tk()
         self.width=750
-        self.height=450
+        self.height=405
         self.current_command_view = None
         self.model = Model()
         self.window.title("GOST-CONTROLLER")
@@ -50,7 +50,7 @@ class View():
 
         self.address_preview.grid(row=0,column=0)
 
-        button_height = int(int(self.height)/100)
+        button_height = int(int(self.height)/99)
         button_width = int(int(self.width)/40)
 
         myFont = font.Font(family='Helvetica', size=20, weight='bold')
@@ -77,11 +77,18 @@ class View():
 
         self.main_view_elements = []
 
-        self.main_view_elements.append({"item":GET_btn, "row":1, "column" : 0})
-        self.main_view_elements.append({"item":DELETE_btn, "row":2, "column" : 0})
-        self.main_view_elements.append({"item":PATCH_btn, "row":1, "column" : 1})
-        self.main_view_elements.append({"item":CREATE_btn, "row":2, "column" : 1})
+        self.main_view_elements.append({"item":GET_btn, "row":0, "column" : 0})
+        self.main_view_elements.append({"item":DELETE_btn, "row":1, "column" : 0})
+        self.main_view_elements.append({"item":PATCH_btn, "row":0, "column" : 1})
+        self.main_view_elements.append({"item":CREATE_btn, "row":1, "column" : 1})
         self.main_view_elements.append({"item":SETTINGS_btn, "row":3, "column" : 0})
+
+        self.main_area.columnconfigure(0, weight=1)
+        self.main_area.columnconfigure(1, weight=1)
+        self.main_area.rowconfigure(0, weight=1)
+        self.main_area.rowconfigure(1, weight=1)
+        self.main_area.rowconfigure(2, weight=1)
+        self.main_area.rowconfigure(3, weight=1)
 
         populate(self.main_view_elements, self.main_area)
 
