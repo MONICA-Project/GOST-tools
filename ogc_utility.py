@@ -41,6 +41,9 @@ def send_json(provided_load=None, ogc_name=None, sending_address=None, request_t
         load = ""
     headers = {'Content-type': 'application/json'}
     if request_type == 'POST':
+        if "name" in load:
+            if item_is_already_present(load["name"], ogc_name):
+                return {"error": f"name 'f{load['name']}' already present in {ogc_name}"}
         r = requests.post(sending_address, json=load, headers=headers)
     if request_type == 'PATCH':
         r = requests.patch(sending_address, json=load, headers=headers)

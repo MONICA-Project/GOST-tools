@@ -69,7 +69,7 @@ def create_random_item(args, ogc_type=False):
     if not ogc_type:
         ogc_type = args["type"]
 
-    if bool(args["name"]):  # checking for duplicate names
+    if "name" in args:  # checking for duplicate names
         if item_is_already_present(args["name"], ogc_type):
             return {"error": f"name 'f{args['name']}' already present in {ogc_type}"}
 

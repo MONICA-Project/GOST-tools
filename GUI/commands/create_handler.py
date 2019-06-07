@@ -1,6 +1,7 @@
 from GUI.gui_utilities import *
 from tkinter import filedialog
 from creation_utilities import create_records
+from json import JSONDecoder, JSONDecodeError
 
 
 class CreateView:
@@ -18,6 +19,7 @@ class CreateView:
         self.selected_items = []
         self.post_btn = None
         self.storage_file = None
+        self.post_from_file_btn = None
         self.error_message = ""
 
         main_view.current_command_view = self
@@ -82,6 +84,10 @@ class CreateView:
         self.save_and_post_btn = Button(self.main_view.main_area, text="Save to a file\nand Post to GOST",
                                command=lambda: save_and_post(self))
         self.view_elements.append({"item": self.save_and_post_btn, "row": 10, "column": 2,
+                                   "name": "save_and_post_button"})
+        self.post_from_file_btn = Button(self.main_view.main_area, text="POST records \ndefined in a file",
+                                        command=lambda: post_from_file(self))
+        self.view_elements.append({"item": self.post_from_file_btn, "row": 10, "column": 3,
                                    "name": "save_and_post_button"})
 
         populate(self.view_elements, self.main_view.main_area)
@@ -168,6 +174,50 @@ def save_and_post(self):
 
     except ValueError:
         messagebox.showinfo("ERROR", "undefinded number\nof items to create")
+
+
+def post_from_file(self):
+    creation_result = []
+    self.upload_file = filedialog.askopenfilename(initialdir="/", title="Select file",
+                                                     filetypes=(
+                                                     ("jpeg files", "*.txt"), ("all files", "*.*")))
+    with open(self.upload_file) as json_file:
+        NOT_WHITESPACE = re.compile(r'[^\s]')
+
+        def decode_stacked(document, pos=0, decoder=JSONDecoder()):
+            while True:
+                match = NOT_WHITESPACE.search(document, pos)
+                if not match:
+                    return
+                pos = match.start()
+
+                try:
+                    obj, pos = decoder.raw_decode(document, pos)
+                except JSONDecodeError:
+                    raise
+                yield obj
+
+        for obj in decode_stacked(json_file.read()):
+            result = add_item(obj, self.selected_type.get())
+            json_result = json.loads((result.data).decode('utf-8'))
+            creation_result.append(json_result)
+
+    success = False
+
+    for k in creation_result:
+        if "error" in k:
+            self.error_message += k["error"] + " \n"
+        else:
+            success = True
+
+    if bool(self.error_message):
+        messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
+
+    if success:
+        messagebox.showinfo("", f"Posted new items to GOST")
+    clear_before_creation(self)
+
+
 
 
 def create_items(self):
