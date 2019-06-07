@@ -95,6 +95,7 @@ class PatchView:
 
 
 def patch_command(view):
+    view.back_button.grid()
     view.hide()
     PatchView(view)
 

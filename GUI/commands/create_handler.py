@@ -88,6 +88,7 @@ class CreateView:
 
 
 def create_command(view):
+    view.back_button.grid()
     view.hide()
     CreateView(view)
 

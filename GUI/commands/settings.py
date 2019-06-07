@@ -35,6 +35,7 @@ class SettingsView:
 
 
 def change_settings(view):
+    view.back_button.grid()
     view.hide()
     SettingsView(view)
 

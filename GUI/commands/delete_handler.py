@@ -79,6 +79,7 @@ class DeleteView:
 
 
 def delete_command(view):
+    view.back_button.grid()
     view.hide()
     DeleteView(view)
 

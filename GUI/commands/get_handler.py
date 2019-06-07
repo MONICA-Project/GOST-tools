@@ -76,6 +76,7 @@ class GetView:
 
 
 def get_command(view):
+    view.back_button.grid()
     view.hide()
     GetView(view)
 

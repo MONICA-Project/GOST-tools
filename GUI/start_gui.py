@@ -42,6 +42,7 @@ class View():
         self.confirm_address_button = None
         self.new_address_entry = None
         self.keep_old_address_button = None
+        self.back_button = None
 
         if bool(self.model.GOST_address):
             info_text = f"Current GOST address: {self.model.GOST_address}"
@@ -69,8 +70,9 @@ class View():
 
         populate(self.main_view_elements, self.main_area)
 
-        back_button = Button(self.top_bar, text="Back to Main Menu", command =lambda: restore_main(self))
-        back_button.grid(row=0,column=4)
+        self.back_button = Button(self.top_bar, text="Back to Main Menu", command =lambda: restore_main(self))
+        self.back_button.grid(row=0,column=4)
+        self.back_button.grid_remove()
 
         self.window.mainloop()
 
@@ -81,7 +83,9 @@ class View():
 
 
 def restore_main(self):
-    self.current_command_view.hide()
+    self.back_button.grid_remove()
+    if bool(self.current_command_view):
+        self.current_command_view.hide()
     reset_attribute(self, ["selected_items", "selected_type", "selected_boolean_expression", "selected_identifiers",
                            "show_fields", "patch_values", "create_values", "create_entries", "created_items",
                            "storage_file"])
@@ -109,7 +113,7 @@ def change_address_main(self):
     self.keep_old_address_button.grid(row=0, column=3)
 
 
-    populate(self.view_elements, self.main_view.main_area)
+    populate(self.view_elements, self.main_area)
 
 
 def try_address(self):
