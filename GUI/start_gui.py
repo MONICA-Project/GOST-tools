@@ -56,21 +56,22 @@ class View():
         myFont = font.Font(family='Helvetica', size=20, weight='bold')
 
         GET_btn = Button(self.main_area, text="GET",height = button_height, width = button_width,
-                         command=lambda: get_command(self))
+                         command=lambda: get_command(self),bg='#06D6A0')
         GET_btn["font"] = myFont
 
         DELETE_btn = Button(self.main_area,height = button_height, width = button_width,
-                            text="DELETE", command=lambda: delete_command(self))
+                            text="DELETE", command=lambda: delete_command(self), bg='#f17e7e')
         DELETE_btn["font"] = myFont
 
-        PATCH_btn = Button(self.main_area, text="PATCH", command=lambda: patch_command(self))
+        PATCH_btn = Button(self.main_area, text="PATCH", command=lambda: patch_command(self), bg='#efca8c')
         PATCH_btn["font"] = myFont
 
         CREATE_btn = Button(self.main_area, text="CREATE/POST",height = button_height, width = button_width,
-                            command=lambda: create_command(self))
+                            command=lambda: create_command(self), bg='#9ea9f0')
         CREATE_btn["font"] = myFont
 
-        SETTINGS_btn = Button(self.main_area, text="SETTINGS", command=lambda: change_settings(self))
+        SETTINGS_btn = Button(self.main_area, text="SETTINGS", command=lambda: change_settings(self),
+                              bg='#fff1c1')
         SETTINGS_btn["font"] = myFont
 
 
@@ -80,7 +81,7 @@ class View():
         self.main_view_elements.append({"item":DELETE_btn, "row":2, "column" : 0})
         self.main_view_elements.append({"item":PATCH_btn, "row":1, "column" : 1})
         self.main_view_elements.append({"item":CREATE_btn, "row":2, "column" : 1})
-        self.main_view_elements.append({"item":SETTINGS_btn, "row":3, "column" : 1})
+        self.main_view_elements.append({"item":SETTINGS_btn, "row":3, "column" : 0})
 
         populate(self.main_view_elements, self.main_area)
 
