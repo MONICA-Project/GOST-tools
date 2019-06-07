@@ -5,6 +5,7 @@ from GUI.commands.patch_handler import patch_command
 from GUI.commands.create_handler import create_command
 from GUI.commands.settings import change_settings
 from GUI.gui_utilities import *
+from GUI.scrollbar import *
 
 
 
@@ -24,12 +25,17 @@ class View():
 
         self.window.geometry('1000x600')
 
+
         # setting the general layout
 
         self.top_bar = Frame(self.window, width=1000, bg="#ababab")
-        self.main_area = Frame(self.window, width=1000, bg="#ababab")
+        main_area_frame = Frame(self.window, width=1000, bg="#ababab")
+        self.main_area = Scrollable(main_area_frame, width=16)
         self.top_bar.pack(side="top", fill="both", expand=True)
-        self.main_area.pack(side="top", fill="both", expand=True)
+        main_area_frame.pack(side="top", fill="both", expand=True)
+
+        # adding the scroll bar
+
 
         self.address_preview = None
         self.confirm_address_button = None
@@ -60,7 +66,7 @@ class View():
         self.main_view_elements.append({"item":CREATE_btn, "row":2, "column" : 2})
         self.main_view_elements.append({"item":SETTINGS_btn, "row":3, "column" : 2})
 
-        populate(self.main_view_elements)
+        populate(self.main_view_elements, self.main_area)
 
         back_button = Button(self.top_bar, text="Back to Main Menu", command =lambda: restore_main(self))
         back_button.grid(row=0,column=4)
@@ -99,7 +105,7 @@ def change_address_main(self):
     self.keep_old_address_button.grid(row=0, column=3)
 
 
-    populate(self.view_elements)
+    populate(self.view_elements, self.main_view.main_area)
 
 
 def try_address(self):

@@ -48,7 +48,7 @@ class GetView:
                                         text="Select fields to show (default: all)")
         self.view_elements.append({"item":fields_menu_description, "row": 3, "column": 0})
 
-        populate(self.view_elements)
+        populate(self.view_elements, self.main_view.main_area)
 
     def hide(self):
         for i in self.view_elements:
@@ -72,7 +72,7 @@ class GetView:
         search_btn = Button(self.main_view.main_area, text="Search!", command=lambda: search(self))
         self.view_elements.append({"item": search_btn, "row": 4, "column": 1})
 
-        populate(self.view_elements)
+        populate(self.view_elements, self.main_view.main_area)
 
 
 def get_command(view):
@@ -92,4 +92,4 @@ def search(self):
             row += 1
 
         self.view_elements.append({"item":self.result, "row": 3, "column": 1, "name": "result"})
-        populate(self.view_elements)
+        populate(self.view_elements, self.main_view.main_area)

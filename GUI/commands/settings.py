@@ -16,14 +16,14 @@ class SettingsView:
         else:
             current_address = "[Current GOST address is not working]"
 
-        change_address_description = Label(main_view.window, text=f"Insert a new address\n"
+        change_address_description = Label(self.main_view.main_area, text=f"Insert a new address\n"
                                 f"format: http://x.x.x.x:port_number/v1.0\n{current_address}")
         self.view_elements.append({"item":change_address_description, "row": 1, "column" : 0})
 
-        self.new_address = Entry(main_view.window, width=40)
+        self.new_address = Entry(self.main_view.main_area, width=40)
         self.view_elements.append({"item": self.new_address, "row": 1, "column" : 2})
 
-        self.confirm_address_button = Button(main_view.window, text="Confirm change",
+        self.confirm_address_button = Button(self.main_view.main_area, text="Confirm change",
                                              command=lambda: change_address(self))
         self.view_elements.append({"item": self.confirm_address_button, "row": 1, "column" : 3})
 

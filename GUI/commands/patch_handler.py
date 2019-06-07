@@ -18,35 +18,35 @@ class PatchView:
 
         main_view.current_command_view = self
 
-        types_menu_description = Label(main_view.window, text="Select OGC entity type (mandatory field)")
-        self.view_elements.append({"item":types_menu_description, "row": 1, "column": 0})
+        types_menu_description = Label(main_view.main_area, text="Select OGC entity type (mandatory field)")
+        self.view_elements.append({"item":types_menu_description, "row": 0, "column": 0})
 
-        self.selected_type = StringVar(main_view.window)
+        self.selected_type = StringVar(main_view.main_area)
         types = get_ogc_types()
         self.selected_type.set("Select an OGC type")
 
         self.selected_type.trace("w", self.show_options)
 
-        types_menu = OptionMenu(main_view.window, self.selected_type, *types)
-        self.view_elements.append({"item":types_menu, "row": 1, "column" : 1})
+        types_menu = OptionMenu(main_view.main_area, self.selected_type, *types)
+        self.view_elements.append({"item":types_menu, "row": 0, "column" : 1})
 
-        selected_identifiers_description = Label(main_view.window, text="Insert one or more names or @iot.id\n"
+        selected_identifiers_description = Label(main_view.main_area, text="Insert one or more names or @iot.id\n"
                                                                         "separated by a space")
 
-        self.view_elements.append({"item":selected_identifiers_description, "row": 2, "column" : 0})
-        self.selected_identifiers = Entry(main_view.window, width=10)
-        self.view_elements.append({"item": self.selected_identifiers, "row": 2, "column" : 1})
+        self.view_elements.append({"item":selected_identifiers_description, "row": 1, "column" : 0})
+        self.selected_identifiers = Entry(main_view.main_area, width=10)
+        self.view_elements.append({"item": self.selected_identifiers, "row": 1, "column" : 1})
 
-        selected_boolean_expression_description = Label(main_view.window, text="Insert a filter for results\n "
+        selected_boolean_expression_description = Label(main_view.main_area, text="Insert a filter for results\n "
                                                                                "(<,>,==,in,not in)(and or not")
-        self.view_elements.append({"item":selected_boolean_expression_description, "row": 7, "column" : 0})
-        self.selected_boolean_expression = Entry(main_view.window, width=50)
-        self.view_elements.append({"item":self.selected_boolean_expression, "row": 7, "column" : 1})
+        self.view_elements.append({"item":selected_boolean_expression_description, "row": 2, "column" : 0})
+        self.selected_boolean_expression = Entry(main_view.main_area, width=50)
+        self.view_elements.append({"item":self.selected_boolean_expression, "row": 2, "column" : 1})
 
-        fields_menu_description = Label(main_view.window, text="Select fields to show (default: all)")
-        self.view_elements.append({"item":fields_menu_description, "row": 8, "column": 0})
+        fields_menu_description = Label(main_view.main_area, text="Select fields to show (default: all)")
+        self.view_elements.append({"item":fields_menu_description, "row": 3, "column": 0})
 
-        populate(self.view_elements)
+        populate(self.view_elements, self.main_view.main_area)
 
     def hide(self):
         for i in self.view_elements:
@@ -55,10 +55,10 @@ class PatchView:
     def show_options(self, a, b, c):  # additional parameters a b c needed because it is called by Trace function
         clear_results(self)
 
-        self.patch_btn = Button(self.main_view.window, text="Patch the selected items\nwith the following values:\n"
-                                                       "(an ogc entity type must be selected)",
+        self.patch_btn = Button(self.main_view.main_area, text="Patch the selected items\nwith the following values:\n"
+                                                       "(empty fields will be filled with default values)",
                                                        command=lambda: patch(self))
-        self.view_elements.append({"item": self.patch_btn, "row": 10, "column": 1, "name": "patching_button"})
+        self.view_elements.append({"item": self.patch_btn, "row": 4, "column": 1, "name": "patching_button"})
 
         indexes_to_delete = []  # clearing the previously set patch options
         for index, val in enumerate(self.view_elements):
@@ -71,27 +71,27 @@ class PatchView:
 
         field_names = get_fields_names(self.selected_type.get(), needed_for_editing=True)
 
-        self.show_fields = Listbox(self.main_view.window, selectmode=MULTIPLE)
+        self.show_fields = Listbox(self.main_view.main_area, selectmode=MULTIPLE)
 
         self.show_fields.insert(END, "@iot.id")
 
-        row = 11
+        row = 5
 
         for item in field_names:
 
             self.show_fields.insert(END, item)
             if item != "name":
-                temp_label = Label(self.main_view.window, text=item)
+                temp_label = Label(self.main_view.main_area, text=item)
                 self.view_elements.append({"item": temp_label, "row": row, "column": 0, "name": "patch_field_name"})
-                temp_entry = Entry(self.main_view.window, width=50)
+                temp_entry = Entry(self.main_view.main_area, width=50)
                 self.view_elements.append({"item": temp_entry, "row": row, "column": 1, "name": "patch_field_value"})
                 row += 1
                 self.patch_values.append({"field_name" : item, "field_entry": temp_entry})
 
-        self.show_fields.grid(column=1, row=8)
-        self.view_elements.append({"item": self.show_fields, "row": 9, "column": 0, "name": "show_fields"})
+        self.show_fields.grid(column=1, row=3)
+        self.view_elements.append({"item": self.show_fields, "row": 3, "column": 1, "name": "show_fields"})
 
-        populate(self.view_elements)
+        populate(self.view_elements, self.main_view.main_area)
 
 
 def patch_command(view):
@@ -104,21 +104,21 @@ def patch(self):
 
     self.selected_items = get_items(self)
     if self.selected_items != "error":
-        self.result = Text(self.main_view.window, width=50, height=10)
+        self.result = Text(self.main_view.main_area, width=50, height=10)
         row = 0
         for i in self.selected_items:
             formatted_record = json.dumps(i, sort_keys=True, indent=2) + "\n"
             self.result.insert(f"1.0", formatted_record)
             row += 1
 
-        self.view_elements.append({"item": self.result, "row": 9, "column": 1, "name" : "result"})
+        self.view_elements.append({"item": self.result, "row": 2, "column": 3, "name" : "result"})
         self.patch_btn.config(text = "Click here to confirm \nthe Patching of the selected elements",
                                command = lambda : confirm_patching(self))
-        self.abort_patch_btn = Button(self.main_view.window, text="Click here to abort the patching",
+        self.abort_patch_btn = Button(self.main_view.main_area, text="Click here to abort the patching",
                                           command=lambda: abort_patching(self))
-        self.view_elements.append({"item": self.abort_patch_btn, "row": 10, "column": 3,
+        self.view_elements.append({"item": self.abort_patch_btn, "row": 4, "column": 2,
                                    "name": "abort_patching_button"})
-        populate(self.view_elements)
+        populate(self.view_elements, self.main_view.main_area)
 
 
 def confirm_patching(self):

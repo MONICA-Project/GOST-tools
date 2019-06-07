@@ -22,27 +22,27 @@ class CreateView:
 
         main_view.current_command_view = self
 
-        types_menu_description = Label(main_view.window, text="Select OGC entity type of the items\n"
+        types_menu_description = Label(self.main_view.main_area, text="Select OGC entity type of the items\n"
                                                               "you are going to create\n"
                                                               "(mandatory field)")
         self.view_elements.append({"item":types_menu_description, "row": 1, "column": 0})
 
-        self.selected_type = StringVar(main_view.window)
+        self.selected_type = StringVar(self.main_view.main_area)
         types = get_ogc_types()
         self.selected_type.set("Select an OGC type")
 
         self.selected_type.trace("w", self.show_options)
 
-        types_menu = OptionMenu(main_view.window, self.selected_type, *types)
+        types_menu = OptionMenu(self.main_view.main_area, self.selected_type, *types)
         self.view_elements.append({"item":types_menu, "row": 1, "column" : 1})
 
-        number_to_create_description = Label(main_view.window, text="Select how many items create")
+        number_to_create_description = Label(self.main_view.main_area, text="Select how many items create")
 
         self.view_elements.append({"item":number_to_create_description, "row": 2, "column" : 0})
-        self.number_to_create = Entry(main_view.window, width=10)
+        self.number_to_create = Entry(self.main_view.main_area, width=10)
         self.view_elements.append({"item": self.number_to_create, "row": 2, "column": 1})
 
-        populate(self.view_elements)
+        populate(self.view_elements, self.main_view.main_area)
 
     def hide(self):
         for i in self.view_elements:
@@ -64,27 +64,27 @@ class CreateView:
         row = 11
 
         for item in field_names:
-            temp_label = Label(self.main_view.window, text=item)
+            temp_label = Label(self.main_view.main_area, text=item)
             self.view_elements.append({"item": temp_label, "row": row, "column": 0, "name": "create_field_name"})
-            temp_entry = Entry(self.main_view.window, width=50)
+            temp_entry = Entry(self.main_view.main_area, width=50)
             self.view_elements.append({"item": temp_entry, "row": row, "column": 1, "name": "create_field_value"})
             row += 1
             self.create_entries.append({"field_name" : item, "field_entry": temp_entry})
 
-        self.save_btn = Button(self.main_view.window, text="Save to a file",
+        self.save_btn = Button(self.main_view.main_area, text="Save to a file",
                                                         command=lambda: save(self))
         self.view_elements.append({"item": self.save_btn, "row": 10, "column": 0, "name": "save_button"})
 
-        self.post_btn = Button(self.main_view.window, text="Post to GOST",
+        self.post_btn = Button(self.main_view.main_area, text="Post to GOST",
                                                         command=lambda: post(self))
         self.view_elements.append({"item": self.post_btn, "row": 10, "column": 1, "name": "post_button"})
 
-        self.save_and_post_btn = Button(self.main_view.window, text="Save to a file\nand Post to GOST",
+        self.save_and_post_btn = Button(self.main_view.main_area, text="Save to a file\nand Post to GOST",
                                command=lambda: save_and_post(self))
         self.view_elements.append({"item": self.save_and_post_btn, "row": 10, "column": 2,
                                    "name": "save_and_post_button"})
 
-        populate(self.view_elements)
+        populate(self.view_elements, self.main_view.main_area)
 
 
 def create_command(view):

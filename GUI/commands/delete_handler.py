@@ -51,7 +51,7 @@ class DeleteView:
                                              "of the items you are going to delete (default: all)")
         self.view_elements.append({"item":fields_menu_description, "row": 8, "column": 0})
 
-        populate(self.view_elements)
+        populate(self.view_elements, self.main_view.main_area)
 
     def hide(self):
         for i in self.view_elements:
@@ -75,7 +75,7 @@ class DeleteView:
         self.delete_btn = Button(self.main_view.main_area, text="Delete", command=lambda: delete(self))
         self.view_elements.append({"item": self.delete_btn, "row": 10, "column": 1})
 
-        populate(self.view_elements)
+        populate(self.view_elements, self.main_view.main_area)
 
 
 def delete_command(view):
@@ -102,7 +102,7 @@ def delete(self):
                                           command=lambda: abort_deletion(self))
         self.view_elements.append({"item": self.abort_delete_button, "row": 10, "column": 3,
                                    "name": "abort_deletion_button"})
-        populate(self.view_elements)
+        populate(self.view_elements, self.main_view.main_area)
 
 
 def confirm_deletion(self):

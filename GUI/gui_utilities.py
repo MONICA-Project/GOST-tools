@@ -6,13 +6,15 @@ import copy
 from tkinter import messagebox
 
 
-def populate(elements_list):
+def populate(elements_list, scrollable_area = False):
     for i in elements_list:
         i["item"].grid(column=i["column"], row=i["row"], sticky=E+W)
+    if scrollable_area:
+        scrollable_area.update()
 
 
 def restore(self):
-    populate(self.main_view_elements)
+    populate(self.main_view_elements, self.main_view.main_area)
 
 
 def clear_results(self):
@@ -122,7 +124,7 @@ def get_fields_names(ogc_type, needed_for_editing = False):
     elif ogc_type == "FeaturesOfInterest":
         values = ["name", "description", "encodingType", "feature"]
 
-    elif ogc_type == "Location":
+    elif ogc_type == "Locations":
         values = ["name", "description", "encodingType"]
         if needed_for_editing:
             values += ["type", "coordinates"]
@@ -131,5 +133,7 @@ def get_fields_names(ogc_type, needed_for_editing = False):
 
     return values
 
+
 def get_ogc_types():
     return {"Sensors", "Things", "Datastreams", "Locations", "ObservedProperties", "Observations", "FeaturesOfInterest"}
+
