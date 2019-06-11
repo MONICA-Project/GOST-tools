@@ -25,7 +25,7 @@ class CreateView:
         main_view.current_command_view = self
 
         types_menu_description = Label(self.main_view.main_area, text="Select OGC entity type of the items\n"
-                                                              "you are going to create\n"
+                                                              "you are going to create or post\n"
                                                               "(mandatory field)")
         self.view_elements.append({"item":types_menu_description, "row": 1, "column": 0})
 
@@ -114,7 +114,7 @@ def save(self):
 
             self.storage_file = filedialog.asksaveasfilename(initialdir="/", title="Select file",
                                                              filetypes=(
-                                                             ("jpeg files", "*.txt"), ("all files", "*.*")))
+                                                             ("text files", "*.txt"), ("text files", "*.txt")))
             file_handler = open(self.storage_file, 'w')
             for item in self.created_items["created_items"]:
                 file_handler.write(json.dumps(item) + "\n")
