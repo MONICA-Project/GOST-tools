@@ -92,8 +92,9 @@ class View():
 
         populate(self.main_view_elements, self.main_area)
 
-        self.back_button = Button(self.top_bar, text="Back to Main Menu", command =lambda: restore_main(self))
-        self.back_button.grid(row=0,column=4)
+        self.back_button = Button(self.top_bar, text="Back to Main Menu", command =lambda: restore_main(self),
+                                  bg='#ff502f')
+        self.back_button.grid(row=0,column=4, sticky=N+S)
         self.back_button.grid_remove()
 
         self.window.mainloop()
