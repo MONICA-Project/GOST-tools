@@ -114,7 +114,7 @@ def save(self):
 
             self.storage_file = filedialog.asksaveasfilename(initialdir="/", title="Select file",
                                                              filetypes=(
-                                                             ("text files", "*.txt"), ("text files", "*.txt")))
+                                                             ("text files", "*.txt"), (".txt", "*.txt")))
             file_handler = open(self.storage_file, 'w')
             for item in self.created_items["created_items"]:
                 file_handler.write(json.dumps(item) + "\n")
@@ -163,7 +163,7 @@ def save_and_post(self):
 
             self.storage_file = filedialog.asksaveasfilename(initialdir="/", title="Select file",
                                                              filetypes=(
-                                                             ("jpeg files", "*.txt"), ("all files", "*.*")))
+                                                             ("text files", "*.txt"), (".txt", "*.txt")))
             file_handler = open(self.storage_file, 'w')
             for item in self.created_items["created_items"]:
                 file_handler.write(json.dumps(item) + "\n")
@@ -180,7 +180,7 @@ def post_from_file(self):
     creation_result = []
     self.upload_file = filedialog.askopenfilename(initialdir="/", title="Select file",
                                                      filetypes=(
-                                                     ("jpeg files", "*.txt"), ("all files", "*.*")))
+                                                         ("text files", "*.txt"), (".txt", "*.txt")))
     with open(self.upload_file) as json_file:
         NOT_WHITESPACE = re.compile(r'[^\s]')
 
