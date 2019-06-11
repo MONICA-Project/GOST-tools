@@ -6,6 +6,7 @@ import copy
 from tkinter import messagebox
 import tkinter.font as font
 
+
 def populate(elements_list, scrollable_area = False):
     for i in elements_list:
         i["item"].grid(column=i["column"], row=i["row"], sticky=N+S+E+W)

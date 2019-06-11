@@ -8,6 +8,7 @@ class GetView:
         self.selected_boolean_expression = None
         self.selected_identifiers= None
         self.result = None
+        self.result_info = None
         self.main_view = main_view
         self.show_fields = "all"
         self.selected_items = None
@@ -69,10 +70,11 @@ class GetView:
             self.show_fields.insert(END, item)
 
         self.show_fields.grid(column=1, row=8)
-        self.view_elements.append({"item": self.show_fields, "row": 3, "column": 0, "name": "show_fields"})
+        self.view_elements.append({"item": self.show_fields, "row": 4, "column": 0, "name": "show_fields"})
 
-        search_btn = Button(self.main_view.main_area, text="Search!", command=lambda: search(self))
-        self.view_elements.append({"item": search_btn, "row": 4, "column": 1})
+        search_btn = Button(self.main_view.main_area, text="Search!", command=lambda: search(self),
+                            bg = "#86f986")
+        self.view_elements.append({"item": search_btn, "row": 5, "column": 1})
 
         populate(self.view_elements, self.main_view.main_area)
 
@@ -94,5 +96,9 @@ def search(self):
             self.result.insert(f"1.0", formatted_record)
             row += 1
 
-        self.view_elements.append({"item":self.result, "row": 3, "column": 1, "name": "result"})
+        self.view_elements.append({"item": self.result, "row": 4, "column": 1, "name": "result"})
+
+        self.result_info = Label(self.main_view.main_area, borderwidth=2, relief="solid",
+                                       text=f"found {len(selected_items)} results")
+        self.view_elements.append({"item": self.result_info, "row": 3, "column": 1})
         populate(self.view_elements, self.main_view.main_area)

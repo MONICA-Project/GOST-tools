@@ -56,7 +56,7 @@ class View():
         myFont = font.Font(family='Helvetica', size=20, weight='bold')
 
         GET_btn = Button(self.main_area, text="GET",height = button_height, width = button_width,
-                         command=lambda: get_command(self),bg='#06D6A0')
+                         command=lambda: get_command(self),bg='#86f986')
         GET_btn["font"] = myFont
 
         DELETE_btn = Button(self.main_area,height = button_height, width = button_width,
