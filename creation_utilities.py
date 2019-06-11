@@ -100,9 +100,6 @@ def create_random_item(args, ogc_type=False):
         }) + "\n"
 
     if ogc_type == "Locations":
-        missing_fields = needed_user_defined_fields(args, ["Location"])
-        if bool(missing_fields):
-            return missing_fields
         return json.dumps({"name": user_defined_or_default(args, "name", "Locations"),
                            "description": user_defined_or_default(args, "description"),
                            "encodingType": user_defined_or_default(args, "encodingType", "Locations"),
@@ -110,7 +107,7 @@ def create_random_item(args, ogc_type=False):
                                         "type": user_defined_or_default(args, "type")}}) + "\n"
 
     if ogc_type == "ObservedProperties":
-        missing_fields = needed_user_defined_fields(args, ["Definition"])
+        missing_fields = needed_user_defined_fields(args, ["Definition", "Description"])
         if bool(missing_fields):
             return missing_fields
         return json.dumps({"name": user_defined_or_default(args, "name", "ObservedProperties"), "description":
@@ -158,8 +155,11 @@ def needed_user_defined_fields(args, fields_list):
     :return: if missing, a list of the missing fields names
     """
     result = {}
+    args_keys_names = []
+    for i in args:
+        args_keys_names.append(i.title())
     for field in fields_list:
-        if field not in args:
+        if field not in args_keys_names:
             if "error" in result:
                 result["error"] = result["error"] + f", {field} value"
             else:
