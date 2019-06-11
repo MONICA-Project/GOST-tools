@@ -86,19 +86,21 @@ def get_items(self):
             if len(selected_items) == 0:
                 error_message += f"\nNo items found with select statement conditions\n"
 
-        if len(self.show_fields.curselection()) > 0:
-            selected_fields_names = [self.show_fields.get(i) for i in self.show_fields.curselection()]
-            temporary_selected_items = []
-            for i in selected_items:
-                if "error" in i:
-                    temporary_selected_items.append(copy.deepcopy(i))
-                else:
-                    temporary_item = copy.deepcopy(i)
-                    for key in i:
-                        if key not in selected_fields_names:
-                            temporary_item.pop(key)
-                    temporary_selected_items.append(temporary_item)
-            selected_items = temporary_selected_items
+        if bool(self.show_fields):
+
+            if len(self.show_fields.curselection()) > 0:
+                selected_fields_names = [self.show_fields.get(i) for i in self.show_fields.curselection()]
+                temporary_selected_items = []
+                for i in selected_items:
+                    if "error" in i:
+                        temporary_selected_items.append(copy.deepcopy(i))
+                    else:
+                        temporary_item = copy.deepcopy(i)
+                        for key in i:
+                            if key not in selected_fields_names:
+                                temporary_item.pop(key)
+                        temporary_selected_items.append(temporary_item)
+                selected_items = temporary_selected_items
         if bool(error_message):
             messagebox.showinfo("ERROR", error_message)
         return selected_items

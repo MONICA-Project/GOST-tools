@@ -117,6 +117,7 @@ def confirm_deletion(self):
     self.delete_btn.config(text="Delete",
                            command=lambda: delete(self))
     self.selected_items = []
+
     indexes_to_delete = []
     for index, val in enumerate(self.view_elements):
         if "name" in val:
@@ -125,6 +126,7 @@ def confirm_deletion(self):
     for i in sorted(indexes_to_delete, reverse=True):
         self.view_elements[i]["item"].grid_forget()
         del self.view_elements[i]
+
     messagebox.showinfo("Delete", "DELETION CONFIRMED")
 
 

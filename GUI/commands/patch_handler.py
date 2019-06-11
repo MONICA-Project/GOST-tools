@@ -9,7 +9,7 @@ class PatchView:
         self.selected_identifiers= None
         self.result = None
         self.main_view = main_view
-        self.show_fields = "all"
+        self.show_fields = None
         self.selected_items = None
         self.patch_btn = None
         self.abort_patch_btn = None
@@ -30,23 +30,29 @@ class PatchView:
         types_menu = OptionMenu(main_view.main_area, self.selected_type, *types)
         self.view_elements.append({"item":types_menu, "row": 0, "column" : 1})
 
+        select_introduction = Label(main_view.main_area, text="Select the items to Patch")
+        self.view_elements.append({"item":select_introduction, "row": 1, "column" : 1, "name" : "select_introduction"})
+
+
         selected_identifiers_description = Label(main_view.main_area, text="Insert one or more names or @iot.id\n"
                                                                         "separated by a space\n"
-                                                      "(by default all the items of selected type\n"
-                                                      "will be selected)")
+                                                      "(if no item identifier is specified, all the items of "
+                                                                           "selected type\nwill be selected)")
 
-        self.view_elements.append({"item":selected_identifiers_description, "row": 1, "column" : 0})
+        self.view_elements.append({"item":selected_identifiers_description, "row": 2, "column" : 0,
+                                   "name": "selected_identifiers_description"})
         self.selected_identifiers = Entry(main_view.main_area, width=10)
-        self.view_elements.append({"item": self.selected_identifiers, "row": 1, "column" : 1})
+        self.view_elements.append({"item": self.selected_identifiers, "row": 2, "column" : 1,
+                                   "name": "selected_identifiers"})
 
         selected_boolean_expression_description = Label(main_view.main_area, text="Insert a filter for results\n "
                                                                                "(<,>,==,in,not in)(and or not")
-        self.view_elements.append({"item":selected_boolean_expression_description, "row": 2, "column" : 0})
+        self.view_elements.append({"item":selected_boolean_expression_description, "row": 3, "column" : 0,
+                                   "name" : "selected_boolean_expression_description"})
         self.selected_boolean_expression = Entry(main_view.main_area, width=50)
-        self.view_elements.append({"item":self.selected_boolean_expression, "row": 2, "column" : 1})
+        self.view_elements.append({"item":self.selected_boolean_expression, "row": 3, "column" : 1,
+                                   "name": "selected_boolean_expression"})
 
-        fields_menu_description = Label(main_view.main_area, text="Select fields to show (default: all)")
-        self.view_elements.append({"item":fields_menu_description, "row": 3, "column": 0})
 
         populate(self.view_elements, self.main_view.main_area)
 
@@ -60,7 +66,7 @@ class PatchView:
         self.patch_btn = Button(self.main_view.main_area, text="Patch the selected items\nwith the following values:\n"
                                                        "(empty fields will be filled with default values)",
                                                        command=lambda: patch(self))
-        self.view_elements.append({"item": self.patch_btn, "row": 4, "column": 1, "name": "patching_button"})
+        self.view_elements.append({"item": self.patch_btn, "row": 5, "column": 1, "name": "patching_button"})
 
         indexes_to_delete = []  # clearing the previously set patch options
         for index, val in enumerate(self.view_elements):
@@ -73,25 +79,15 @@ class PatchView:
 
         field_names = get_fields_names(self.selected_type.get(), needed_for_editing=True)
 
-        self.show_fields = Listbox(self.main_view.main_area, selectmode=MULTIPLE)
-
-        self.show_fields.insert(END, "@iot.id")
-
-        row = 5
+        row = 7
 
         for item in field_names:
-
-            self.show_fields.insert(END, item)
-            if item != "name":
-                temp_label = Label(self.main_view.main_area, text=item)
-                self.view_elements.append({"item": temp_label, "row": row, "column": 0, "name": "patch_field_name"})
-                temp_entry = Entry(self.main_view.main_area, width=50)
-                self.view_elements.append({"item": temp_entry, "row": row, "column": 1, "name": "patch_field_value"})
-                row += 1
-                self.patch_values.append({"field_name" : item, "field_entry": temp_entry})
-
-        self.show_fields.grid(column=1, row=3)
-        self.view_elements.append({"item": self.show_fields, "row": 3, "column": 1, "name": "show_fields"})
+            temp_label = Label(self.main_view.main_area, text=item)
+            self.view_elements.append({"item": temp_label, "row": row, "column": 0, "name": "patch_field_name"})
+            temp_entry = Entry(self.main_view.main_area, width=50)
+            self.view_elements.append({"item": temp_entry, "row": row, "column": 1, "name": "patch_field_value"})
+            row += 1
+            self.patch_values.append({"field_name" : item, "field_entry": temp_entry})
 
         populate(self.view_elements, self.main_view.main_area)
 
@@ -114,14 +110,24 @@ def patch(self):
             self.result.insert(f"1.0", formatted_record)
             row += 1
 
-        self.view_elements.append({"item": self.result, "row": 2, "column": 3, "name" : "result"})
+        self.view_elements.append({"item": self.result, "row": 1, "column": 1, "name" : "result"})
         self.patch_btn.config(text = "Click here to confirm \nthe Patching of the selected elements",
                                command = lambda : confirm_patching(self))
         self.abort_patch_btn = Button(self.main_view.main_area, text="Click here to abort the patching",
                                           command=lambda: abort_patching(self))
-        self.view_elements.append({"item": self.abort_patch_btn, "row": 4, "column": 2,
+        self.view_elements.append({"item": self.abort_patch_btn, "row": 6, "column": 1,
                                    "name": "abort_patching_button"})
         populate(self.view_elements, self.main_view.main_area)
+
+        indexes_to_delete = []  # Deleting select item fields
+        for index, val in enumerate(self.view_elements):
+            if "name" in val:
+                if val["name"] in ["select_introduction", "selected_identifiers_description",
+                                   "selected_identifiers", "selected_boolean_expression_description",
+                                   "selected_boolean_expression"]:
+                    indexes_to_delete.append(index)
+        for i in sorted(indexes_to_delete, reverse=True):
+            self.view_elements[i]["item"].grid_forget()
 
 
 def confirm_patching(self):
@@ -146,6 +152,8 @@ def confirm_patching(self):
     for i in sorted(indexes_to_delete, reverse=True):
         self.view_elements[i]["item"].grid_forget()
         del self.view_elements[i]
+
+    populate(self.view_elements, self.main_view.main_area)
     messagebox.showinfo("Patch", "PATCH CONFIRMED")
 
 
@@ -162,3 +170,7 @@ def abort_patching(self):
     for i in sorted(indexes_to_delete, reverse=True):
         self.view_elements[i]["item"].grid_forget()
         del self.view_elements[i]
+
+    clear_results(self)
+    populate(self.view_elements, self.main_view.main_area)
+    messagebox.showinfo("Patch", "PATCH ABORTED")
