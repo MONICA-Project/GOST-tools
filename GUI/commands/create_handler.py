@@ -100,8 +100,13 @@ def create_command(view):
 
 
 def save(self):
+    number_of_items_defined = True
     try:
         int(self.number_to_create.get())
+    except ValueError:
+        messagebox.showinfo("ERROR", "undefinded number\nof items to create")
+        number_of_items_defined = False
+    if number_of_items_defined:
         if not bool(self.created_items):
             self.created_items = create_items(self)
 
@@ -121,13 +126,14 @@ def save(self):
             messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}")
             clear_before_creation(self)
 
-    except ValueError:
-        messagebox.showinfo("ERROR", "undefinded number\nof items to create")
-
 
 def post(self):
     try:
         int(self.number_to_create.get())
+
+    except ValueError:
+        messagebox.showinfo("ERROR", "undefinded number\nof items to create")
+    else:
 
         if not bool(self.created_items):
             self.created_items = create_items(self)
@@ -139,18 +145,21 @@ def post(self):
             messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
         elif len(self.created_items["created_items"]) > 0:
 
+            json_responses = []
+
             for item in self.created_items["created_items"]:
-                send_json(item, ogc_name=self.selected_type.get())
+                json_responses.append(send_json(item, ogc_name=self.selected_type.get()))
             messagebox.showinfo("", f"Posted new items to GOST")
             clear_before_creation(self)
-
-    except ValueError:
-        messagebox.showinfo("ERROR", "undefinded number\nof items to create")
 
 
 def save_and_post(self):
     try:
         int(self.number_to_create.get())
+
+    except ValueError:
+        messagebox.showinfo("ERROR", "undefinded number\nof items to create")
+    else:
         if not bool(self.created_items):
             self.created_items = create_items(self)
 
@@ -171,9 +180,6 @@ def save_and_post(self):
             messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}\n"
                                 f"and posted them to GOST")
             clear_before_creation(self)
-
-    except ValueError:
-        messagebox.showinfo("ERROR", "undefinded number\nof items to create")
 
 
 def post_from_file(self):
@@ -216,8 +222,6 @@ def post_from_file(self):
     if success:
         messagebox.showinfo("", f"Posted new items to GOST")
     clear_before_creation(self)
-
-
 
 
 def create_items(self):
