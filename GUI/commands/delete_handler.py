@@ -74,7 +74,8 @@ class DeleteView:
         self.show_fields.grid(column=1, row=8)
         self.view_elements.append({"item": self.show_fields, "row": 9, "column": 0, "name": "show_fields"})
 
-        self.delete_btn = Button(self.main_view.main_area, text="Delete", command=lambda: delete(self))
+        self.delete_btn = Button(self.main_view.main_area, text="Delete", command=lambda: delete(self),
+                                 bg='#ff502f')
         self.view_elements.append({"item": self.delete_btn, "row": 10, "column": 1})
 
         populate(self.view_elements, self.main_view.main_area)
@@ -90,22 +91,25 @@ def delete(self):
     clear_results(self)
 
     self.selected_items = get_items(self)
-    if self.selected_items != "error":
-        self.result = Text(self.main_view.main_area, width=50, height=10)
-        row = 0
-        for i in self.selected_items:
-            formatted_record = json.dumps(i, sort_keys=True, indent=2) + "\n"
-            self.result.insert(f"1.0", formatted_record)
-            row += 1
+    if bool(self.selected_items):
+        if self.selected_items != "error":
+            self.result = Text(self.main_view.main_area, width=50, height=10)
+            row = 0
+            for i in self.selected_items:
+                formatted_record = json.dumps(i, sort_keys=True, indent=2) + "\n"
+                self.result.insert(f"1.0", formatted_record)
+                row += 1
 
-        self.view_elements.append({"item": self.result, "row": 9, "column": 1, "name" : "result"})
-        self.delete_btn.config(text = "Click here to confirm \nthe deletion of the selected elements",
-                               command = lambda : confirm_deletion(self))
-        self.abort_delete_button = Button(self.main_view.main_area, text="Click here to abort the deletion",
-                                          command=lambda: abort_deletion(self))
-        self.view_elements.append({"item": self.abort_delete_button, "row": 11, "column": 1,
-                                   "name": "abort_deletion_button"})
-        populate(self.view_elements, self.main_view.main_area)
+            self.view_elements.append({"item": self.result, "row": 9, "column": 1, "name" : "result"})
+            self.delete_btn.config(text = "Click here to confirm \nthe deletion of the selected elements",
+                                   command = lambda : confirm_deletion(self),   bg='#ff502f')
+            self.abort_delete_button = Button(self.main_view.main_area, text="Click here to abort the deletion",
+                                              command=lambda: abort_deletion(self), bg='#86f986')
+            self.view_elements.append({"item": self.abort_delete_button, "row": 11, "column": 1,
+                                       "name": "abort_deletion_button"})
+            populate(self.view_elements, self.main_view.main_area)
+    else:
+        messagebox.showinfo("Error", "NO ITEMS FOUND")
 
 
 def confirm_deletion(self):

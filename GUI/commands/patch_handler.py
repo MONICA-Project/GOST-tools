@@ -65,7 +65,7 @@ class PatchView:
 
         self.patch_btn = Button(self.main_view.main_area, text="Patch the selected items\nwith the following values:\n"
                                                        "(empty fields will be filled with default values)",
-                                                       command=lambda: patch(self))
+                                                       command=lambda: patch(self), bg='#86f986')
         self.view_elements.append({"item": self.patch_btn, "row": 5, "column": 1, "name": "patching_button"})
 
         indexes_to_delete = []  # clearing the previously set patch options
@@ -114,7 +114,7 @@ def patch(self):
         self.patch_btn.config(text = "Click here to confirm \nthe Patching of the selected elements",
                                command = lambda : confirm_patching(self))
         self.abort_patch_btn = Button(self.main_view.main_area, text="Click here to abort the patching",
-                                          command=lambda: abort_patching(self))
+                                          command=lambda: abort_patching(self),  bg='#ff502f')
         self.view_elements.append({"item": self.abort_patch_btn, "row": 6, "column": 1,
                                    "name": "abort_patching_button"})
         populate(self.view_elements, self.main_view.main_area)
