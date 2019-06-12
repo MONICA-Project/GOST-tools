@@ -31,10 +31,9 @@ class GetView:
         self.view_elements.append({"item":types_menu, "row": 0, "column" : 1})
 
         selected_identifiers_description = Label(main_view.main_area, borderwidth=2, relief="solid",
-                                                 text="Insert one or more names or @iot.id\n"
-                                                                        "separated by a space\n"
-                                                      "(by default all the items of selected type\n"
-                                                      "will be selected)")
+                                                 text=f"Insert one or more names or @iot.id\nseparated by a space\n"
+                                                      "If no identifier is provided, all the records of chosen type\n"
+                                                      "will be selected")
 
         self.view_elements.append({"item":selected_identifiers_description, "row": 1, "column" : 0})
         self.selected_identifiers = Entry(main_view.main_area, width=10)
@@ -89,36 +88,11 @@ def search(self):
     clear_results(self)
     selected_items = get_items(self)
     if selected_items != "error":
+        self.result = scrollable_results(selected_items, self.main_view.main_area)
 
-
-        txt_frm = Frame(self.main_view.main_area, width=600, height=300)
-        # ensure a consistent GUI size
-        txt_frm.grid_propagate(False)
-        # implement stretchability
-        txt_frm.grid_rowconfigure(0, weight=1)
-        txt_frm.grid_columnconfigure(0, weight=1)
-
-        # create a Text widget
-        text_result = Text(txt_frm, width=50, height=10)
-        text_result.config(font=("consolas", 12), undo=True, wrap='word')
-        text_result.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
-        row = 0
-        for i in selected_items:
-            formatted_record = json.dumps(i, sort_keys=True, indent=2) + "\n"
-            text_result.insert(f"1.0", formatted_record)
-            row += 1
-
-        # create a Scrollbar and associate it with txt
-        scrollb = Scrollbar(txt_frm, command=text_result.yview)
-        scrollb.grid(row=0, column=1, sticky='nsew')
-        text_result['yscrollcommand'] = scrollb.set
-
-        self.result = txt_frm
-
-        self.view_elements.append({"item": txt_frm, "row": 4, "column": 1, "name": "result"})
+        self.view_elements.append({"item": self.result, "row": 4, "column": 1, "name": "result"})
 
         self.result_info = Label(self.main_view.main_area, borderwidth=2, relief="solid",
                                        text=f"found {len(selected_items)} results")
-        txt_frm.grid(row=5, column=1)
         self.view_elements.append({"item": self.result_info, "row": 3, "column": 1})
         populate(self.view_elements, self.main_view.main_area)

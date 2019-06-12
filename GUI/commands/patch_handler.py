@@ -103,12 +103,7 @@ def patch(self):
 
     self.selected_items = get_items(self)
     if self.selected_items != "error":
-        self.result = Text(self.main_view.main_area, width=50, height=10)
-        row = 0
-        for i in self.selected_items:
-            formatted_record = json.dumps(i, sort_keys=True, indent=2) + "\n"
-            self.result.insert(f"1.0", formatted_record)
-            row += 1
+        self.result = scrollable_results(self.selected_items, self.main_view.main_area)
 
         self.view_elements.append({"item": self.result, "row": 1, "column": 1, "name" : "result"})
         self.patch_btn.config(text = "Click here to confirm \nthe Patching of the selected elements",

@@ -152,3 +152,27 @@ def get_fields_names(ogc_type, needed_for_editing = False):
 def get_ogc_types():
     return {"Sensors", "Things", "Datastreams", "Locations", "ObservedProperties", "Observations", "FeaturesOfInterest"}
 
+
+def scrollable_results(results_list, root):
+    txt_frm = Frame(root, width=600, height=300)
+    # ensure a consistent GUI size
+    txt_frm.grid_propagate(False)
+    # implement stretchability
+    txt_frm.grid_rowconfigure(0, weight=1)
+    txt_frm.grid_columnconfigure(0, weight=1)
+
+    # create a Text widget
+    text_result = Text(txt_frm, width=50, height=10)
+    text_result.config(font=("consolas", 12), undo=True, wrap='word')
+    text_result.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
+    row = 0
+    for i in results_list:
+        formatted_record = json.dumps(i, sort_keys=True, indent=2) + "\n"
+        text_result.insert(f"1.0", formatted_record)
+        row += 1
+
+    # create a Scrollbar and associate it with txt
+    scrollb = Scrollbar(txt_frm, command=text_result.yview)
+    scrollb.grid(row=0, column=1, sticky='nsew')
+    text_result['yscrollcommand'] = scrollb.set
+    return txt_frm
