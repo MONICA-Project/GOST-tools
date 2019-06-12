@@ -111,11 +111,7 @@ def get_fields_names(ogc_type, needed_for_editing = False):
     if ogc_type == "Sensors":
         values = ["name", "description", "encodingType", "metadata"]
     elif ogc_type == "Things":
-        values =["name", "description"]
-        if needed_for_editing:
-            values += ["organization", "owner"]
-        else:
-            values += ["properties"]
+        values =["name", "description","properties"]
 
     elif ogc_type == "ObservedProperties":
         values = ["name", "definition", "description"]
