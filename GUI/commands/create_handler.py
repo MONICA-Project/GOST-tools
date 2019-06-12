@@ -78,7 +78,7 @@ class CreateView:
         self.view_elements.append({"item": self.save_btn, "row": 10, "column": 0, "name": "save_button"})
 
         self.post_btn = Button(self.main_view.main_area, text="Post to GOST",
-                                                        command=lambda: post(self))
+                                                        command=lambda: direct_post(self))
         self.view_elements.append({"item": self.post_btn, "row": 10, "column": 1, "name": "post_button"})
 
         self.save_and_post_btn = Button(self.main_view.main_area, text="Save to a file\nand Post to GOST",
@@ -100,34 +100,36 @@ def create_command(view):
 
 
 def save(self):
-    number_of_items_defined = True
     try:
         int(self.number_to_create.get())
     except ValueError:
         messagebox.showinfo("ERROR", "undefinded number\nof items to create")
-        number_of_items_defined = False
-    if number_of_items_defined:
-        if not bool(self.created_items):
+    else :
+        self.storage_file = filedialog.asksaveasfilename(initialdir="/", title="Select file",
+                                                         filetypes=(
+                                                             ("text files", "*.txt"), (".txt", "*.txt")))
+        if bool(self.storage_file):
             self.created_items = create_items(self)
 
-        for k in map(str, self.created_items["errors"]):
-            self.error_message += str(k) + " \n"
+            if bool(self.created_items):
 
-        if bool(self.error_message):
-            messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
-        elif len(self.created_items["created_items"]) > 0:
+                for k in map(str, self.created_items["errors"]):
+                    self.error_message += str(k) + " \n"
 
-            self.storage_file = filedialog.asksaveasfilename(initialdir="/", title="Select file",
-                                                             filetypes=(
-                                                             ("text files", "*.txt"), (".txt", "*.txt")))
-            file_handler = open(self.storage_file, 'w')
-            for item in self.created_items["created_items"]:
-                file_handler.write(json.dumps(item) + "\n")
-            messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}")
-            clear_before_creation(self)
+                if bool(self.error_message):
+                    messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
+                elif len(self.created_items["created_items"]) > 0:
+                    file_handler = open(self.storage_file, 'w')
+                    for item in self.created_items["created_items"]:
+                        file_handler.write(json.dumps(item) + "\n")
+                    messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}")
+            else:
+                messagebox.showinfo("ERROR","Trying to create multiple items with the same name\nItems not created")
+    clear_before_creation(self)
 
 
 def post(self):
+    """Auxiliary method, used by save and post and post from file"""
     try:
         int(self.number_to_create.get())
 
@@ -135,31 +137,33 @@ def post(self):
         messagebox.showinfo("ERROR", "undefinded number\nof items to create")
     else:
 
-        if not bool(self.created_items):
-            self.created_items = create_items(self)
+        if bool(self.created_items):
 
-        for k in map(str, self.created_items["errors"]):
-            self.error_message += str(k) + " \n"
+            for k in map(str, self.created_items["errors"]):
+                self.error_message += str(k) + " \n"
 
-        if bool(self.error_message):
-            messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
-        elif len(self.created_items["created_items"]) > 0:
-
-            json_responses = []
-            successful_post = False
-
-            for item in self.created_items["created_items"]:
-                json_responses.append(send_json(item, ogc_name=self.selected_type.get()))
-            for i in json_responses:
-                if "error" in i.json():
-                    self.error_message += json.dumps((i.json())["error"]) + " \n"
-                else:
-                    successful_post = True
             if bool(self.error_message):
-                messagebox.showinfo("ERROR", self.error_message)
-            if successful_post:
-                messagebox.showinfo("", f"Posted new items to GOST")
-            clear_before_creation(self)
+                messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
+            elif len(self.created_items["created_items"]) > 0:
+
+                json_responses = []
+                successful_post = False
+
+                for item in self.created_items["created_items"]:
+                    json_responses.append(send_json(item, ogc_name=self.selected_type.get()))
+                for i in json_responses:
+                    if "error" in i.json():
+                        self.error_message += json.dumps((i.json())["error"]) + " \n"
+                    else:
+                        successful_post = True
+                if bool(self.error_message):
+                    messagebox.showinfo("ERROR", self.error_message)
+                if successful_post:
+                    messagebox.showinfo("", f"Posted new items to GOST")
+                clear_before_creation(self)
+        else:
+            messagebox.showinfo("ERROR", "No items to post")
+    clear_before_creation(self)
 
 
 def save_and_post(self):
@@ -169,87 +173,143 @@ def save_and_post(self):
     except ValueError:
         messagebox.showinfo("ERROR", "undefinded number\nof items to create")
     else:
-        if not bool(self.created_items):
-            self.created_items = create_items(self)
-
-        for k in map(str, self.created_items["errors"]):
-            self.error_message += str(k) + " \n"
-
-        if bool(self.error_message):
-            messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
-        elif len(self.created_items["created_items"]) > 0:
-
-            self.storage_file = filedialog.asksaveasfilename(initialdir="/", title="Select file",
-                                                             filetypes=(
+        self.storage_file = filedialog.asksaveasfilename(initialdir="/", title="Select file",
+                                                     filetypes=(
                                                              ("text files", "*.txt"), (".txt", "*.txt")))
-            file_handler = open(self.storage_file, 'w')
+        if bool(self.storage_file):
+            self.created_items = create_items(self)
+            if bool(self.created_items):
 
-            json_responses = []
-            successful_post = False
+                for k in map(str, self.created_items["errors"]):
+                    self.error_message += str(k) + " \n"
 
-            for item in self.created_items["created_items"]:
-                file_handler.write(json.dumps(item) + "\n")
-                json_responses.append(send_json(item, ogc_name=self.selected_type.get()))
-            for i in json_responses:
-                if "error" in i.json():
-                    self.error_message += json.dumps((i.json())["error"]) + " \n"
-                else:
-                    successful_post = True
-            if bool(self.error_message):
-                messagebox.showinfo("ERROR", self.error_message)
+                if bool(self.error_message):
+                    messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
+                elif len(self.created_items["created_items"]) > 0:
 
-            if successful_post:
-                messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}\n"
-                                f"and posted them to GOST")
-            clear_before_creation(self)
+                    file_handler = open(self.storage_file, 'w')
+
+                    json_responses = []
+                    successful_post = False
+
+                    for item in self.created_items["created_items"]:
+                        file_handler.write(json.dumps(item) + "\n")
+                        json_responses.append(send_json(item, ogc_name=self.selected_type.get()))
+                    for i in json_responses:
+                        if "error" in i.json():
+                            self.error_message += json.dumps((i.json())["error"]) + " \n"
+                        else:
+                            successful_post = True
+                    if bool(self.error_message):
+                        messagebox.showinfo("ERROR", self.error_message)
+
+                    if successful_post:
+                        messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}\n"
+                                        f"and posted them to GOST")
+            else:
+                messagebox.showinfo("ERROR","Trying to create multiple items with the same name\nItems not created")
+    clear_before_creation(self)
 
 
 def post_from_file(self):
     creation_result = []
     self.upload_file = filedialog.askopenfilename(initialdir="/", title="Select file",
                                                      filetypes=(("text files", "*.txt"), (".txt", "*.txt")))
-    with open(self.upload_file) as json_file:
-        NOT_WHITESPACE = re.compile(r'[^\s]')
 
-        def decode_stacked(document, pos=0, decoder=JSONDecoder()):
-            while True:
-                match = NOT_WHITESPACE.search(document, pos)
-                if not match:
-                    return
-                pos = match.start()
+    if bool(self.upload_file):
 
-                try:
-                    obj, pos = decoder.raw_decode(document, pos)
-                except JSONDecodeError:
-                    raise
-                yield obj
+        items_list = []  # list of the items created from file before sending, used to check for duplicate names
 
-        for obj in decode_stacked(json_file.read()):
-            result = add_item(obj, self.selected_type.get())
-            json_result = json.loads((result.data).decode('utf-8'))
-            creation_result.append(json_result)
+        with open(self.upload_file) as json_file:
+            NOT_WHITESPACE = re.compile(r'[^\s]')
 
-    success = False
+            def decode_stacked(document, pos=0, decoder=JSONDecoder()):
+                while True:
+                    match = NOT_WHITESPACE.search(document, pos)
+                    if not match:
+                        return
+                    pos = match.start()
 
-    for k in creation_result:
-        if "error" in k:
-            self.error_message += k["error"] + " \n"
-        else:
-            success = True
+                    try:
+                        obj, pos = decoder.raw_decode(document, pos)
+                    except JSONDecodeError:
+                        raise
+                    yield obj
 
-    if bool(self.error_message):
-        messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
+            for obj in decode_stacked(json_file.read()):
+                items_list.append(obj)
 
-    if success:
-        messagebox.showinfo("", f"Posted new items to GOST")
+            if check_duplicates(items_list):
+                for obj in items_list:
+                    result = add_item(obj, self.selected_type.get())
+                    json_result = json.loads((result.data).decode('utf-8'))
+                    creation_result.append(json_result)
+
+                success = False
+
+                for k in creation_result:
+                    if "error" in k:
+                        self.error_message += k["error"] + " \n"
+                    else:
+                        success = True
+
+                if bool(self.error_message):
+                    messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
+
+                if success:
+                    messagebox.showinfo("", f"Posted new items to GOST")
+            else:
+                messagebox.showinfo("ERROR", "Trying to create multiple items with the same name\nItems not created")
     clear_before_creation(self)
+
+
+def direct_post(self):
+    try:
+        int(self.number_to_create.get())
+
+    except ValueError:
+        messagebox.showinfo("ERROR", "undefinded number\nof items to create")
+    else:
+        self.created_items = create_items(self)
+        if bool(self.created_items):
+
+            for k in map(str, self.created_items["errors"]):
+                self.error_message += str(k) + " \n"
+
+            if bool(self.error_message):
+                messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
+            elif len(self.created_items["created_items"]) > 0:
+
+                json_responses = []
+                successful_post = False
+
+                for item in self.created_items["created_items"]:
+                    json_responses.append(send_json(item, ogc_name=self.selected_type.get()))
+                for i in json_responses:
+                    if "error" in i.json():
+                        self.error_message += json.dumps((i.json())["error"]) + " \n"
+                    else:
+                        successful_post = True
+                if bool(self.error_message):
+                    messagebox.showinfo("ERROR", self.error_message)
+                if successful_post:
+                    messagebox.showinfo("", f"Posted new items to GOST")
+        else:
+            messagebox.showinfo("ERROR", "Trying to create multiple items with the same name\nItems not created")
+    clear_before_creation(self)
+
+
 
 
 def create_items(self):
     for entry in self.create_entries:
         if bool(entry["field_entry"].get()):
             self.create_values[entry["field_name"]] = entry["field_entry"].get()
-    return create_records(self.create_values, int(self.number_to_create.get()), self.selected_type.get())
+    result=(create_records(self.create_values, int(self.number_to_create.get()), self.selected_type.get()))
+    if check_duplicates(result["created_items"]):
+        return result
+    else:
+        return False
 
 
 def clear_before_creation(self):

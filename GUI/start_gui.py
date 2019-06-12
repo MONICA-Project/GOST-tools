@@ -46,7 +46,7 @@ class View():
             info_text = "Invalid GOST address"
 
         self.address_preview = Button(self.top_bar, text=f"{info_text} \nclick here to change address",
-                               command=lambda: change_address_main(self), bg = "#0ee1f1")
+                               command=lambda: change_address_main(self), bg = change_address_color)
 
         self.address_preview.grid(row=0,column=0)
 

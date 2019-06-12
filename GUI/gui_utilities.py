@@ -10,6 +10,7 @@ import tkinter.font as font
 
 confirm_color = '#ff502f'
 abort_color = '#86f986'
+change_address_color = "#a7cce7"
 
 
 # common text fields
@@ -185,3 +186,21 @@ def scrollable_results(results_list, root):
     scrollb.grid(row=0, column=1, sticky='nsew')
     text_result['yscrollcommand'] = scrollb.set
     return txt_frm
+
+
+def check_duplicates(list):
+    """Checks for records with duplicate name in list"""
+
+    names_list = []
+    for i in list:
+        if "name" in i:  # necessary for nameless entities like Observations
+            names_list.append(i["name"])
+    duplicate_dict = {}
+    for j in names_list:
+        if j in duplicate_dict:
+            return False
+        else:
+            duplicate_dict[j] = True
+    return list
+
+
