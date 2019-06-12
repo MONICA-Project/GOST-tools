@@ -34,10 +34,7 @@ class PatchView:
         self.view_elements.append({"item":select_introduction, "row": 1, "column" : 1, "name" : "select_introduction"})
 
 
-        selected_identifiers_description = Label(main_view.main_area, text="Insert one or more names or @iot.id\n"
-                                                                        "separated by a space\n"
-                                                      "(if no item identifier is specified, all the items of "
-                                                                           "selected type\nwill be selected)")
+        selected_identifiers_description = Label(main_view.main_area, text=select_id_text)
 
         self.view_elements.append({"item":selected_identifiers_description, "row": 2, "column" : 0,
                                    "name": "selected_identifiers_description"})
@@ -45,8 +42,7 @@ class PatchView:
         self.view_elements.append({"item": self.selected_identifiers, "row": 2, "column" : 1,
                                    "name": "selected_identifiers"})
 
-        selected_boolean_expression_description = Label(main_view.main_area, text="Insert a filter for results\n "
-                                                                               "(<,>,==,in,not in)(and or not")
+        selected_boolean_expression_description = Label(main_view.main_area, text=select_conditions_text)
         self.view_elements.append({"item":selected_boolean_expression_description, "row": 3, "column" : 0,
                                    "name" : "selected_boolean_expression_description"})
         self.selected_boolean_expression = Entry(main_view.main_area, width=50)

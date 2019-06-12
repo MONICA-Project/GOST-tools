@@ -97,9 +97,9 @@ def delete(self):
 
             self.view_elements.append({"item": self.result, "row": 9, "column": 1, "name" : "result"})
             self.delete_btn.config(text = "Click here to confirm \nthe deletion of the selected elements",
-                                   command = lambda : confirm_deletion(self),   bg='#ff502f')
+                                   command = lambda : confirm_deletion(self),   bg=confirm_color)
             self.abort_delete_button = Button(self.main_view.main_area, text="Click here to abort the deletion",
-                                              command=lambda: abort_deletion(self), bg='#86f986')
+                                              command=lambda: abort_deletion(self), bg=abort_color)
             self.view_elements.append({"item": self.abort_delete_button, "row": 11, "column": 1,
                                        "name": "abort_deletion_button"})
             populate(self.view_elements, self.main_view.main_area)

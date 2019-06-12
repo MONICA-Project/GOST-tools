@@ -46,7 +46,7 @@ class View():
             info_text = "Invalid GOST address"
 
         self.address_preview = Button(self.top_bar, text=f"{info_text} \nclick here to change address",
-                               command=lambda: change_address_main(self))
+                               command=lambda: change_address_main(self), bg = "#0ee1f1")
 
         self.address_preview.grid(row=0,column=0)
 
@@ -122,12 +122,12 @@ def change_address_main(self):
     self.view_elements.append({"item": self.new_address_entry, "row": 0, "column": 1, "name": "new_address_entry"})
 
     self.confirm_address_button = Button(self.top_bar, text="Confirm change",
-                                         command=lambda: try_address(self))
+                                         command=lambda: try_address(self), bg = confirm_color)
     self.view_elements.append({"item": self.confirm_address_button, "row": 0, "column": 2,
                                "name": "new_address_button"})
 
     self.keep_old_address_button = Button(self.top_bar, text="Keep old address",
-                                         command=lambda: keep_address(self))
+                                         command=lambda: keep_address(self), bg = abort_color)
     self.view_elements.append({"item": self.keep_old_address_button, "row": 0, "column": 3,
                                "name": "keep_old_address_button"})
 

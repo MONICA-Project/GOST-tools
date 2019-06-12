@@ -6,6 +6,19 @@ import copy
 from tkinter import messagebox
 import tkinter.font as font
 
+# color names for interface
+
+confirm_color = '#ff502f'
+abort_color = '#86f986'
+
+
+# common text fields
+
+select_id_text = "Insert one or more names or @iot.id\nseparated by a space\nIf no identifier is provided, " \
+                 "all the records of chosen type\nwill be selected"
+
+select_conditions_text = "Insert a filter for results\n(<,>,==,in,not in)(and or not)"
+
 
 def populate(elements_list, scrollable_area = False):
     for i in elements_list:

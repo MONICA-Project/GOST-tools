@@ -31,9 +31,7 @@ class GetView:
         self.view_elements.append({"item":types_menu, "row": 0, "column" : 1})
 
         selected_identifiers_description = Label(main_view.main_area, borderwidth=2, relief="solid",
-                                                 text=f"Insert one or more names or @iot.id\nseparated by a space\n"
-                                                      "If no identifier is provided, all the records of chosen type\n"
-                                                      "will be selected")
+                                                 text=select_id_text)
 
         self.view_elements.append({"item":selected_identifiers_description, "row": 1, "column" : 0})
         self.selected_identifiers = Entry(main_view.main_area, width=10)
