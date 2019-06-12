@@ -70,7 +70,7 @@ class GetView:
         self.view_elements.append({"item": self.show_fields, "row": 4, "column": 0, "name": "show_fields"})
 
         search_btn = Button(self.main_view.main_area, text="Search!", command=lambda: search(self),
-                            bg = "#86f986")
+                            bg = action_color)
         self.view_elements.append({"item": search_btn, "row": 5, "column": 1})
 
         populate(self.view_elements, self.main_view.main_area)

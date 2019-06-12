@@ -11,6 +11,7 @@ import tkinter.font as font
 confirm_color = '#ff502f'
 abort_color = '#86f986'
 change_address_color = "#a7cce7"
+action_color = "#86f986"
 
 
 # common text fields
@@ -173,7 +174,7 @@ def scrollable_results(results_list, root):
 
     # create a Text widget
     text_result = Text(txt_frm, width=50, height=10)
-    text_result.config(font=("consolas", 12), undo=True, wrap='word')
+    text_result.config(font=("consolas", 8), undo=True, wrap='word')
     text_result.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
     row = 0
     for i in results_list:
@@ -203,4 +204,13 @@ def check_duplicates(list):
             duplicate_dict[j] = True
     return list
 
+
+def name_in_patch(patch_values):
+    for i in patch_values:
+        if i["field_name"] == "name":
+            if bool(i["field_entry"].get()):
+                return True
+            else:
+                return False
+    return False
 
