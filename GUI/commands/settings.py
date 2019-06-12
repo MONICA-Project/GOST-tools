@@ -44,6 +44,11 @@ def change_address(self):
     new_address = self.new_address.get()
     working_conn = connection_config.test_connection((new_address))
     if working_conn:
+
+        self.main_view.model.GOST_address = new_address
+
+        connection_config.set_GOST_address(new_address)  # saving the new address works
+
         self.main_view.address_preview.configure(text=f"Current GOST address: {self.main_view.model.GOST_address} "
                                                       f"\nclick here to change address")
         self.confirm_address_button.configure(text="To change address, insert a new address\nand click here")
