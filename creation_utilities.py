@@ -186,16 +186,17 @@ def valid_random_name(ogc_type):
 def user_defined_or_default(args, field_name, ogc_type=None):
     """Given a field name, returns its default value or the user-defined
     one if present"""
-    if "type" in args:
-        if bool(args["type"]):
-            ogc_type = args["type"]
+
+    if ("type" in args) and not bool(ogc_type):
+        ogc_type = args["type"]
     if field_name in args:  # using user-defined value for the field
-        if (field_name == "coordinates") and (bool(args["coordinates"])):
+        if field_name == "coordinates":
             result = string_to_coordinates(args["coordinates"])
         else:
             result = args[field_name]
         return result
 
+    #  default values, if not provided by user, for special fields
     elif field_name == "name":
         return valid_random_name(ogc_type)
 
@@ -213,6 +214,12 @@ def user_defined_or_default(args, field_name, ogc_type=None):
 
     elif field_name == "encodingType":
         return "application/vnd.geo+json"
+
+    elif field_name == "coordinates":
+        return [4.9132, 52.34227]
+
+    elif field_name == "type":
+        return "Point"
 
     else:
         return "default " + field_name

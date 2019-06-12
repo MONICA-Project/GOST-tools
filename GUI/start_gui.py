@@ -140,9 +140,13 @@ def change_address_main(self):
 
 
 def try_address(self):
-    new_address = self.new_address_entry.get()
+    new_address = self.new_address_entry.get()  # checking if the new address works
     working_conn = connection_config.test_connection((new_address))
     if working_conn:
+        self.model.GOST_address = new_address
+
+        connection_config.set_GOST_address(new_address)  # saving the new address works
+
         self.address_preview.configure(text=f"Current GOST address: {self.model.GOST_address} "
         f"\nclick here to change address")
         indexes_to_delete = []

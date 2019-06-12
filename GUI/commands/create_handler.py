@@ -146,10 +146,19 @@ def post(self):
         elif len(self.created_items["created_items"]) > 0:
 
             json_responses = []
+            successful_post = False
 
             for item in self.created_items["created_items"]:
                 json_responses.append(send_json(item, ogc_name=self.selected_type.get()))
-            messagebox.showinfo("", f"Posted new items to GOST")
+            for i in json_responses:
+                if "error" in i.json():
+                    self.error_message += json.dumps((i.json())["error"]) + " \n"
+                else:
+                    successful_post = True
+            if bool(self.error_message):
+                messagebox.showinfo("ERROR", self.error_message)
+            if successful_post:
+                messagebox.showinfo("", f"Posted new items to GOST")
             clear_before_creation(self)
 
 
@@ -174,10 +183,23 @@ def save_and_post(self):
                                                              filetypes=(
                                                              ("text files", "*.txt"), (".txt", "*.txt")))
             file_handler = open(self.storage_file, 'w')
+
+            json_responses = []
+            successful_post = False
+
             for item in self.created_items["created_items"]:
                 file_handler.write(json.dumps(item) + "\n")
-                send_json(item, ogc_name=self.selected_type.get())
-            messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}\n"
+                json_responses.append(send_json(item, ogc_name=self.selected_type.get()))
+            for i in json_responses:
+                if "error" in i.json():
+                    self.error_message += json.dumps((i.json())["error"]) + " \n"
+                else:
+                    successful_post = True
+            if bool(self.error_message):
+                messagebox.showinfo("ERROR", self.error_message)
+
+            if successful_post:
+                messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}\n"
                                 f"and posted them to GOST")
             clear_before_creation(self)
 
@@ -185,8 +207,7 @@ def save_and_post(self):
 def post_from_file(self):
     creation_result = []
     self.upload_file = filedialog.askopenfilename(initialdir="/", title="Select file",
-                                                     filetypes=(
-                                                         ("text files", "*.txt"), (".txt", "*.txt")))
+                                                     filetypes=(("text files", "*.txt"), (".txt", "*.txt")))
     with open(self.upload_file) as json_file:
         NOT_WHITESPACE = re.compile(r'[^\s]')
 
