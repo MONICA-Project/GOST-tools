@@ -38,8 +38,8 @@ class GetView:
         self.view_elements.append({"item": self.selected_identifiers, "row": 1, "column" : 1})
 
         selected_boolean_expression_description = Label(main_view.main_area, borderwidth=2, relief="solid",
-                                                        text="Insert a filter for results\n "
-                                                                               "(<,>,==,in,not in)(and or not)")
+                                                        text=select_conditions_text)
+
         self.view_elements.append({"item":selected_boolean_expression_description, "row": 2, "column" : 0})
         self.selected_boolean_expression = Entry(main_view.main_area, width=50)
         self.view_elements.append({"item":self.selected_boolean_expression, "row": 2, "column" : 1})

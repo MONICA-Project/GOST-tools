@@ -127,7 +127,8 @@ def patch_item(options_dict, identifier, ogc_type, environment = False, address 
             return {"error" : f"Trying to patch "
             f"with name {options_dict['name']} already present in {ogc_type}"}
 
-    return send_json(provided_load=options_dict, sending_address=address, request_type='PATCH').json()
+    result = send_json(provided_load=options_dict, sending_address=address, request_type='PATCH').json()
+    return result
 
 
 def check_id(item_identifier):
@@ -196,3 +197,5 @@ def args_to_dict(args):
     i = iter(new_args)
     dict_result = dict(zip(i, i))
     return dict_result
+
+

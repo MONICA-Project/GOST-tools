@@ -68,4 +68,3 @@ def check_name_duplicates(evaluator, list_name):
         if val > 1:
             error_message = {"error": f"found {str(val)} records with name {key}"}
             evaluator.environment["critical_failures"].append(error_message)
-

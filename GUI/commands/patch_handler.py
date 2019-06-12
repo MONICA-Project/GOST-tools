@@ -177,12 +177,7 @@ def confirm_patching(self):
     if patched_items:
         messagebox.showinfo("Patch", "PATCH CONFIRMED")
 
-    hide_patch_button(self)
-    clear_patches(self)
-    clear_results(self)
-    clear_old_patch_values(self)
-    set_patches_fields(self)
-
+    patch_finished(self)
 
 
 def abort_patching(self):
@@ -202,17 +197,25 @@ def abort_patching(self):
     populate(self.view_elements, self.main_view.main_area)
     messagebox.showinfo("Patch", "PATCH ABORTED")
 
-    hide_patch_button(self)
-    clear_patches(self)
-    clear_results(self)
-    clear_old_patch_values(self)
-    set_patches_fields(self)
+    patch_finished(self)
 
 
 def clear_patches(self):
     self.selected_items = []
     self.patch_values = []
     self.error_message = ""
+
+
+
+
+def patch_finished(self):
+    clear_patches(self)
+    clear_results(self)
+    clear_old_patch_values(self)
+    set_patches_fields(self)
+    self.selected_type.set("Select an OGC type")
+    hide_patch_button(self)
+
 
 
 def hide_patch_button(self):

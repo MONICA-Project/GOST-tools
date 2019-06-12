@@ -177,9 +177,9 @@ def random_name_generator(range, ogc_type):
 def valid_random_name(ogc_type):
     """given an ogc type, checks and returns a valid random name for a new item
     of that type"""
-    name = random_name_generator(5, ogc_type)
+    name = random_name_generator(10, ogc_type)
     while item_is_already_present(name, ogc_type):
-        name = random_name_generator(5, ogc_type)
+        name = random_name_generator(10, ogc_type)
     return name
 
 
