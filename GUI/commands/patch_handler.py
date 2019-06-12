@@ -131,17 +131,20 @@ def patch(self):
             for i in sorted(indexes_to_delete, reverse=True):
                 self.view_elements[i]["item"].grid_forget()
 
+        for i in self.patch_values:
+            if bool(i["field_entry"].get()):
+                i["field_entry"].config(state=DISABLED)
+            else:
+                i["field_entry"].grid_forget()
 
 def confirm_patching(self):
     address = self.main_view.model.GOST_address + "/"
     patches = {}
-    if isinstance(self.patch_values, dict):
-        if bool(self.patch_values["field_entry"].get()):
-            patches[self.patch_values["field_name"]] = self.patch_values["field_entry"].get()
-    else:
-        for i in self.patch_values:
-            if bool(i["field_entry"].get()):
-                patches[i["field_name"]] = i["field_entry"].get()
+
+    for i in self.patch_values:
+        if bool(i["field_entry"].get()):
+            patches[i["field_name"]] = i["field_entry"].get()
+
 
     patched_items = False  # flag for the final success message
 
@@ -206,8 +209,6 @@ def clear_patches(self):
     self.error_message = ""
 
 
-
-
 def patch_finished(self):
     clear_patches(self)
     clear_results(self)
@@ -215,7 +216,6 @@ def patch_finished(self):
     set_patches_fields(self)
     self.selected_type.set("Select an OGC type")
     hide_patch_button(self)
-
 
 
 def hide_patch_button(self):
