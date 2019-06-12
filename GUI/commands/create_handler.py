@@ -296,7 +296,7 @@ def direct_post(self):
                     messagebox.showinfo("", f"Posted new items to GOST")
         else:
             messagebox.showinfo("ERROR", "Trying to create multiple items with the same name\nItems not created")
-    clear_before_creation(self)
+        clear_before_creation(self)
 
 
 

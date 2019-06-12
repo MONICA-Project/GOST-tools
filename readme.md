@@ -101,9 +101,15 @@ optional arguments:
                         currently selected items, and adds a field "related <ogc type of the previously
                         selected items>" to each result
                         Accepts select <boolean expression> as additional value to filter the results
+                        
                         example:
                         1 --type Sensors --related Observations
                         1 --type Sensor --related Observations select @iot.id > 10
+                        
+                        If the currently selected item is a datastream, found the related items
+                        
+                        example: find all the Observations of the datastreams with @iot.id 10 and 11
+                        10 11 -t Datastreams --related Observations
                         
   -s [SELECT [SELECT ...]], --select [SELECT [SELECT ...]]
                         selection of the items to process,

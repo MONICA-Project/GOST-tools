@@ -24,7 +24,7 @@ class SettingsView:
         self.view_elements.append({"item": self.new_address, "row": 1, "column" : 2})
 
         self.confirm_address_button = Button(self.main_view.main_area, text="Confirm change",
-                                             command=lambda: change_address(self))
+                                             command=lambda: change_address(self), bg=action_color)
         self.view_elements.append({"item": self.confirm_address_button, "row": 1, "column" : 3})
 
         populate(self.view_elements)

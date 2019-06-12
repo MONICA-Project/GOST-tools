@@ -231,27 +231,37 @@ def post(evaluator):
 
 @conditions.needed_fields(at_least_one_field=["related"], needed_additional_argument=["related"], needed_items=True)
 def related_items(evaluator):
-    """find the items of the choosen type which share a datastream with the currently selected item"""
+    """Find the items of the choosen type which share a datastream with the currently selected item
+    If the currently selected item is a datastream, will be found the items of the choosen type related to
+    that datastream"""
     result = []
-    for item in evaluator.environment["selected_items"]:
-        result += find_related(item, evaluator.args.ogc, evaluator.args.related[0],
-                               evaluator.environment["GOST_address"])
-    evaluator.environment["selected_items"] = result
+    if not (evaluator.args.ogc == "Datastreams"):
+        for item in evaluator.environment["selected_items"]:
+            result += find_related(item, evaluator.args.ogc, evaluator.args.related[0],
+                                   evaluator.environment["GOST_address"])
+        evaluator.environment["selected_items"] = result
 
-    if len(evaluator.args.related)>1 and evaluator.args.related[1] == "select":  # checks if there are selection filters
-        ## inside "related" command
-        selection_rules = evaluator.args.related[2:]
-        for item in evaluator.environment["selected_items"].copy():
-            matching = selection_parser.select_parser(selection_rules, item)
-            if not matching:
-                evaluator.environment["selected_items"].remove(item)
-            elif isinstance(matching, dict):
-                if "error" in matching:
+        if len(evaluator.args.related)>1 and evaluator.args.related[1] == "select":  # checks if
+            # there are selection filters
+            # inside "related" command
+            selection_rules = evaluator.args.related[2:]
+            for item in evaluator.environment["selected_items"].copy():
+                matching = selection_parser.select_parser(selection_rules, item)
+                if not matching:
                     evaluator.environment["selected_items"].remove(item)
-                    evaluator.environment["non_critical_failures"] += [matching]
+                elif isinstance(matching, dict):
+                    if "error" in matching:
+                        evaluator.environment["selected_items"].remove(item)
+                        evaluator.environment["non_critical_failures"] += [matching]
+
+    if evaluator.args.ogc == "Datastreams":
+        for item in evaluator.environment["selected_items"]:
+            result += get_entities_from_datastream(item, evaluator.args.related[0],
+                                                   evaluator.environment["GOST_address"])
+        evaluator.environment["selected_items"] = result
 
     evaluator.args.ogc = evaluator.args.related[0]  # change the selected items type to the result type
-    # for future operations
+        # for future operations
 
 
 @conditions.needed_fields(at_least_one_field=["select"], critical_failures_resistant=False, needed_items=True)
@@ -427,6 +437,8 @@ def create(evaluator):
     if evaluator.args.show:
         if result["created_name_list"]:
             evaluator.environment["results"] += result["created_name_list"]
+
+
 
 
 def find_related(item, item_type, related_type, address):

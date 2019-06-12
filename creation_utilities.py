@@ -157,9 +157,12 @@ def needed_user_defined_fields(args, fields_list):
     result = {}
     args_keys_names = []
     for i in args:
-        args_keys_names.append(i.title())
+        if "_id" not in i:
+            args_keys_names.append(i.title())
+        else:
+            args_keys_names.append(i)
     for field in fields_list:
-        if field not in args_keys_names:
+        if not (field in args_keys_names):
             if "error" in result:
                 result["error"] = result["error"] + f", {field} value"
             else:
