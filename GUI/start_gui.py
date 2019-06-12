@@ -18,8 +18,8 @@ class View():
     def __init__(self):
         self.view_elements = []
         self.window = Tk()
-        self.width=750
-        self.height=405
+        self.width=800
+        self.height=600
         self.current_command_view = None
         self.model = Model()
         self.window.title("GOST-CONTROLLER")
