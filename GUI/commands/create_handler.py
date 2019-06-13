@@ -304,10 +304,13 @@ def create_items(self):
         if bool(entry["field_entry"].get()):
             self.create_values[entry["field_name"]] = entry["field_entry"].get()
     result=(create_records(self.create_values, int(self.number_to_create.get()), self.selected_type.get()))
-    if check_duplicates(result["created_items"]):
-        return result
+    if bool(result["created_items"]):
+        if check_duplicates(result["created_items"]):
+            return result
+        else:
+            return False
     else:
-        return False
+        return result
 
 
 def clear_before_creation(self):
