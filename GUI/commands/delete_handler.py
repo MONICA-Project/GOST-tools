@@ -90,6 +90,9 @@ def delete(self):
     self.selected_items = get_items(self)
     if bool(self.selected_items):
         if self.selected_items != "error":
+            self.result_info = Label(self.main_view.main_area, borderwidth=2, relief="solid",
+                                     text=f"found {len(self.selected_items)} results")
+            self.view_elements.append({"item": self.result_info, "row": 8, "column": 1, "name": "number_found"})
             self.result = scrollable_results(self.selected_items, self.main_view.main_area)
 
             self.view_elements.append({"item": self.result, "row": 9, "column": 1, "name" : "result"})
@@ -99,6 +102,9 @@ def delete(self):
                                               command=lambda: abort_deletion(self), bg=abort_color)
             self.view_elements.append({"item": self.abort_delete_button, "row": 11, "column": 1,
                                        "name": "abort_deletion_button"})
+
+
+
             populate(self.view_elements, self.main_view.main_area)
     else:
         messagebox.showinfo("Error", "NO ITEMS FOUND")
@@ -117,7 +123,7 @@ def confirm_deletion(self):
     indexes_to_delete = []
     for index, val in enumerate(self.view_elements):
         if "name" in val:
-            if val["name"] in ["abort_deletion_button", "result", "show_fields"]:
+            if val["name"] in ["abort_deletion_button", "result", "show_fields","number_found"]:
                 indexes_to_delete.append(index)
     for i in sorted(indexes_to_delete, reverse=True):
         self.view_elements[i]["item"].grid_forget()
@@ -135,7 +141,7 @@ def abort_deletion(self):
     indexes_to_delete = []
     for index, val in enumerate(self.view_elements):
         if "name" in val:
-            if val["name"] in ["abort_deletion_button", "result", "show_fields"]:
+            if val["name"] in ["abort_deletion_button", "result", "show_fields","number_found"]:
                 indexes_to_delete.append(index)
     for i in sorted(indexes_to_delete, reverse=True):
         self.view_elements[i]["item"].grid_forget()
