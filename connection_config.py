@@ -55,22 +55,3 @@ def test_connection(server_address, server_username=None, server_password=None, 
     except Exception as e:
         print(e)
         return False
-
-
-def old_test_connectivity(address, verbose=False):
-    if verbose:
-        response = os.system("ping " + address)
-    else:
-        print("verifying connection...")
-        with open(os.devnull, 'w') as DEVNULL:
-            try:
-                subprocess.check_call(
-                    ['ping', '-i', '3', address],
-                    stdout=DEVNULL,  # suppress output
-                    stderr=DEVNULL
-                )
-                print("connection available on address " + address)
-                response = 0
-            except subprocess.CalledProcessError:
-                response = 1
-    return response == 0

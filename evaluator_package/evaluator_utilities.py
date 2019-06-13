@@ -28,7 +28,6 @@ def ask_ogc(evaluator):
 
 def is_ogc(name):
     """Checks if name is a valid ogc entity type"""
-
     return name in ["Things", "Sensors", "Locations", "HystoricalLocations", "Datastreams", "ObservedProperties",
                     "Observations", "FeaturesOfInterest"]
 

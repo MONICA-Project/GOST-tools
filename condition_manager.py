@@ -1,6 +1,6 @@
 def checkConditions(specs, content) :
     """#iterate all elements of specs (array) in content (dictionary)
-    and apply the corrispondent function
+    and apply the correspondent function
 
     """
     result = []

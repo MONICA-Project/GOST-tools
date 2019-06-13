@@ -437,15 +437,6 @@ def exec_file(evaluator):
         conditions.file_iterator(list_to_string(evaluator.args.file))
 
 
-def clear_environment(evaluator):
-    """Clears the environment keeping the old values of mode and GOST address"""
-
-    evaluator.return_environment = evaluator.environment  # needed as temporary value for the exit function
-    temp_address = evaluator.environment["GOST_address"]
-    temp_mode = evaluator.environment["mode"]
-    evaluator.environment = default_env(GOST_address=temp_address, mode=temp_mode)
-
-
 def create(evaluator):
     """Create records in a file"""
 
@@ -457,6 +448,13 @@ def create(evaluator):
             evaluator.environment["results"] += result["created_name_list"]
 
 
+def clear_environment(evaluator):
+    """Clears the environment keeping the old values of mode and GOST address"""
+
+    evaluator.return_environment = evaluator.environment  # needed as temporary value for the exit function
+    temp_address = evaluator.environment["GOST_address"]
+    temp_mode = evaluator.environment["mode"]
+    evaluator.environment = default_env(GOST_address=temp_address, mode=temp_mode)
 
 
 def find_related(item, item_type, related_type, address):

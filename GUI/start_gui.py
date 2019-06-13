@@ -74,7 +74,6 @@ class View():
                               bg='#fff1c1')
         SETTINGS_btn["font"] = myFont
 
-
         self.main_view_elements = []
 
         self.main_view_elements.append({"item":GET_btn, "row":0, "column" : 0})
