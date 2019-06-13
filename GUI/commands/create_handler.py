@@ -51,46 +51,47 @@ class CreateView:
             i["item"].grid_forget()
 
     def show_options(self, a, b, c):  # additional parameters a b c needed because it is called by Trace function
+        if  not ( self.selected_type.get() == "Select an OGC type"):  # needed to avoid the restoring of action
+            # buttons before action execution
+            indexes_to_delete = []  # clearing the previously set patch options
+            for index, val in enumerate(self.view_elements):
+                if "name" in val:
+                    if val["name"] in ["create_field_name", "create_field_value"]:
+                        indexes_to_delete.append(index)
+            for i in sorted(indexes_to_delete, reverse=True):
+                self.view_elements[i]["item"].grid_forget()
+                del self.view_elements[i]
 
-        indexes_to_delete = []  # clearing the previously set patch options
-        for index, val in enumerate(self.view_elements):
-            if "name" in val:
-                if val["name"] in ["create_field_name", "create_field_value"]:
-                    indexes_to_delete.append(index)
-        for i in sorted(indexes_to_delete, reverse=True):
-            self.view_elements[i]["item"].grid_forget()
-            del self.view_elements[i]
+            field_names = get_fields_names(self.selected_type.get(), needed_for_editing=True)
 
-        field_names = get_fields_names(self.selected_type.get(), needed_for_editing=True)
+            row = 11
 
-        row = 11
+            for item in field_names:
+                temp_label = Label(self.main_view.main_area, text=item)
+                self.view_elements.append({"item": temp_label, "row": row, "column": 0, "name": "create_field_name"})
+                temp_entry = Entry(self.main_view.main_area, width=50)
+                self.view_elements.append({"item": temp_entry, "row": row, "column": 1, "name": "create_field_value"})
+                row += 1
+                self.create_entries.append({"field_name" : item, "field_entry": temp_entry})
 
-        for item in field_names:
-            temp_label = Label(self.main_view.main_area, text=item)
-            self.view_elements.append({"item": temp_label, "row": row, "column": 0, "name": "create_field_name"})
-            temp_entry = Entry(self.main_view.main_area, width=50)
-            self.view_elements.append({"item": temp_entry, "row": row, "column": 1, "name": "create_field_value"})
-            row += 1
-            self.create_entries.append({"field_name" : item, "field_entry": temp_entry})
+            self.save_btn = Button(self.main_view.main_area, text="Save to a file",
+                                                            command=lambda: save(self))
+            self.view_elements.append({"item": self.save_btn, "row": 10, "column": 0, "name": "save_button"})
 
-        self.save_btn = Button(self.main_view.main_area, text="Save to a file",
-                                                        command=lambda: save(self))
-        self.view_elements.append({"item": self.save_btn, "row": 10, "column": 0, "name": "save_button"})
+            self.post_btn = Button(self.main_view.main_area, text="Post to GOST",
+                                                            command=lambda: direct_post(self))
+            self.view_elements.append({"item": self.post_btn, "row": 10, "column": 1, "name": "post_button"})
 
-        self.post_btn = Button(self.main_view.main_area, text="Post to GOST",
-                                                        command=lambda: direct_post(self))
-        self.view_elements.append({"item": self.post_btn, "row": 10, "column": 1, "name": "post_button"})
+            self.save_and_post_btn = Button(self.main_view.main_area, text="Save to a file\nand Post to GOST",
+                                   command=lambda: save_and_post(self))
+            self.view_elements.append({"item": self.save_and_post_btn, "row": 10, "column": 2,
+                                       "name": "save_and_post_button"})
+            self.post_from_file_btn = Button(self.main_view.main_area, text="POST records \ndefined in a file",
+                                            command=lambda: post_from_file(self))
+            self.view_elements.append({"item": self.post_from_file_btn, "row": 10, "column": 3,
+                                       "name": "post_from_file_button"})
 
-        self.save_and_post_btn = Button(self.main_view.main_area, text="Save to a file\nand Post to GOST",
-                               command=lambda: save_and_post(self))
-        self.view_elements.append({"item": self.save_and_post_btn, "row": 10, "column": 2,
-                                   "name": "save_and_post_button"})
-        self.post_from_file_btn = Button(self.main_view.main_area, text="POST records \ndefined in a file",
-                                        command=lambda: post_from_file(self))
-        self.view_elements.append({"item": self.post_from_file_btn, "row": 10, "column": 3,
-                                   "name": "post_from_file_button"})
-
-        populate(self.view_elements, self.main_view.main_area)
+            populate(self.view_elements, self.main_view.main_area)
 
 
 def create_command(view):
@@ -105,7 +106,8 @@ def save(self):
     except ValueError:
         messagebox.showinfo("ERROR", "undefinded number\nof items to create")
     else :
-        self.storage_file = filedialog.asksaveasfilename(initialdir="/", title="Select file",
+        self.storage_file = filedialog.asksaveasfilename(defaultextension=".txt",
+                                                         initialdir="/", title="Select file",
                                                          filetypes=(
                                                              ("text files", "*.txt"), (".txt", "*.txt")))
         if bool(self.storage_file):
@@ -173,8 +175,9 @@ def save_and_post(self):
     except ValueError:
         messagebox.showinfo("ERROR", "undefinded number\nof items to create")
     else:
-        self.storage_file = filedialog.asksaveasfilename(initialdir="/", title="Select file",
-                                                     filetypes=(
+        self.storage_file = filedialog.asksaveasfilename(defaultextension=".txt",
+                                                         initialdir="/", title="Select file",
+                                                         filetypes=(
                                                              ("text files", "*.txt"), (".txt", "*.txt")))
         if bool(self.storage_file):
             self.created_items = create_items(self)
@@ -264,6 +267,7 @@ def post_from_file(self):
 
 
 def direct_post(self):
+
     try:
         int(self.number_to_create.get())
 
