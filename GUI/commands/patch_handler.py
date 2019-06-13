@@ -101,45 +101,49 @@ def patch_command(view):
 
 
 def patch(self):
-    clear_results(self)
-    self.selected_items = get_items(self)
-
-    if len(self.selected_items) > 1 and name_in_patch(self.patch_values):  # control to avoid to patch two items
-                                                                           # with the same name
-        messagebox.showinfo("ERROR", "Trying to patch multiple items with the same name\nItems not patched")
-
+    if patch_values_not_available(self):
+        pass
     else:
-        if self.selected_items != "error":
-            self.result = scrollable_results(self.selected_items, self.main_view.main_area)
+        clear_results(self)
+        self.selected_items = get_items(self)
 
-            self.view_elements.append({"item": self.result, "row": 1, "column": 1, "name" : "result"})
-            self.patch_btn.config(text = "Click here to confirm \nthe Patching of the selected elements",
-                                   command = lambda : confirm_patching(self))
-            self.abort_patch_btn = Button(self.main_view.main_area, text="Click here to abort the patching",
-                                              command=lambda: abort_patching(self),  bg='#ff502f')
-            self.view_elements.append({"item": self.abort_patch_btn, "row": 6, "column": 1,
-                                       "name": "abort_patching_button"})
-            populate(self.view_elements, self.main_view.main_area)
+        if len(self.selected_items) > 1 and name_in_patch(self.patch_values):  # control to avoid to patch two items
+                                                                               # with the same name
+            messagebox.showinfo("ERROR", "Trying to patch multiple items with the same name\nItems not patched")
+        else:
+            if self.selected_items != "error":
+                self.result = scrollable_results(self.selected_items, self.main_view.main_area)
 
-            indexes_to_delete = []  # Deleting select item fields from the view
-            for index, val in enumerate(self.view_elements):
-                if "name" in val:
-                    if val["name"] in ["select_introduction", "selected_identifiers_description",
-                                       "selected_identifiers", "selected_boolean_expression_description",
-                                       "selected_boolean_expression"]:
-                        indexes_to_delete.append(index)
-            for i in sorted(indexes_to_delete, reverse=True):
-                self.view_elements[i]["item"].grid_forget()
+                self.view_elements.append({"item": self.result, "row": 1, "column": 1, "name" : "result"})
+                self.patch_btn.config(text = "Click here to confirm \nthe Patching of the selected elements",
+                                       command = lambda : confirm_patching(self))
+                self.abort_patch_btn = Button(self.main_view.main_area, text="Click here to abort the patching",
+                                                  command=lambda: abort_patching(self),  bg='#ff502f')
+                self.view_elements.append({"item": self.abort_patch_btn, "row": 6, "column": 1,
+                                           "name": "abort_patching_button"})
+                populate(self.view_elements, self.main_view.main_area)
 
-        for i in self.patch_values:
-            if bool(i["field_entry"].get()):
-                i["field_entry"].config(state=DISABLED)
-            else:
-                i["field_entry"].grid_forget()
+                indexes_to_delete = []  # Deleting select item fields from the view
+                for index, val in enumerate(self.view_elements):
+                    if "name" in val:
+                        if val["name"] in ["select_introduction", "selected_identifiers_description",
+                                           "selected_identifiers", "selected_boolean_expression_description",
+                                           "selected_boolean_expression"]:
+                            indexes_to_delete.append(index)
+                for i in sorted(indexes_to_delete, reverse=True):
+                    self.view_elements[i]["item"].grid_forget()
+
+            for i in self.patch_values:
+                if bool(i["field_entry"].get()):
+                    i["field_entry"].config(state=DISABLED)
+                else:
+                    i["field_entry"].grid_forget()
+
 
 def confirm_patching(self):
     address = self.main_view.model.GOST_address + "/"
     patches = {}
+
 
     for i in self.patch_values:
         if bool(i["field_entry"].get()):
@@ -223,3 +227,10 @@ def hide_patch_button(self):
         if "name" in i:
             if i["name"] == "patching_button":
                 i["item"].grid_forget()
+
+
+def patch_values_not_available(self):
+    for i in self.patch_values:
+        if bool(i["field_entry"].get()):
+            return False
+    return True

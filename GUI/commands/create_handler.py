@@ -88,7 +88,7 @@ class CreateView:
                                        "name": "save_and_post_button"})
             self.post_from_file_btn = Button(self.main_view.main_area, text="POST records \ndefined in a file",
                                             command=lambda: post_from_file(self))
-            self.view_elements.append({"item": self.post_from_file_btn, "row": 10, "column": 3,
+            self.view_elements.append({"item": self.post_from_file_btn, "row": 11, "column": 2,
                                        "name": "post_from_file_button"})
 
             populate(self.view_elements, self.main_view.main_area)
@@ -112,6 +112,7 @@ def save(self):
                                                              ("text files", "*.txt"), (".txt", "*.txt")))
         if bool(self.storage_file):
             self.created_items = create_items(self)
+
 
             if bool(self.created_items):
 
@@ -165,6 +166,7 @@ def post(self):
                 clear_before_creation(self)
         else:
             messagebox.showinfo("ERROR", "No items to post")
+
     clear_before_creation(self)
 
 
@@ -318,6 +320,7 @@ def create_items(self):
 
 
 def clear_before_creation(self):
+
     self.create_values = {}
     self.error_message = []
     self.create_entries = []
@@ -334,3 +337,9 @@ def clear_before_creation(self):
     populate(self.view_elements, self.main_view.main_area)
     self.selected_type.set("Select an OGC type")
 
+
+def show_preview(self):
+    preview = scrollable_results(self.created_items["created_items"], self.main_view.main_area,
+                                 editable=False)
+    self.view_elements.append({"item": preview, "row": 3, "column": 0, "name": "preview"})
+    populate(self.view_elements, self.main_view.main_area)

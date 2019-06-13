@@ -165,7 +165,8 @@ def get_ogc_types():
     return {"Sensors", "Things", "Datastreams", "Locations", "ObservedProperties", "Observations", "FeaturesOfInterest"}
 
 
-def scrollable_results(results_list, root):
+def scrollable_results(results_list, root, editable=True):
+    """Returns a scrollable view of results_list. If editable is false, the text will be read only"""
     txt_frm = Frame(root, width=600, height=300)
     # ensure a consistent GUI size
     txt_frm.grid_propagate(False)
@@ -182,6 +183,8 @@ def scrollable_results(results_list, root):
         formatted_record = json.dumps(i, sort_keys=True, indent=2) + "\n"
         text_result.insert(f"1.0", formatted_record)
         row += 1
+    if not editable:
+        text_result.config(state="disabled")
 
     # create a Scrollbar and associate it with txt
     scrollb = Scrollbar(txt_frm, command=text_result.yview)
