@@ -235,16 +235,27 @@ def related_items(evaluator):
     If the currently selected item is a datastream, will be found the items of the choosen type related to
     that datastream"""
     result = []
-    if not (evaluator.args.ogc == "Datastreams"):
-        for item in evaluator.environment["selected_items"]:
-            result += find_related(item, evaluator.args.ogc, evaluator.args.related[0],
-                                   evaluator.environment["GOST_address"])
-        evaluator.environment["selected_items"] = result
 
     if evaluator.args.ogc == "Datastreams":
-        for item in evaluator.environment["selected_items"]:
-            result += get_entities_from_datastream(item, evaluator.args.related[0],
-                                                   evaluator.environment["GOST_address"])
+        if evaluator.args.related[0] == "Datastreams":
+            evaluator.environment["critical_failure"].append({"error": "trying to found "
+                                                                       "Datastreams related to Datastreams"})
+        else:
+            for item in evaluator.environment["selected_items"]:
+                result += get_entities_from_datastream(item, evaluator.args.related[0],
+                                                       evaluator.environment["GOST_address"])
+            evaluator.environment["selected_items"] = result
+
+    else:
+        if evaluator.args.related[0] == "Datastreams":
+            for item in evaluator.environment["selected_items"]:
+                result += related_datastreams(item['@iot.id'], evaluator.args.ogc,
+                                              evaluator.environment["GOST_address"])
+
+        else:
+            for item in evaluator.environment["selected_items"]:
+                result += find_related(item, evaluator.args.ogc, evaluator.args.related[0],
+                                       evaluator.environment["GOST_address"])
         evaluator.environment["selected_items"] = result
 
     # checks on the query result the conditions given to --related as argument
