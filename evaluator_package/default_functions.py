@@ -241,24 +241,32 @@ def related_items(evaluator):
                                    evaluator.environment["GOST_address"])
         evaluator.environment["selected_items"] = result
 
-        if len(evaluator.args.related)>1 and evaluator.args.related[1] == "select":  # checks if
-            # there are selection filters
-            # inside "related" command
-            selection_rules = evaluator.args.related[2:]
-            for item in evaluator.environment["selected_items"].copy():
-                matching = selection_parser.select_parser(selection_rules, item)
-                if not matching:
-                    evaluator.environment["selected_items"].remove(item)
-                elif isinstance(matching, dict):
-                    if "error" in matching:
-                        evaluator.environment["selected_items"].remove(item)
-                        evaluator.environment["non_critical_failures"] += [matching]
-
     if evaluator.args.ogc == "Datastreams":
         for item in evaluator.environment["selected_items"]:
             result += get_entities_from_datastream(item, evaluator.args.related[0],
                                                    evaluator.environment["GOST_address"])
         evaluator.environment["selected_items"] = result
+
+    # checks on the query result the conditions given to --related as argument
+    # (es: --related Sensors select "turin" in name)
+
+    temp_list = []
+
+    if len(evaluator.args.related) > 1 and evaluator.args.related[1] == "select":
+        # there are selection filters
+        # inside "related" command
+        selection_rules = evaluator.args.related[2:]
+        for item in evaluator.environment["selected_items"]:
+            matching = selection_parser.select_parser(selection_rules, item)
+            if not matching:
+                pass
+            elif isinstance(matching, dict):
+                if "error" in matching:
+                    evaluator.environment["selected_items"].remove(item)
+                    evaluator.environment["non_critical_failures"] += [matching]
+            else:
+                temp_list.append(item)
+        evaluator.environment["selected_items"] = temp_list
 
     evaluator.args.ogc = evaluator.args.related[0]  # change the selected items type to the result type
         # for future operations
@@ -415,8 +423,8 @@ def create_records(evaluator):
 def exec_file(evaluator):
     """Executes a list of commands stored in a file"""
     # TODO recursion control
-    if evaluator.args.execute:
-        conditions.file_iterator(evaluator.args.execute)
+    if evaluator.args.file:
+        conditions.file_iterator(list_to_string(evaluator.args.file))
 
 
 def clear_environment(evaluator):
@@ -543,3 +551,10 @@ def key_warning(patches_dictionary, item, key, originally_wrong_key = False):
         return "exit"
     else:
         return "Insert a valid option\n" + key_warning(patches_dictionary, item, key_user_warning, originally_wrong_key)
+
+
+def list_to_string(list):
+    result = ""
+    for i in list:
+        result += i
+    return result

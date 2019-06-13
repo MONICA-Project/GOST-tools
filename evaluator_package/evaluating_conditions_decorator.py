@@ -126,8 +126,6 @@ def add_result(evaluator, result, field_name="results", failure_type ="non_criti
 
 def select_items(evaluator):
     """Remove the selected items that don't match the --select conditions
-
-
     :param evaluator: the current evaluator
     """
     if bool(evaluator.environment["selected_items"]) and bool(evaluator.args.select):
