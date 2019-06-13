@@ -109,7 +109,6 @@ def get_info(evaluator):
         print("Address : " + evaluator.environment["GOST_address"])
 
 
-
 @conditions.needed_fields(at_least_one_field=["get"], needed_ogc=True,
                           critical_failures_resistant=False, needed_items=True)  # the items are retrieved  in the
                                                                                  # decorator, thanks to the

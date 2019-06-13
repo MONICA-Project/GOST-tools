@@ -7,7 +7,7 @@ from evaluator_package.environments import default_env
 
 def needed_fields(no_fields=None, at_least_one_field=None,
                   all_mandatory_fields=None, critical_failures_resistant=False,
-                  needed_ogc=False, needed_additional_argument=False, needed_items = False):
+                  needed_ogc=False, needed_additional_argument=False, needed_items=False):
     """Decorator: checks conditions before executing the decorated function.
 
 
@@ -26,6 +26,8 @@ def needed_fields(no_fields=None, at_least_one_field=None,
     :param needed_items: if True, the current environment will be checked for selected items:
                         if not found, a get with the parameters provided in command string
                         will be executed on GOST
+    :param needed_additional_argument: for the selected values, the user will be asked to insert additional values
+                         if no value is provided
     :return: False if the function is not executed
     """
     def decorator(function):
@@ -68,8 +70,8 @@ def needed_fields(no_fields=None, at_least_one_field=None,
                 if bool(needed_items):
                     get_items(evaluator)
 
-                if bool(check_user_defined_arguments(evaluator,all_mandatory_fields,
-                                                at_least_one_field, needed_additional_argument)):
+                if bool(check_user_defined_arguments(evaluator, all_mandatory_fields,
+                                                     at_least_one_field, needed_additional_argument)):
                     return function(evaluator)
                 else:
                     return False

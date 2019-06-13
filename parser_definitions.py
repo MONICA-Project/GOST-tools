@@ -27,13 +27,30 @@ def common_commands_parser():
     parser.add_argument("--template", help="choose a template from a file to use as base for --create",
                         action=UserOptionalValue)
 
-    parser.add_argument("--related", help="gets the entities of ogc_entity_type which shares a datastream with the"
-                        "currently selected items, and adds a field 'related <ogc type of the previously"
-                        "selected items>' to each result\n"
-                        "Accepts select <boolean expression> as additional value to filter the results\n"
-                        "examples:\n"
-                        "1 --type Sensors --related Observations\n"
-                        "1 --type Sensor --related Observations select @iot.id > 10\n",
+    parser.add_argument("--related", help="""gets the entities of ogc_entity_type which shares a datastream with the\n
+                        currently selected items, and adds a field "related <ogc type of the previously\n
+                        selected items>" to each result\n
+                        Accepts select <boolean expression> as additional value to filter the results\n
+                        
+                        example:\n
+                        1 --type Sensors --related Observations\n
+                        1 --type Sensor --related Observations select @iot.id > 10\n
+                        
+                        If the currently selected item is a datastream, found the related items\n
+                        
+                        example: find all the Observations of the datastreams with @iot.id 10 and 11\n
+                        10 11 -t Datastreams --related Observations\n
+                        
+                        If the currently selected item is a not datastream, and the related command type\n
+                        is a datastream, will find all the datastreams related to the selcted item/s\n
+                        
+                        example: find all the datastreams related to the things with @iot.id 10 and 11\n
+                        10 11 -t Things --related Datastreams\n
+                        
+                        A select condition may be added before the related type\n
+                        example: find all the Observations of the datastreams with @iot.id 10 and 11,\n
+                        which have a result > 10\n
+                        10 11 -t Datastreams --related Observations select result > 10\n""",
                         action=UserOptionalValue)
 
     parser.add_argument("--store", help="store the results of command execution in the specified file\n",

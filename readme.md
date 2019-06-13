@@ -111,6 +111,17 @@ optional arguments:
                         example: find all the Observations of the datastreams with @iot.id 10 and 11
                         10 11 -t Datastreams --related Observations
                         
+                        If the currently selected item is a not datastream, and the related command type
+                        is a datastream, will find all the datastreams related to the selcted item/s
+                        
+                        example: find all the datastreams related to the things with @iot.id 10 and 11
+                        10 11 -t Things --related Datastreams
+                        
+                        A select condition may be added before the related type
+                        example: find all the Observations of the datastreams with @iot.id 10 and 11,
+                        which have a result > 10
+                        10 11 -t Datastreams --related Observations select result > 10
+                        
   -s [SELECT [SELECT ...]], --select [SELECT [SELECT ...]]
                         selection of the items to process,
                         before any further operation like delete or

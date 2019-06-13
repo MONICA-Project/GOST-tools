@@ -144,11 +144,9 @@ def confirm_patching(self):
     address = self.main_view.model.GOST_address + "/"
     patches = {}
 
-
     for i in self.patch_values:
         if bool(i["field_entry"].get()):
             patches[i["field_name"]] = i["field_entry"].get()
-
 
     patched_items = False  # flag for the final success message
 

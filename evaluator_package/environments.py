@@ -1,4 +1,3 @@
-
 def default_env(selected_items=None, results=None, critical_failures=None,
                 non_critical_failures=None, mode="default",
                 GOST_address=None, single_command=False):
