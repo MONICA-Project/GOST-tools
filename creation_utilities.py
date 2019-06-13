@@ -85,11 +85,17 @@ def create_random_item(args, ogc_type=False):
         missing_fields = needed_user_defined_fields(args, ["Datastream_id"])
         if bool(missing_fields):
             return missing_fields
-        return json.dumps({
+        item_as_dict = {
+            "phenomenonTime": user_defined_or_default(args, "phenomenonTime"),
+            "resultTime": user_defined_or_default(args, "resultTime"),
             "result": user_defined_or_default(args, "result"),
-            "Datastream": {"@iot.id": args["Datastream_id"]},
-            "FeatureOfInterest": user_defined_or_default(args, "FeatureOfInterest")
-            }) + "\n"
+            "resultQuality": user_defined_or_default(args, "resultQuality"),
+            "validTime": user_defined_or_default(args, "validTime"),
+            "parameters": user_defined_or_default(args, "parameters"),
+            "Datastream": {"@iot.id": args["Datastream_id"]} ,
+            "FeatureOfInterest":  {"@iot.id": args["FeatureOfInterest"]}
+            }
+        return json.dumps(item_as_dict) + "\n"
 
     if ogc_type == "Things":
         return json.dumps({
@@ -218,8 +224,17 @@ def user_defined_or_default(args, field_name, ogc_type=None):
     elif field_name == "encodingType":
         return "application/vnd.geo+json"
 
+    elif field_name == "parameters":
+        return {"parameter" : "default_parameter"}
+
     elif field_name == "coordinates":
         return [4.9132, 52.34227]
+
+    elif field_name in ["phenomenonTime", "resultTime"]:
+        return "2017-07-24T10:46:32.576Z"
+
+    elif field_name == "validTime" :
+        return "2017-07-24T10:46:32.576Z/2017-07-24T10:51:32.576Z"
 
     elif field_name == "type":
         return "Point"

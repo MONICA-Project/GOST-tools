@@ -128,7 +128,6 @@ def confirm_deletion(self):
     hide_delete_button(self)
 
 
-
 def abort_deletion(self):
     self.selected_items = []
     self.delete_btn.config(text="Delete",

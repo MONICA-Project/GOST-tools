@@ -122,12 +122,12 @@ def change_address_main(self):
     self.view_elements.append({"item": self.new_address_entry, "row": 0, "column": 1, "name": "new_address_entry"})
 
     self.confirm_address_button = Button(self.top_bar, text="Confirm change",
-                                         command=lambda: try_address(self), bg = confirm_color)
+                                         command=lambda: try_address(self))
     self.view_elements.append({"item": self.confirm_address_button, "row": 0, "column": 2,
                                "name": "new_address_button"})
 
     self.keep_old_address_button = Button(self.top_bar, text="Keep old address",
-                                         command=lambda: keep_address(self), bg = abort_color)
+                                         command=lambda: keep_address(self))
     self.view_elements.append({"item": self.keep_old_address_button, "row": 0, "column": 3,
                                "name": "keep_old_address_button"})
 

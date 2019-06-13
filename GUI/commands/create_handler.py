@@ -88,7 +88,7 @@ class CreateView:
         self.post_from_file_btn = Button(self.main_view.main_area, text="POST records \ndefined in a file",
                                         command=lambda: post_from_file(self))
         self.view_elements.append({"item": self.post_from_file_btn, "row": 10, "column": 3,
-                                   "name": "save_and_post_button"})
+                                   "name": "post_from_file_button"})
 
         populate(self.view_elements, self.main_view.main_area)
 
@@ -299,8 +299,6 @@ def direct_post(self):
         clear_before_creation(self)
 
 
-
-
 def create_items(self):
     for entry in self.create_entries:
         if bool(entry["field_entry"].get()):
@@ -317,14 +315,15 @@ def clear_before_creation(self):
     self.error_message = []
     self.create_entries = []
     self.created_items = []
-
-
     indexes_to_delete = []
     for index, val in enumerate(self.view_elements):
         if "name" in val:
             if val["name"] in ["create_field_name", "create_field_value", "save_button",
-                               "post_button", "save_and_post_button"]:
+                               "post_button", "save_and_post_button", "post_from_file_button"]:
                 indexes_to_delete.append(index)
     for i in sorted(indexes_to_delete, reverse=True):
         self.view_elements[i]["item"].grid_forget()
         del self.view_elements[i]
+    populate(self.view_elements, self.main_view.main_area)
+    self.selected_type.set("Select an OGC type")
+

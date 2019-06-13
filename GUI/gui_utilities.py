@@ -141,11 +141,12 @@ def get_fields_names(ogc_type, needed_for_editing = False):
             values += [ "unitOfMeasurement", "Thing", "Sensor", "ObservedProperty"]
 
     elif ogc_type == "Observations":
-        values = ["result", "FeatureOfInterest"]
+        values = ["result", "FeatureOfInterest", "phenomenonTime", "resultTime", "resultQuality",
+                  "validTime", "parameters"]
         if needed_for_editing:
             values += ["Datastream_id"]
         else:
-            values += ["Datastream", "resultTime", "resultQuality", "validTime", "parameters"]
+            values += ["Datastream"]
 
     elif ogc_type == "FeaturesOfInterest":
         values = ["name", "description", "encodingType", "feature"]
