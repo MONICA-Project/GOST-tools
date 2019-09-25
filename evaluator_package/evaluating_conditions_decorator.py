@@ -135,7 +135,7 @@ def select_items(evaluator):
             matching = selection_parser.select_parser(evaluator.args.select, single_item)
             if not matching:
                 evaluator.environment["selected_items"].remove(single_item)
-            elif isinstance(matching,dict):
+            elif isinstance(matching, dict):
                 if "error" in matching:
                     evaluator.environment["selected_items"].remove(single_item)
                     evaluator.environment["non_critical_failures"] += [matching]

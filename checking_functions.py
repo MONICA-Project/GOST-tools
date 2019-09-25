@@ -37,6 +37,25 @@ def get_all(ogc_name=None, environment=None, payload=None, sending_address=False
     return result
 
 
+def get_item_by_name(ogc_name, environment, name, sending_address):
+    result = []
+    if environment:
+        GOST_address = environment["GOST_address"]
+        sending_address = GOST_address + "/" + ogc_name +"?$filter=name eq " + name
+    elif not sending_address:
+        GOST_address = connection_config.get_address_from_file()
+        sending_address = GOST_address + "/" + ogc_name +"?$filter=name eq " + name
+
+    r = requests.get(sending_address)
+    response = r.json()
+    if "value" in response:
+        result = response["value"]
+    elif isinstance(response, dict) and "value" not in response:  # condition for when the response is a single item
+        if any(response):
+            result.append(response)
+    return result
+
+
 def item_is_already_present(name, type):
     """check if an item with given name is already present"""
     for x in get_all(type):

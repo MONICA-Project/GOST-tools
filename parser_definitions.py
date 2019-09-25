@@ -116,6 +116,7 @@ def common_commands_parser():
                         help="posts records from user defined file/s to currently selected OGC type\n"
                         "(ex:'--post <file_name> -t <type>'")
 
+
     return parser
 
 
