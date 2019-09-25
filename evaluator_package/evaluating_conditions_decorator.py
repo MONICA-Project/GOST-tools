@@ -127,7 +127,7 @@ def add_result(evaluator, result, field_name="results", failure_type ="non_criti
 
 
 def select_items(evaluator):
-    """Remove the selected items that don't match the --select conditions
+    """Remove the selected items that don't match the '--select' conditions
     :param evaluator: the current evaluator
     """
     if bool(evaluator.environment["selected_items"]) and bool(evaluator.args.select):
@@ -160,6 +160,7 @@ def file_iterator(file_name):
 
 
 def check_user_defined_arguments(evaluator, all_mandatory_fields, at_least_one_field, needed_additional_argument):
+    """Check if the arguments provided by the user are correct"""
     mandatory_fields = all_mandatory_fields
     at_least_one = at_least_one_field
     if not bool(needed_additional_argument):

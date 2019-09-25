@@ -6,6 +6,9 @@ import json
 import shlex
 
 
+"""It contains all the methods of utility for OGC objects"""
+
+
 def get_id_list(dict_list):
     """returns a list of all IDs of the items in a list of dictionaries
 

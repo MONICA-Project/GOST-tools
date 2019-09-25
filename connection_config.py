@@ -14,6 +14,7 @@ def get_address_from_file():
 
 
 def set_GOST_address(address=None):
+    """To set the new GOST address"""
     if not address:
         address = get_address_from_file()
     else:

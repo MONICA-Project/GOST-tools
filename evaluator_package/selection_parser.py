@@ -10,6 +10,8 @@ bool -> and | or
 comp -> == | != | > | < | >= | <= | <> | gt | lt | gteq |  lteq | diff
 """
 
+"""Methods S, S_1, a_1, a, are used to evaluates the espression"""
+
 
 def select_parser(tokens, record=None):
     """Evaluates if record is true or false according to the expression in tokens. The expression must follow
@@ -164,6 +166,7 @@ def is_field(token):
 
 
 def is_value(token):
+    """Check if the token is a value"""
     return not (is_field(token) or token in ["(", ")", "and", "or", "in", "not"])
 
 

@@ -8,8 +8,10 @@ observationSpecs = {}
 locationSpecs = {"name": location_is_already_present}
 featureOfInterestSpecs = {"name": feature_of_interest_is_already_present}
 
+"""It provides the specs of the OGC type that you need"""
 
 def get_specs(ogc_name):
+    """return: OGC type that it serves"""
     if ogc_name == "Sensors":
         return sensorSpecs
     if ogc_name == "Locations":

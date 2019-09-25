@@ -10,8 +10,11 @@ bool -> and | or
 comp -> == | != | > | < | >= | <= | <> | gt | lt | gteq |  lteq | diff
 """
 
+"""Methods S, S_1, a_1, a, are used to evaluates the espression"""
+
 
 def parse(left, right, tokens):
+    """Call the methods for the parsification of the sql expression"""
     if not(bool(tokens)):
         return False
     tokenize_parentheses(tokens)
@@ -112,20 +115,24 @@ def a(left, right, tokens):
 
 
 def parse_error():
+    """Return "parsing error" """
     return "parsing error"
 
 
 def is_field(token):
+    """Checks if the token is a valid ogc type field"""
     return token in ["name", "description", "encodingType", "location", "properties", "metadata",
                      "definition", "phenomenonTime", "resultTime", "observedArea", "result", "@iot.id",
                      "resultQuality","validTime", "time", "parameters", "feature"]
 
 
 def is_value(token):
+    """Checks if the token is a value"""
     return not (is_field(token) or token in ["(", ")", "and", "or", "in", "not"])
 
 
 def tokenize_parentheses(tokens):
+    """Finds non parsed parentheses in tokens"""
     for index, token in enumerate(tokens):
         if ("(" in token or ")" in token) and len(token) > 1:
             parenthesis_index = token.find("(")
@@ -147,6 +154,7 @@ def tokenize_parentheses(tokens):
 
 
 def get_value(l, r, token):
+    """Return the value if it is in l or r, error otherwise"""
     if token in l:
         result = l[token]
         return result
@@ -158,6 +166,7 @@ def get_value(l, r, token):
 
 
 def parse_args(args):
+    """To parsify the command provided by the user on command line"""
     left_command_args = copy.deepcopy(args[0: args.index("as")])
     args = args[args.index("as") + 1:]
     left_name = args[0]
@@ -175,6 +184,7 @@ def parse_args(args):
 
 
 def append_name_to_key(entities, name):
+    """To append value to corrispondent key"""
     temp_result = []
 
     for item in entities:
@@ -186,6 +196,7 @@ def append_name_to_key(entities, name):
 
 
 def join(left_result, right_result, conditions):
+    """It join the 'left_result' with 'right_result'"""
     final_result = []
     for l in left_result:
         comparison = compare(l, right_result, conditions)
@@ -195,6 +206,7 @@ def join(left_result, right_result, conditions):
 
 
 def compare(left_entity, right_results, conditions):
+    """Compare 'left_entity' with the 'right_results'"""
     result = []
     for r in right_results:
         comparison_result = single_compare(left_entity, r, conditions)
@@ -204,6 +216,7 @@ def compare(left_entity, right_results, conditions):
 
 
 def single_compare(left, right, conditions):
+    """Compare a single element"""
     matching = parse(left, right, conditions)
     if matching:
         return [left, right]
@@ -212,6 +225,7 @@ def single_compare(left, right, conditions):
 
 
 def show_filter(result, fields):
+    """Return the corrispondent value to a key passed on the argument"""
     show_result = []
     temp_result_couple = []
     temp_entity = {}

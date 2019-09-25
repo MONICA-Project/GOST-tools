@@ -6,7 +6,7 @@ import traceback
 
 def main():
     """Creates a command evaluator_package, reads the argv input and if
-    specified with the --interactive option starts a loop of
+    specified with the '--interactive' option starts a loop of
     requests"""
     try:
         evaluator = EvaluatorClass(args=sys.argv[1:], single_command=True)

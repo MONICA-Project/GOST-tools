@@ -32,6 +32,7 @@ class EvaluatorClass:
     """reads a list of arguments and evaluates them"""
 
     def __init__(self, args, reading_file=False, single_command=False):
+        """Method to initialize evaluator"""
         self.reading_file = reading_file
         self.parser = init_default_parser()
         self.args = args
@@ -125,6 +126,7 @@ class EvaluatorClass:
         return changed_mode
 
     def set_evaluation_steps(self, steps_list):
+        """To set the evaluation steps"""
         self.evaluation_steps = steps_list
 
 

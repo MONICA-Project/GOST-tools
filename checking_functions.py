@@ -55,18 +55,22 @@ def error_exists(checkResult):
 
 
 def sensor_is_already_present(name):
+    """Check if a sensor with given name is already present"""
     return item_is_already_present(name, 'Sensors')
 
 
 def thing_is_already_present(name):
+    """Check if a thing with given name is already present"""
     return item_is_already_present(name, 'Things')
 
 
 def observed_property_is_already_present(name):
+    """Check if a observed property with given name is already present"""
     return item_is_already_present(name, 'ObservedProperties')
 
 
 def data_stream_is_already_present(name):
+    """Check if a data stream with given name is already present"""
     return item_is_already_present(name, 'Datastreams')
 
 
@@ -77,6 +81,7 @@ def feature_of_interest_is_already_present(name):
 
 
 def field_is_void(field):
+    """Check if the field in the parameter is void, otherwise return False"""
     if field == '':
         return "Field not available"
     else:
@@ -84,6 +89,6 @@ def field_is_void(field):
 
 
 def location_is_already_present(name):
-    """ Finds if the feature of interest with name "name" is already present.
+    """ Finds if the location with name "name" is already present.
     """
     return item_is_already_present(name, 'Locations')

@@ -120,6 +120,7 @@ def common_commands_parser():
 
 
 def init_default_parser():
+    """Initialize the default parser"""
     parser = common_commands_parser()
     parser.add_argument("--create", action=CheckValues,
                         help="Creates n items of type t in created_files/<type>,"
@@ -154,6 +155,7 @@ class UserOptionalValue(argparse.Action):
             help=help)
 
     def __call__(self, parser, namespace, values, option_string=None):
+        """if values is empty, it sets its value at 'MISSING_USER_DEFINED_VALUE'"""
         if not bool(values):
             values = ["MISSING_USER_DEFINED_VALUE"]
         setattr(namespace, self.dest, values)
@@ -180,13 +182,13 @@ class CheckValues(argparse.Action):
             metavar=metavar,
             type=type,
             help=help)
-
+#call the method 'check_values' if values isn't specified
     def __call__(self, parser, namespace, values, option_string=None):
         if not bool(values):
             check_values(values, self.dest, self.help)
         setattr(namespace, self.dest, values)
 
-
+"""Check and call the check's method correspondent"""
 def check_values(values, destination, help_message):
     if destination == "create":
         check_create(values)
@@ -196,7 +198,7 @@ def check_values(values, destination, help_message):
         ask_missing_value(destination, str, f"Missing {destination} value/s, insert one or 'exit' to exit\n"
         f"[help: {help_message}]\n", values)
 
-
+"""Check if there are arguments in 'values'"""
 def check_create(values):
     if "num" not in values:
         ask_missing_value("num", int, "Missing number of items to create, insert one or 'exit' to exit\n", values)
@@ -207,8 +209,9 @@ def check_create(values):
                           optional_check_function=is_ogc, optional_value_type_name="ogc entity type")
 
 
-def ask_missing_value(value_name, value_type, input_request="", values=None,
+def  ask_missing_value(value_name, value_type, input_request="", values=None,
                       optional_check_function=False, optional_value_type_name=False):
+    """ask to the user to input the missing value"""
     valid_value = False
     value = input(input_request)
     if value == "exit":
@@ -243,6 +246,7 @@ def ask_missing_value(value_name, value_type, input_request="", values=None,
 
 
 def check_select(values):
+    """check if the espression that the user input is correct"""
     valid_expression = select_parser_validator(values)
     if not valid_expression:
 
@@ -257,6 +261,7 @@ def check_select(values):
 
 
 def is_of_type(object_string, type):
+    """return the type of the object"""
     try:
         type(object_string)
         return True

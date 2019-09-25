@@ -26,7 +26,7 @@ def connection_test(evaluator):
 @conditions.needed_fields(all_mandatory_fields=["delete"], critical_failures_resistant=False,
                           needed_ogc=True, needed_items=True)
 def delete(evaluator):
-    """Delete from GOST db the selected items selected:
+    """Delete from GOST db the selected items:
     before deleting asks user for confirmation"""
 
     if evaluator.environment["selected_items"]:  # deleting selected items
@@ -72,7 +72,7 @@ def delete(evaluator):
 
 @conditions.needed_fields(critical_failures_resistant=True)
 def exit_function(evaluator):
-    """exits at the end of the current evaluation: not working if is reading a file, used for the first evaluation"""
+    """exits at the end of the current evaluation (not working if is reading a file): used for the first evaluation"""
 
     if evaluator.reading_file:
         pass
@@ -109,10 +109,9 @@ def get_info(evaluator):
         print("Address : " + evaluator.environment["GOST_address"])
 
 
+# the items are retrieved  in the decorator, thanks to the needed_items flag
 @conditions.needed_fields(at_least_one_field=["get"], needed_ogc=True,
-                          critical_failures_resistant=False, needed_items=True)  # the items are retrieved  in the
-                                                                                 # decorator, thanks to the
-                                                                                 # needed_items flag
+                          critical_failures_resistant=False, needed_items=True)
 def get_command_line(evaluator):
     """Gets the items from GOST, used if get or identifier are defined"""
     pass
@@ -391,7 +390,7 @@ def template(evaluator):
 
 
 @conditions.needed_fields(at_least_one_field=["GOSTaddress"], critical_failures_resistant=False)
-def user_defined_address(evaluator, verbose = True):
+def user_defined_address(evaluator, verbose=True):
     """If the user has defined a GOST address, checks if it is possible to reach it.
     If it possible, sets the GOST address to the new address, otherwise asks the user if he
     wants to select a different address or wants to keep the non working address"""
@@ -505,9 +504,8 @@ def get_entities_from_datastream(datastream, entity_type, base_address):
 
 
 def remove_duplicates_by_key(list_to_clear, key_name):
-    """Removes from list_to_clear, a list of dictionaries, all the elements which have key_name key values equals,
-    lefting only one"""
-
+    """Removes from list_to_clear, a list of dictionaries, all the elements which have 'key_name' and  key values
+    equals, lefting only one"""
     result_list = []
     key_values_list = []
     for i in list_to_clear:
@@ -520,6 +518,7 @@ def remove_duplicates_by_key(list_to_clear, key_name):
 
 
 def key_warning(patches_dictionary, item, key, originally_wrong_key = False):
+    """It warns if the key the user is trying to patch doesn't exist"""
     key_user_warning = input(f"You are trying to patch the field {key} but it does not exists,\n "
                              f"do you want to:\n "
                              f"change field name [type 'name']\n"
@@ -562,6 +561,7 @@ def key_warning(patches_dictionary, item, key, originally_wrong_key = False):
 
 
 def list_to_string(list):
+    """Transform a list to string"""
     result = ""
     for i in list:
         result += i

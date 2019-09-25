@@ -4,7 +4,7 @@ import random
 
 
 def create_records(values, number, ogc_type=False):
-    """create a list of records with selected values or default for specified ogc type
+    """create a list of records with selected values (or default) for specified ogc type
 
     :param values:the created item's field value
     :param values:number of items to create

@@ -3,6 +3,7 @@ import shlex
 
 
 def evaluate(evaluator):
+    """It tooks and evaluate the file provided by the user"""
     file_path = evaluator.args.sql
     if "--exit" in file_path:
         exit(0)

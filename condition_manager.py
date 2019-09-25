@@ -1,4 +1,4 @@
-def checkConditions(specs, content) :
+def checkConditions(specs, content):
     """#iterate all elements of specs (array) in content (dictionary)
     and apply the correspondent function
 
