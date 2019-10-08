@@ -118,24 +118,29 @@ def get(ogc_name=None, environment=None, payload=None, sending_address=False, se
     result = []
     b = 0
     if environment:
-        GOST_address = environment["GOST_address"]
-        sending_address = GOST_address + "/" + ogc_name
-        if select_query:
-            for d in select_query:
-                if d in ['@iot.id', '@iot.selfLink', 'name', 'description', 'encodingType', 'metadata', 'Datastreams@iot.navigationLink'] and b == 0:
-                    sending_address = GOST_address + "/" + ogc_name + "?$filter=" + d + " " + "eq" + " "
-                    b = 1
-                elif d in ["=="]:
-                    sending_address += "'"
-                elif b != 0:
-                    sending_address += str(d)
-                    sending_address += " "
-            sending_address += "'"
+        gost_address = environment["GOST_address"]
+        sending_address = gost_address + "/" + ogc_name
     elif not sending_address:
-        GOST_address = connection_config.get_address_from_file()
-        sending_address = GOST_address + "/" + ogc_name
-        if select_query:
-            sending_address = GOST_address + "/" + ogc_name + "?" + str(select_query)
+        gost_address = connection_config.get_address_from_file()
+        sending_address = gost_address + "/" + ogc_name
+    if select_query:
+        for d in select_query:
+            if d in ['@iot.id', '@iot.selfLink', 'name', 'description', 'encodingType', 'metadata',
+                     'Datastreams@iot.navigationLink', 'properties', 'Locations@iot.navigationLink',
+                     'HistoricalLocations@iot.navigationLink', 'definition', 'phenomenonTime', 'result',
+                     'FeatureOfInterest@iot.navigationLink', 'resultTime'] and b == 0:
+                sending_address = gost_address + "/" + ogc_name + "?$filter=" + d + " " + "eq"
+                b += 1
+            elif d in ["=="]:
+                sending_address += " '"
+                b += 1
+            elif b != 0 and b < len(select_query)-1:
+                sending_address += str(d) + " "
+                b += 1
+            elif b == len(select_query)-1:
+                sending_address += str(d)
+                b += 1
+        sending_address += "'"
 
     r = requests.get(sending_address, payload)
     response = r.json()
@@ -143,16 +148,16 @@ def get(ogc_name=None, environment=None, payload=None, sending_address=False, se
         result = response["value"]
     if "@iot.nextLink" in response:  # iteration for getting results beyond first page
         if "GOST_address" not in locals():
-            GOST_address = sending_address.split("/v1.0")[0]
-            GOST_address += "/v1.0"
-        next_page_address = GOST_address + response["@iot.nextLink"].split("/v1.0")[1]
+            gost_address = sending_address.split("/v1.0")[0]
+            gost_address += "/v1.0"
+        next_page_address = gost_address + response["@iot.nextLink"].split("/v1.0")[1]
         parsed = urlparse.urlparse(next_page_address)
         params = urlparse.parse_qsl(parsed.query)
         new_payload = {}
         for x, y in params:
             new_payload[x] = y
         partial_result = get(payload=new_payload, sending_address=next_page_address)
-        (result).extend(partial_result)
+        result.extend(partial_result)
     elif isinstance(response, dict) and "value" not in response:  # condition for when the response is a single item
         if any(response):
             result.append(response)

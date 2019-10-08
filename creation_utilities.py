@@ -36,7 +36,7 @@ def create_records_file(args, ogc_type=False):
     if "file" in args:
         file_name = args.get("file")
     else:
-        file_name = "C:/Users/Emanuel/Desktop/" + ogc_type
+        file_name = "./test_files/saved/" + ogc_type
 
     my_file = open(file_name, "w")
     number_of_items = 0
