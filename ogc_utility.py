@@ -191,7 +191,7 @@ def args_to_dict(args):
     :param args: the array to convert
     :return: the dictionary conversion
     """
-    new_args = args
+    """new_args = args
     while (len(new_args) % 2) != 0:
         new_args = shlex.split(input(f"This command requires an even number of arguments:\n"
                                      f"<argument 1> <value 1> <argument 2> <value 2> ... <argument n> <value n>\n"
@@ -199,6 +199,8 @@ def args_to_dict(args):
                                      f"Insert valid args string\n"))
     i = iter(new_args)
     dict_result = dict(zip(i, i))
+    return dict_result"""
+    dict_result = { i : args[i] for i in range(0, len(args))}
     return dict_result
 
 

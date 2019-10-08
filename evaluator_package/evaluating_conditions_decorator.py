@@ -30,6 +30,7 @@ def needed_fields(no_fields=None, at_least_one_field=None,
                          if no value is provided
     :return: False if the function is not executed
     """
+
     def decorator(function):
         def wrapper(evaluator):
 
@@ -79,6 +80,7 @@ def needed_fields(no_fields=None, at_least_one_field=None,
                 return False
 
         return wrapper
+
     return decorator
 
 
@@ -101,17 +103,63 @@ def get_items(current_evaluator):
             result = evaluator_utilities.check_and_fix_ogc(current_evaluator)
             if not result:
                 return False
-            result_all = get_all(current_evaluator.args.ogc, current_evaluator.environment)
+            result_all = get(current_evaluator.args.ogc, current_evaluator.environment,
+                             select_query=current_evaluator.args.select)
             for i in result_all:
                 add_result(current_evaluator, i, field_name="selected_items")
         if not bool(current_evaluator.environment["selected_items"]):
             current_evaluator.environment["non_critical_failures"] += [f"error: no {current_evaluator.args.ogc} found"]
         else:
-            select_items(current_evaluator)
+            # select_items(current_evaluator)
             evaluator_utilities.check_name_duplicates(current_evaluator, "selected_items")
 
 
-def add_result(evaluator, result, field_name="results", failure_type ="non_critical_failures"):
+def get(ogc_name=None, environment=None, payload=None, sending_address=False, select_query=None):
+    result = []
+    b = 0
+    if environment:
+        GOST_address = environment["GOST_address"]
+        sending_address = GOST_address + "/" + ogc_name
+        if select_query:
+            for d in select_query:
+                if d in ['@iot.id', '@iot.selfLink', 'name', 'description', 'encodingType', 'metadata', 'Datastreams@iot.navigationLink'] and b == 0:
+                    sending_address = GOST_address + "/" + ogc_name + "?$filter=" + d + " " + "eq" + " "
+                    b = 1
+                elif d in ["=="]:
+                    sending_address += "'"
+                elif b != 0:
+                    sending_address += str(d)
+                    sending_address += " "
+            sending_address += "'"
+    elif not sending_address:
+        GOST_address = connection_config.get_address_from_file()
+        sending_address = GOST_address + "/" + ogc_name
+        if select_query:
+            sending_address = GOST_address + "/" + ogc_name + "?" + str(select_query)
+
+    r = requests.get(sending_address, payload)
+    response = r.json()
+    if "value" in response:
+        result = response["value"]
+    if "@iot.nextLink" in response:  # iteration for getting results beyond first page
+        if "GOST_address" not in locals():
+            GOST_address = sending_address.split("/v1.0")[0]
+            GOST_address += "/v1.0"
+        next_page_address = GOST_address + response["@iot.nextLink"].split("/v1.0")[1]
+        parsed = urlparse.urlparse(next_page_address)
+        params = urlparse.parse_qsl(parsed.query)
+        new_payload = {}
+        for x, y in params:
+            new_payload[x] = y
+        partial_result = get(payload=new_payload, sending_address=next_page_address)
+        (result).extend(partial_result)
+    elif isinstance(response, dict) and "value" not in response:  # condition for when the response is a single item
+        if any(response):
+            result.append(response)
+    return result
+
+
+def add_result(evaluator, result, field_name="results", failure_type="non_critical_failures"):
     """Adds a result to the specified field, if there is an error it is added to the specified failure type
 
 
@@ -141,7 +189,7 @@ def select_items(evaluator):
                     evaluator.environment["non_critical_failures"] += [matching]
         if len(evaluator.environment["selected_items"]) == 0:
             evaluator.environment["critical_failures"] += [f"error: no {evaluator.args.ogc} found "
-                                                               f"with select statement conditions"]
+                                                           f"with select statement conditions"]
 
 
 def file_iterator(file_name):
@@ -171,8 +219,9 @@ def check_user_defined_arguments(evaluator, all_mandatory_fields, at_least_one_f
         at_least_one = []
     # checking options requiring user-provided values
     for i in needed_additional_argument:
-        if evaluator.args.__dict__[i] == ["MISSING_USER_DEFINED_VALUE"] or (not bool(evaluator.args.__dict__[i])\
-                and (i in mandatory_fields or i in at_least_one or i in needed_additional_argument)):
+        if evaluator.args.__dict__[i] == ["MISSING_USER_DEFINED_VALUE"] or (not bool(evaluator.args.__dict__[i]) \
+                                                                            and (
+                                                                                    i in mandatory_fields or i in at_least_one or i in needed_additional_argument)):
             help_string = ""
             for j in evaluator.parser._actions:
                 if ("--" + i) in j.option_strings:
@@ -196,4 +245,3 @@ def clear_environment_after_failure(evaluator):
     temp_address = evaluator.environment["GOST_address"]
     temp_mode = evaluator.environment["mode"]
     evaluator.environment = default_env(GOST_address=temp_address, mode=temp_mode)
-

@@ -31,17 +31,17 @@ def create_records_file(args, ogc_type=False):
     :return: a list of the created items and a list of the eventual errors
     """
     if not ogc_type:
-        ogc_type = args["type"]
+        ogc_type = args.get(1)
     result = {"created_name_list" : [],"errors" : []}
     if "file" in args:
-        file_name = args["file"]
+        file_name = args.get("file")
     else:
-        file_name = "created_files/" + ogc_type
+        file_name = "C:/Users/Emanuel/Desktop/" + ogc_type
 
     my_file = open(file_name, "w")
     number_of_items = 0
 
-    for x in range(int(args["num"])):
+    for x in range(int(args[0])):
         item = create_random_item(args, ogc_type)
         if "error" in item:
             result["errors"].append(item["error"])
