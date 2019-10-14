@@ -1,6 +1,6 @@
 import copy
 
-"""Implemented Grammar:
+""" Implemented Grammar:
 S    -> (S) S_1 | a_1 S_1 | not (S) S_1
 S_1  -> bool S S_1 | epsilon
 a_1  -> a | not a
@@ -51,7 +51,7 @@ def S(tokens, record=None):
             temp_result = not S(tokens, record)
             if tokens[0] == ")":
                 tokens.pop(0)
-                return  S_1(tokens, temp_result, record)
+                return S_1(tokens, temp_result, record)
             else:
                 return parse_error(tokens[0])
 
@@ -63,7 +63,7 @@ def S(tokens, record=None):
         return parse_error(tokens[0])
 
 
-def S_1(tokens, previous_result, record = None):
+def S_1(tokens, previous_result, record=None):
     if not(bool(tokens)):
         return previous_result
 
@@ -80,7 +80,7 @@ def S_1(tokens, previous_result, record = None):
         return previous_result
 
 
-def a_1(tokens, record = None):
+def a_1(tokens, record=None):
     if tokens[0] == "not":
         tokens.pop(0)
         return not a(tokens, record)
@@ -134,7 +134,7 @@ def a(tokens, record):
             temp_field = int(temp_field)
             tokens.pop(0)
             if comparator == "<" or comparator == "lt":
-                return  temp_field < temp_val
+                return temp_field < temp_val
             if comparator == "<=" or comparator == "lteq":
                 return temp_field <= temp_val
             if comparator == ">" or comparator == "gt":
@@ -171,10 +171,10 @@ def is_value(token):
 
 
 def tokenize_parentheses(tokens):
-    """Finds non parsed parentheses in tokens (ex.: ['x(y']['z)'] -> ['x']['(']['y']['z'][')']
+    """ Finds non parsed brackets in tokens (ex.: ['x(y']['z)'] -> ['x']['(']['y']['z'][')']
 
     :param tokens: a list of tokens
-    :return: the list with unchecked parenteses tokenized
+    :return: the list with unchecked brackets tokenized
     """
     for index, token in enumerate(tokens):
         if ("(" in token or ")" in token) and len(token) > 1:

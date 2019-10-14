@@ -78,7 +78,7 @@ def get_item(identifier, ogc_type, environment=None, address=False):
     if not address:
         address = environment["GOST_address"] + "/"
     query_address = f"{address}{ogc_type}({identifier})"
-    response = send_json("", sending_address=query_address, request_type= "GET")
+    response = send_json("", sending_address=query_address, request_type="GET")
     json_response = response.json()
     if "error" in json_response:
         json_response["error"]["message"].append("item id: " + str(identifier))

@@ -1,9 +1,10 @@
+from evaluator_package.selection_expression_validator import select_parser_validator, is_field
+from evaluator_package.selection_parser import tokenize_parentheses
 from . import evaluator_utilities
 from ogc_utility import *
-from . import selection_parser
 import shlex
 from evaluator_package.environments import default_env
-
+from . import selection_expression_validator
 
 def needed_fields(no_fields=None, at_least_one_field=None,
                   all_mandatory_fields=None, critical_failures_resistant=False,
@@ -103,20 +104,26 @@ def get_items(current_evaluator):
             result = evaluator_utilities.check_and_fix_ogc(current_evaluator)
             if not result:
                 return False
+            query = current_evaluator.args.select.copy()
+            selection_expression_validator.tokenize_parentheses(query)
             result_all = get(current_evaluator.args.ogc, current_evaluator.environment,
-                             select_query=current_evaluator.args.select)
+                            select_query=query)
+            #result_all = get_all(current_evaluator.args.ogc, current_evaluator.environment)
             for i in result_all:
                 add_result(current_evaluator, i, field_name="selected_items")
         if not bool(current_evaluator.environment["selected_items"]):
             current_evaluator.environment["non_critical_failures"] += [f"error: no {current_evaluator.args.ogc} found"]
-        else:
-            # select_items(current_evaluator)
-            evaluator_utilities.check_name_duplicates(current_evaluator, "selected_items")
+        #else:
+        #    select_items(current_evaluator)
+        #    evaluator_utilities.check_name_duplicates(current_evaluator, "selected_items")
 
 
 def get(ogc_name=None, environment=None, payload=None, sending_address=False, select_query=None):
     result = []
-    b = 0
+    b = 0 #counter
+    c = 0
+    z = 0 #flag for identifier
+    y = 0
     if environment:
         gost_address = environment["GOST_address"]
         sending_address = gost_address + "/" + ogc_name
@@ -124,23 +131,57 @@ def get(ogc_name=None, environment=None, payload=None, sending_address=False, se
         gost_address = connection_config.get_address_from_file()
         sending_address = gost_address + "/" + ogc_name
     if select_query:
+        sending_address = gost_address + "/" + ogc_name + "?$filter="
         for d in select_query:
-            if d in ['@iot.id', '@iot.selfLink', 'name', 'description', 'encodingType', 'metadata',
-                     'Datastreams@iot.navigationLink', 'properties', 'Locations@iot.navigationLink',
-                     'HistoricalLocations@iot.navigationLink', 'definition', 'phenomenonTime', 'result',
-                     'FeatureOfInterest@iot.navigationLink', 'resultTime'] and b == 0:
-                sending_address = gost_address + "/" + ogc_name + "?$filter=" + d + " " + "eq"
+            if d is '(':
+                sending_address += d
                 b += 1
-            elif d in ["=="]:
+            if is_field(d) and z == 0:
+                if d is '@iot.id':
+                    sending_address += "id"
+                    z = 1
+                else:
+                    sending_address += d
+                    z = 1
+                b += 1
+            elif d in ["==", "lt", "le", "gt", "ge", "not", "<", "<=", ">", ">="]:
+                if d in ["=="]:
+                    sending_address += ' eq'
+                elif d in ["lt", "<"]:
+                    sending_address += ' lt'
+                elif d in ["le", "<="]:
+                    sending_address += ' le'
+                elif d in ["gt", ">"]:
+                    sending_address += ' gt'
+                elif d in ["ge", ">="]:
+                    sending_address += ' ge'
+                elif d in ["not"]:
+                    sending_address += ' not'
                 sending_address += " '"
                 b += 1
-            elif b != 0 and b < len(select_query)-1:
-                sending_address += str(d) + " "
+                c = 1
+            elif d in ["and", "or"] and y == 0:
+                sending_address += "' " + d + " "
+                z = 0
                 b += 1
+            elif d in ["and", "or"] and y == 1:
+                sending_address += d + " "
+                z = 0
+                b += 1
+            elif (d in ")") and (b <= len(select_query)-1):
+                sending_address += "'" + d + " "
+                b += 1
+                y += 1
             elif b == len(select_query)-1:
+                sending_address += str(d) + "'"
+                b += 1
+            elif b != 0 and b < len(select_query)-1 and c == 0:
+                sending_address += " " + str(d)
+                b += 1
+            elif b != 0 and b < len(select_query) - 1 and c == 1:
                 sending_address += str(d)
                 b += 1
-        sending_address += "'"
+                c = 0
 
     r = requests.get(sending_address, payload)
     response = r.json()

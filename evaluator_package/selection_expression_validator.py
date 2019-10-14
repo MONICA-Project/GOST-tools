@@ -138,7 +138,7 @@ def is_field(token):
     """
 
     return token in ["name", "description", "encodingType", "location", "properties", "metadata",
-                     "definition", "phenomenonTime", "resultTime", "observedArea", "result", "@iot.id",
+                     "definition", "phenomenonTime", "resultTime", "observedArea", "result", "id", "@iot.id",
                      "resultQuality","validTime", "time", "parameters", "feature"]
 
 
@@ -148,7 +148,7 @@ def is_value(token):
 
 
 def tokenize_parentheses(tokens):
-    """Finds non parsed parentheses in tokens (ex.: ['x(y']['z)'] -> ['x']['(']['y']['z'][')']
+    """ Finds non parsed parentheses in tokens (ex.: ['x(y']['z)'] -> ['x']['(']['y']['z'][')']
 
     :param tokens: a list of tokens
     :return: the list with unchecked parenteses tokenized
