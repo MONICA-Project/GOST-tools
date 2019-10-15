@@ -1,5 +1,7 @@
 import copy
 
+from evaluator_package.Parsing_tools import is_field, tokenize_parentheses
+
 """Implemented Grammar:
 S    -> (S) S_1 | a_1 S_1 | not (S) S_1 
 S_1  -> bool S S_1 | epsilon
@@ -82,7 +84,7 @@ def S_1(tokens, previous_result, record = None):
         return previous_result
 
 
-def a_1(tokens, record = None):
+def a_1(tokens, record=None):
     if tokens[0] == "not":
         tokens.pop(0)
         return not a(tokens, record)
@@ -133,41 +135,6 @@ def parse_error(bad_token):
     return {"error": f"parsing error, invalid token [{bad_token}] found"}
 
 
-def is_field(token):
-    """Checks if the token is a valid ogc type field
-    """
-
-    return token in ["name", "description", "encodingType", "location", "properties", "metadata",
-                     "definition", "phenomenonTime", "resultTime", "observedArea", "result", "id", "@iot.id",
-                     "resultQuality","validTime", "time", "parameters", "feature"]
-
-
 def is_value(token):
     """Checks if the token is a value"""
     return not (is_field(token) or token in ["(", ")", "and", "or", "in", "not"])
-
-
-def tokenize_parentheses(tokens):
-    """ Finds non parsed parentheses in tokens (ex.: ['x(y']['z)'] -> ['x']['(']['y']['z'][')']
-
-    :param tokens: a list of tokens
-    :return: the list with unchecked parenteses tokenized
-    """
-    for index, token in enumerate(tokens):
-        if ("(" in token or ")" in token) and len(token) > 1:
-            parenthesis_index = token.find("(")
-            parenthesis = "("
-            if parenthesis_index < 0:
-                parenthesis_index = token.find(")")
-                parenthesis = ")"
-            left_side = token[:parenthesis_index]
-            right_side = token[parenthesis_index + 1:]
-
-            del tokens[index]
-            if bool(left_side):
-                tokens.insert(index, left_side)
-                index += 1
-            tokens.insert(index, parenthesis)
-            if bool(right_side):
-                index += 1
-                tokens.insert(index, right_side)
