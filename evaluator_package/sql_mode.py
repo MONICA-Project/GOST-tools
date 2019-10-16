@@ -18,9 +18,9 @@ def evaluate(evaluator):
     right_result = None
     try:
         left_side = parsed_values["left_side"]
-        left_side += ["--silent"]
-        evaluator = EvaluatorClass(left_side)
-        left_result = evaluator.evaluate()["results"]
+        # left_side += ["--silent"]
+        evaluatorl = EvaluatorClass(left_side)
+        left_result = evaluatorl.evaluate()["results"]
 
     except SystemExit as e:
         if e.code == 0:
@@ -32,8 +32,9 @@ def evaluate(evaluator):
         exit(1)
     try:
         right_side = parsed_values["right_side"]
-        right_side += ["--silent"]
-        right_result = evaluator.evaluate(parsed_values["right_side"])["results"]
+        # right_side += ["--silent"]
+        evaluatorr = EvaluatorClass(right_side)
+        right_result = evaluatorr.evaluate()["results"]
 
     except SystemExit as e:
         if e.code == 0:

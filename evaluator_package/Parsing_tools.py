@@ -1,5 +1,3 @@
-
-
 def is_field(token):
     """Checks if the token is a valid ogc type field
     """

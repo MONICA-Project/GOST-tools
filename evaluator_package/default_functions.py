@@ -474,11 +474,11 @@ def related_datastreams(id, type, base_address):
     """Returns a list of all the datastreams related with the item with id = id and type = type"""
 
     related_datastreams_address = f"{base_address}/{type}({id})/Datastreams"
-    result = get_all(sending_address=related_datastreams_address)
+    result = get(sending_address=related_datastreams_address)
     if not bool(result):
         related_datastreams_address = f"{base_address}/{type}({id})/Datastream"  # for some type of entities
                                                                         # like Observations GOST remove the final 's'
-        result = get_all(sending_address=related_datastreams_address)
+        result = get(sending_address=related_datastreams_address)
     return result
 
 
@@ -495,10 +495,10 @@ def match(first_list, second_list, attribute_name):
 def get_entities_from_datastream(datastream, entity_type, base_address):
     """Returns a list of all the entities of type entity_type related to datastream"""
     address = f"{base_address}/Datastreams({datastream['@iot.id']})/{entity_type}"
-    result = get_all(sending_address=address)
+    result = get(sending_address=address)
     if not bool(result):
         address = address[:-1]  # for some type if entities the removal of final -s is needed
-        result = get_all(sending_address=address)
+        result = get(sending_address=address)
 
     return result
 

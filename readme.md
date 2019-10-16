@@ -339,8 +339,14 @@ Make a sql-like query from a file with path "file_path"
 Format of the stored query:
 <conditions on an entity type> as <name of the first result> join
 <conditions on an entity type> as <name of the second result>
-on <comparisons between fields of the results>
+on <[name of the table]><comparisons between fields of the results>
 show <results to show>
+
+Example:
+--get -t Sensors --select id > '990' as t1 join
+--get -t Sensors --select id < '3' as t2
+on [t1]description == [t2]description
+show [t1]name and [t2]description
 ```
 
 Creating 20 Sensors from the template stored in <template file path>,

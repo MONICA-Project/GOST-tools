@@ -5,6 +5,7 @@ import connection_config
 import json
 import shlex
 
+from evaluator_package.evaluating_conditions_decorator import get
 
 """It contains all the methods of utility for OGC objects"""
 
@@ -63,7 +64,7 @@ def get_item_id_by_name(name, type, environment = None):
     :param environment: the current environment
     :return: the item id
     """
-    json_response = get_all(type, environment)
+    json_response = get(type, environment, ogc_name=name)
     for x in json_response:
         if x.get("name") == name:
             return x["@iot.id"]
@@ -178,7 +179,7 @@ def delete_all(entity_name, environment):
     :param environment: the current evaluation environment
     :return: the current environment
     """
-    all_list = get_id_list(get_all(entity_name, environment).json())
+    all_list = get_id_list(get(entity_name, environment).json())
     for x in all_list:
         environment.selected_item.append(delete_by_id(x, entity_name, environment))
     return environment
@@ -200,7 +201,7 @@ def args_to_dict(args):
     i = iter(new_args)
     dict_result = dict(zip(i, i))
     return dict_result"""
-    dict_result = { i : args[i] for i in range(0, len(args))}
+    dict_result = {i: args[i] for i in range(0, len(args))}
     return dict_result
 
 

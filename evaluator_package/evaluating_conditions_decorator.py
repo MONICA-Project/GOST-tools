@@ -1,10 +1,15 @@
+import ogc_utility
+from evaluator_package import selection_parser
 from evaluator_package.selection_expression_validator import select_parser_validator, is_field
 from evaluator_package.selection_parser import tokenize_parentheses
 from . import evaluator_utilities
 from ogc_utility import *
+import requests
 import shlex
 from evaluator_package.environments import default_env
 from . import selection_expression_validator
+import urllib.parse as urlparse
+
 
 def needed_fields(no_fields=None, at_least_one_field=None,
                   all_mandatory_fields=None, critical_failures_resistant=False,
@@ -107,31 +112,33 @@ def get_items(current_evaluator):
             query = current_evaluator.args.select.copy()
             selection_expression_validator.tokenize_parentheses(query)
             result_all = get(current_evaluator.args.ogc, current_evaluator.environment,
-                            select_query=query)
-            #result_all = get_all(current_evaluator.args.ogc, current_evaluator.environment)
+                             select_query=query)
+            # result_all = get_all(current_evaluator.args.ogc, current_evaluator.environment)
             for i in result_all:
                 add_result(current_evaluator, i, field_name="selected_items")
         if not bool(current_evaluator.environment["selected_items"]):
             current_evaluator.environment["non_critical_failures"] += [f"error: no {current_evaluator.args.ogc} found"]
-        #else:
+        # else:
         #    select_items(current_evaluator)
         #    evaluator_utilities.check_name_duplicates(current_evaluator, "selected_items")
 
 
-def get(ogc_name=None, environment=None, payload=None, sending_address=False, select_query=None):
+def get(ogc_type=None, environment=None, payload=None, sending_address=False, select_query=None, ogc_name=None):
     result = []
-    b = 0 #counter
-    c = 0
-    z = 0 #flag for identifier
-    y = 0
+    b = 0  # counter of the element in select_query
+    c = 0  # flag to check if the " ' " is open
+    z = 0  # flag for identifier
+    y = 0  # flag to check if it's necessary to close the " ' "
+
+    gost_address = None
     if environment:
         gost_address = environment["GOST_address"]
-        sending_address = gost_address + "/" + ogc_name
+        sending_address = gost_address + "/" + ogc_type
     elif not sending_address:
         gost_address = connection_config.get_address_from_file()
-        sending_address = gost_address + "/" + ogc_name
+        sending_address = gost_address + "/" + ogc_type
     if select_query:
-        sending_address = gost_address + "/" + ogc_name + "?$filter="
+        sending_address = gost_address + "/" + ogc_type + "?$filter="
         for d in select_query:
             if d is '(':
                 sending_address += d
@@ -156,8 +163,9 @@ def get(ogc_name=None, environment=None, payload=None, sending_address=False, se
                 elif d in ["ge", ">="]:
                     sending_address += ' ge'
                 elif d in ["not"]:
-                    sending_address += ' not'
+                    sending_address += ' ne'
                 sending_address += " '"
+                y = 0
                 b += 1
                 c = 1
             elif d in ["and", "or"] and y == 0:
@@ -168,14 +176,14 @@ def get(ogc_name=None, environment=None, payload=None, sending_address=False, se
                 sending_address += d + " "
                 z = 0
                 b += 1
-            elif (d in ")") and (b <= len(select_query)-1):
+            elif (d in ")") and (b <= len(select_query) - 1):
                 sending_address += "'" + d + " "
                 b += 1
                 y += 1
-            elif b == len(select_query)-1:
+            elif b == len(select_query) - 1:
                 sending_address += str(d) + "'"
                 b += 1
-            elif b != 0 and b < len(select_query)-1 and c == 0:
+            elif b != 0 and b < len(select_query) - 1 and c == 0:
                 sending_address += " " + str(d)
                 b += 1
             elif b != 0 and b < len(select_query) - 1 and c == 1:

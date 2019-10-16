@@ -229,6 +229,9 @@ def show_filter(result, fields):
     show_result = []
     temp_result_couple = []
     temp_entity = {}
+    for f in fields:
+        if f == "all" or f == "*":
+            return result
     for couple in result:
         for entity in couple:
             for key in entity:
