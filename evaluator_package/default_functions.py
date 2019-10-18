@@ -330,7 +330,7 @@ def show_failures(evaluator):
     if evaluator.environment["critical_failures"]:
         for x in evaluator.environment["critical_failures"]:
             print(x)
-        print("Found "+ str(len(evaluator.environment["critical_failures"])) + " critical_failures\n")
+        print("Found " + str(len(evaluator.environment["critical_failures"])) + " critical_failures\n")
 
     if evaluator.environment["non_critical_failures"]:
         for x in evaluator.environment["non_critical_failures"]:
@@ -348,7 +348,7 @@ def sql_evaluate(evaluator):
 def show_results(evaluator):
     """Shows the results of evaluation"""
 
-    if bool(evaluator.environment["selected_items"]):  # final check for seleced items not sent to result
+    if bool(evaluator.environment["selected_items"]):  # final check for selected items not sent to result
         evaluator.environment["results"] = copy.deepcopy(evaluator.environment["selected_items"])
     if evaluator.environment["results"]:
         pp = pprint.PrettyPrinter(indent=4)

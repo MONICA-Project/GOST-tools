@@ -11,7 +11,7 @@ always_active = [get_info]
 first_initialization = [user_defined_address, saved_address, ping, exec_file]
 default_initialization = [user_defined_address, ping, exec_file]
 
-getting_items = [sql_evaluate, get_command_line, related_items]#select_items_command, related_items]
+getting_items = [sql_evaluate, get_command_line, related_items]  # select_items_command, related_items]
 create_functions = [template, create_records]
 mod_items = [delete, patch, post]
 show = [select_result_fields, show_results]
@@ -23,7 +23,6 @@ default_ending = [store, clear_environment, exit_function]
 # the steps of evaluation
 first_time_steps = [always_active, first_initialization, create_functions, getting_items, mod_items, show,
                     failure_handling, first_time_ending]  # steps for first evaluation
-
 default_steps = [always_active, default_initialization, create_functions, getting_items, mod_items, show,
                  failure_handling, default_ending]
 
@@ -39,7 +38,7 @@ class EvaluatorClass:
         self.environment = default_env()
         self.evaluation_steps = []
         self.first_time = args  # stores the first argument given at creation time
-                                # AND indicates that it is the first execution
+        # AND indicates that it is the first execution
         self.single_command = single_command
 
     def evaluate(self, args=False):
@@ -78,7 +77,7 @@ class EvaluatorClass:
                     if e.exit_interactive_mode:
                         exit(0)
                     else:
-                        print('Raised exception: ' + str(e))  # managing unexpecte exceptions
+                        print('Raised exception: ' + str(e))  # managing unexpected exceptions
                         print(traceback.format_exc())
 
     def init(self, args):
@@ -94,7 +93,7 @@ class EvaluatorClass:
             self.set_evaluation_steps(first_time_steps)
             self.first_time = False
         elif not self.args.mode and self.environment["mode"] == "default":  # necessary for the second execution of
-            self.set_evaluation_steps(default_steps)                        # evaluation, if mode is not provided
+            self.set_evaluation_steps(default_steps)  # evaluation, if mode is not provided
 
     def select_mode(self, args):
         """Selects the operation mode
@@ -114,7 +113,7 @@ class EvaluatorClass:
                 self.environment = default_env(single_command=self.single_command)
                 self.set_evaluation_steps(default_steps)
             elif self.evaluation_steps == first_time_steps:  # necessary to change evaluation steps if
-                                                             # default mode is selected before other modes
+                # default mode is selected before other modes
                 self.environment = default_env()
                 self.set_evaluation_steps(default_steps)
             self.parser = init_default_parser()
@@ -122,11 +121,9 @@ class EvaluatorClass:
         if changed_mode:
             if args:
                 self.args = self.parser.parse_args(args)  # re-parse the args with the new select_parser
-                                                          # double parsing needed to get "--mode" value
+                # double parsing needed to get "--mode" value
         return changed_mode
 
     def set_evaluation_steps(self, steps_list):
         """To set the evaluation steps"""
         self.evaluation_steps = steps_list
-
-

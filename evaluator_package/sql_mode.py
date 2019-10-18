@@ -21,7 +21,7 @@ def evaluate(evaluator):
         # left_side += ["--silent"]
         evaluatorl = EvaluatorClass(left_side)
         left_result = evaluatorl.evaluate()["results"]
-
+        left_ogc = evaluatorl.args.ogc
     except SystemExit as e:
         if e.code == 0:
             pass
@@ -35,7 +35,7 @@ def evaluate(evaluator):
         # right_side += ["--silent"]
         evaluatorr = EvaluatorClass(right_side)
         right_result = evaluatorr.evaluate()["results"]
-
+        right_ogc = evaluatorr.args.ogc
     except SystemExit as e:
         if e.code == 0:
             pass
@@ -46,10 +46,10 @@ def evaluate(evaluator):
         exit(1)
 
     left = append_name_to_key(left_result, parsed_values['left_name'])
-
+    left_name = parsed_values['left_name']
     right = append_name_to_key(right_result, parsed_values['right_name'])
-
-    result = join(left, right, parsed_values["join_conditions"])
+    right_name = parsed_values['right_name']
+    result = join(left, right, parsed_values["join_conditions"], left_ogc, right_ogc, left_name, right_name)
 
     show_result = show_filter(result, parsed_values['show'])
 

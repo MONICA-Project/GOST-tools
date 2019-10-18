@@ -1,5 +1,10 @@
 import copy
 
+from jinja2 import environment
+
+from evaluator_package.evaluating_conditions_decorator import get
+from evaluator_package.environments import default_env
+
 """Implemented Grammar:
 S    -> (S) S_1 | a_1 S_1 | not (S) S_1
 S_1  -> bool S S_1 | epsilon
@@ -195,9 +200,17 @@ def append_name_to_key(entities, name):
     return temp_result
 
 
-def join(left_result, right_result, conditions):
+def join(left_result, right_result, conditions, left_ogc, right_ogc, left_name, right_name):
     """It join the 'left_result' with 'right_result'"""
     final_result = []
+    left = []
+    if any("Datastreams" in c for c in conditions):
+        i = 0
+        for l in left_result:
+            ogc = left_ogc + "(" + str(l["["+left_name+"]"+"@iot.id"]) + ")" + "/Datastreams"
+            left[i] = get(ogc)
+            i += 1
+
     for l in left_result:
         comparison = compare(l, right_result, conditions)
         if bool(comparison):

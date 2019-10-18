@@ -9,6 +9,7 @@ import shlex
 from evaluator_package.environments import default_env
 from . import selection_expression_validator
 import urllib.parse as urlparse
+import connection_config
 
 
 def needed_fields(no_fields=None, at_least_one_field=None,
@@ -103,16 +104,16 @@ def get_items(current_evaluator):
     if not bool(current_evaluator.environment["selected_items"]):  # necessary to avoid getting items more than one time
         if bool(current_evaluator.args.identifier):
             for i in current_evaluator.args.identifier:
-                get_result = get_item(i, current_evaluator.args.ogc, current_evaluator.environment)
+                get_result = get_item(identifier=i, ogc_type=current_evaluator.args.ogc, environment=current_evaluator.environment)
                 add_result(current_evaluator, get_result, field_name="selected_items")
         else:
             result = evaluator_utilities.check_and_fix_ogc(current_evaluator)
             if not result:
                 return False
-            query = current_evaluator.args.select.copy()
-            selection_expression_validator.tokenize_parentheses(query)
+            if current_evaluator.args.select:
+                selection_expression_validator.tokenize_parentheses(current_evaluator.args.select)
             result_all = get(current_evaluator.args.ogc, current_evaluator.environment,
-                             select_query=query)
+                             select_query=current_evaluator.args.select)
             # result_all = get_all(current_evaluator.args.ogc, current_evaluator.environment)
             for i in result_all:
                 add_result(current_evaluator, i, field_name="selected_items")
@@ -123,7 +124,7 @@ def get_items(current_evaluator):
         #    evaluator_utilities.check_name_duplicates(current_evaluator, "selected_items")
 
 
-def get(ogc_type=None, environment=None, payload=None, sending_address=False, select_query=None, ogc_name=None):
+def get(ogc_type=None, environment=None, payload=None, sending_address=False, select_query=None, ogc_name=None, show=None):
     result = []
     b = 0  # counter of the element in select_query
     c = 0  # flag to check if the " ' " is open
@@ -137,7 +138,7 @@ def get(ogc_type=None, environment=None, payload=None, sending_address=False, se
     elif not sending_address:
         gost_address = connection_config.get_address_from_file()
         sending_address = gost_address + "/" + ogc_type
-    if select_query:
+    if select_query and not show:
         sending_address = gost_address + "/" + ogc_type + "?$filter="
         for d in select_query:
             if d is '(':
@@ -190,6 +191,15 @@ def get(ogc_type=None, environment=None, payload=None, sending_address=False, se
                 sending_address += str(d)
                 b += 1
                 c = 0
+    elif show and not select_query:
+        sending_address = gost_address + "/" + ogc_type + "?$select="
+        n = 0
+        if len(show) > 1:
+            for f in show:
+                if n == len(show)-1:
+                    sending_address += f
+                else:
+                    sending_address += f + ","
 
     r = requests.get(sending_address, payload)
     response = r.json()
