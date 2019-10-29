@@ -1,0 +1,4 @@
+--get -t Sensors --select id < '3' as t1 join
+--get -t Datastreams as t2
+on [t1]Datastreams@iot.navigationLink == [t2]@iot.selfLink
+show [t1]name and [t1]description and [t2]unitOfMeasurement and [t2]observedArea
