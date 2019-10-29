@@ -124,8 +124,7 @@ def restore_main(self):
 
 
 def change_address_main(self):
-    self.address_preview.configure(text="Insert a new address\n(format: http[s]://x.x.x.x:port_number/v1.0)")
-
+    # self.address_preview.configure(text="Insert a new address\n(format: http[s]://x.x.x.x:port_number/v1.0)")
     self.new_address_entry = gui_ut.Entry(self.top_bar, width=40)
     self.new_address_entry.insert(0, string=self.model.GOST_address)
     self.view_elements.append({"item": self.new_address_entry, "row": 0, "column": 1, "name": "new_address_entry"})
@@ -139,7 +138,6 @@ def change_address_main(self):
                                                  command=lambda: keep_address(self))
     self.view_elements.append({"item": self.keep_old_address_button, "row": 0, "column": 3,
                                "name": "keep_old_address_button"})
-
     self.new_address_entry.grid(row=0, column=1)
     self.confirm_address_button.grid(row=0, column=2)
     self.keep_old_address_button.grid(row=0, column=3)
@@ -191,7 +189,7 @@ def keep_address(self):
 
 def change_port_number(self):
     self.port_button.grid_forget()
-    self.address_preview.configure(text="Insert a new port number")
+    # self.address_preview.configure(text="Insert a new port number")
 
     self.new_port_entry = gui_ut.Entry(self.top_bar, width=40)
     self.new_port_entry.insert(0, string=conn_conf.try_port(take=1))

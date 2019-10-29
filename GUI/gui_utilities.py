@@ -90,8 +90,8 @@ def get_items(self, b=False):
                 else:
                     selected_items.append(item)
 
-        # else:
-        #     selected_items = eval_cond.get(self.selected_type.get())
+        else:
+            selected_items = eval_cond.get(self.selected_type.get())
 
         if bool(self.selected_boolean_expression.get()):  # filtering the results
             # selected_items = str_to_list(self.selected_type.get(), self.selected_boolean_expression.get(), " ")

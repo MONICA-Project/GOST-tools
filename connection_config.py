@@ -81,7 +81,7 @@ def try_port(self=None, port=None, address=None, b=None, take=None):
             for i in sorted(indexes_to_delete, reverse=True):
                 self.view_elements[i]["item"].grid_forget()
                 del self.view_elements[i]
-            self.address_preview.configure(text="Insert a new address\n(format: http[s]://x.x.x.x:port_number/v1.0)")
+            # self.address_preview.configure(text="Insert a new address\n(format: http[s]://x.x.x.x:port_number/v1.0)")
             self.port_button = gui_ut.Button(self.top_bar, text="Change port number",
                                              command=lambda: gui.change_port_number(self), bg=gui_ut.change_address_color)
             self.port_button.grid(row=0, column=4)
