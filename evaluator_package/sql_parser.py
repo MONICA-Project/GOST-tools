@@ -201,31 +201,38 @@ def append_name_to_key(entities, name):
 def join(left_result, right_result, conditions, left_ogc, right_ogc, left_name, right_name):
     """It join the 'left_result' with 'right_result'"""
     final_result = []
-    left = []
-    partial_result = []
+
     x = any("Datastreams" in c for c in conditions)
     y = any("Sensors" in c for c in conditions)
     z = any("Things" in c for c in conditions)
+
     if x or y or z:
         i = 0
+        partial_result = []
+
         for l in left_result:
+            address = None
             if x:
                 address = l["["+left_name+"]" + "Datastreams@iot.navigationLink"]
             elif y:
                 address = l["["+left_name+"]" + "Sensors@iot.navigationLink"]
             elif z:
                 address = l["["+left_name+"]" + "Things@iot.navigationLink"]
-            left[i] = get(sending_address=address)
+
+            left = get(sending_address=address, username="scral", password="A5_xYY#HqNiao_12#b")
             for r in right_result:
                 j = 0
                 if left[i]["@iot.selfLink"] == r["@iot.selfLink"]:
-                    partial_result[j] += r
+                    partial_result.append(r)
                     if l[i] not in final_result:
-                        final_result += l[i]
+                        final_result.append(l[i])
                 j += 1
+
             i += 1
             final_result += partial_result
+
     return final_result
+
     # for l in left_result:
     #    comparison = compare(l, right_result, conditions)
     #    if bool(comparison):

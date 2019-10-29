@@ -125,7 +125,7 @@ def get_items(current_evaluator):
 
 
 def get(ogc_type=None, environment=None, payload=None, sending_address=False, select_query=None, ogc_name=None,
-        show=None):
+        show=None, username=None, password=None):
     result = []
     b = 0  # counter of the element in select_query
     c = 0  # flag to check if the " ' " is open
@@ -204,7 +204,7 @@ def get(ogc_type=None, environment=None, payload=None, sending_address=False, se
                 else:
                     sending_address += f + ","
 
-    r = requests.get(sending_address, payload)
+    r = requests.get(sending_address, payload, auth=(username, password))
     response = r.json()
     if "value" in response:
         result = response["value"]
