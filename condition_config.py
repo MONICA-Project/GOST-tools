@@ -1,14 +1,15 @@
-from checking_functions import *
+import checking_functions as check
 
-sensorSpecs = {"name": sensor_is_already_present, "description": field_is_void}
-thingSpecs = {"name": thing_is_already_present}
-observedPropertySpecs = {"name": observed_property_is_already_present}
-dataStreamSpecs = {"name": data_stream_is_already_present}
+sensorSpecs = {"name": check.sensor_is_already_present, "description": check.field_is_void}
+thingSpecs = {"name": check.thing_is_already_present}
+observedPropertySpecs = {"name": check.observed_property_is_already_present}
+dataStreamSpecs = {"name": check.data_stream_is_already_present}
 observationSpecs = {}
-locationSpecs = {"name": location_is_already_present}
-featureOfInterestSpecs = {"name": feature_of_interest_is_already_present}
+locationSpecs = {"name": check.location_is_already_present}
+featureOfInterestSpecs = {"name": check.feature_of_interest_is_already_present}
 
 """It provides the specs of the OGC type that you need"""
+
 
 def get_specs(ogc_name):
     """return: OGC type that it serves"""

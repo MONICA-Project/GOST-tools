@@ -1,5 +1,6 @@
 from tkinter import *
-from GUI.gui_utilities import *
+import GUI.gui_utilities as gui_ut
+import ogc_utility as ogc_ut
 import shlex
 
 
@@ -23,7 +24,7 @@ class DeleteView:
         self.view_elements.append({"item":types_menu_description, "row": 1, "column": 0})
 
         self.selected_type = StringVar(main_view.main_area)
-        types = get_ogc_types()
+        types = gui_ut.get_ogc_types()
         self.selected_type.set("Select an OGC type")
 
         self.selected_type.trace("w", self.show_options)
@@ -32,14 +33,14 @@ class DeleteView:
         self.view_elements.append({"item":types_menu, "row": 1, "column" : 1})
 
         selected_identifiers_description = Label(main_view.main_area, borderwidth=2, relief="solid",
-                                                 text=select_id_text)
+                                                 text=gui_ut.select_id_text)
 
         self.view_elements.append({"item":selected_identifiers_description, "row": 2, "column" : 0})
         self.selected_identifiers = Entry(main_view.main_area, width=10)
         self.view_elements.append({"item": self.selected_identifiers, "row": 2, "column" : 1})
 
         selected_boolean_expression_description = Label(main_view.main_area, borderwidth=2, relief="solid",
-                                                        text=select_conditions_text)
+                                                        text=gui_ut.select_conditions_text)
 
         self.view_elements.append({"item":selected_boolean_expression_description, "row": 7, "column" : 0})
         self.selected_boolean_expression = Entry(main_view.main_area, width=50)
@@ -50,16 +51,16 @@ class DeleteView:
                                              "of the items you are going to delete (default: all)")
         self.view_elements.append({"item":fields_menu_description, "row": 8, "column": 0})
 
-        populate(self.view_elements, self.main_view.main_area)
+        gui_ut.populate(self.view_elements, self.main_view.main_area)
 
     def hide(self):
         for i in self.view_elements:
             i["item"].grid_forget()
 
     def show_options(self, a, b, c):  # additional parameters a b c needed because it is called by Trace function
-        clear_results(self)
+        gui_ut.clear_results(self)
 
-        field_names = get_fields_names(self.selected_type.get())
+        field_names = gui_ut.get_fields_names(self.selected_type.get())
 
         self.show_fields = Listbox(self.main_view.main_area, selectmode=MULTIPLE)
 
@@ -75,7 +76,7 @@ class DeleteView:
                                  bg='#ff502f')
         self.view_elements.append({"item": self.delete_btn, "row": 10, "column": 1, "name" : "delete_button"})
 
-        populate(self.view_elements, self.main_view.main_area)
+        gui_ut.populate(self.view_elements, self.main_view.main_area)
 
 
 def delete_command(view):
@@ -85,36 +86,32 @@ def delete_command(view):
 
 
 def delete(self):
-    clear_results(self)
-
-    self.selected_items = get_items(self)
+    gui_ut.clear_results(self)
+    self.selected_items = gui_ut.get_items(self)
     if bool(self.selected_items):
         if self.selected_items != "error":
             self.result_info = Label(self.main_view.main_area, borderwidth=2, relief="solid",
                                      text=f"found {len(self.selected_items)} results")
             self.view_elements.append({"item": self.result_info, "row": 8, "column": 1, "name": "number_found"})
-            self.result = scrollable_results(self.selected_items, self.main_view.main_area)
+            self.result = gui_ut.scrollable_results(self.selected_items, self.main_view.main_area)
 
             self.view_elements.append({"item": self.result, "row": 9, "column": 1, "name" : "result"})
-            self.delete_btn.config(text = "Click here to confirm",
-                                   command = lambda : confirm_deletion(self),   bg=confirm_color)
+            self.delete_btn.config(text="Click here to confirm",
+                                   command=lambda : confirm_deletion(self),   bg=gui_ut.confirm_color)
             self.abort_delete_button = Button(self.main_view.main_area, text="Click here to abort the delete",
-                                              command=lambda: abort_deletion(self), bg=abort_color)
+                                              command=lambda: abort_deletion(self), bg=gui_ut.abort_color)
             self.view_elements.append({"item": self.abort_delete_button, "row": 11, "column": 1,
                                        "name": "abort_deletion_button"})
-
-
-
-            populate(self.view_elements, self.main_view.main_area)
+            gui_ut.populate(self.view_elements, self.main_view.main_area)
     else:
-        messagebox.showinfo("Error", "NO ITEMS FOUND")
+        gui_ut.messagebox.showinfo("Error", "NO ITEMS FOUND")
 
 
 def confirm_deletion(self):
     address = self.main_view.model.GOST_address + "/"
     for i in self.selected_items:
         if "@iot.id" in i:
-            delete_item(i["@iot.id"], self.selected_type.get(), address=address)
+            ogc_ut.delete_item(i["@iot.id"], self.selected_type.get(), address=address)
 
     self.delete_btn.config(text="Delete",
                            command=lambda: delete(self))
@@ -129,7 +126,7 @@ def confirm_deletion(self):
         self.view_elements[i]["item"].grid_forget()
         del self.view_elements[i]
 
-    messagebox.showinfo("Delete", "DELETE CONFIRMED")
+    gui_ut.messagebox.showinfo("Delete", "DELETE CONFIRMED")
     self.selected_type.set("Select an OGC type")
     hide_delete_button(self)
 

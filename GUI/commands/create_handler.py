@@ -1,8 +1,11 @@
-from GUI.gui_utilities import *
+import re
+
+import GUI.gui_utilities as gui_ut
 from tkinter import filedialog
 from creation_utilities import create_records
 from json import JSONDecoder, JSONDecodeError
-
+import json
+import ogc_utility as ogc_util
 
 class CreateView:
     def __init__(self, main_view):
@@ -24,34 +27,34 @@ class CreateView:
 
         main_view.current_command_view = self
 
-        types_menu_description = Label(self.main_view.main_area, text="Select OGC entity type of the items\n"
-                                                              "you are going to create or post\n"
-                                                              "(mandatory field)")
-        self.view_elements.append({"item":types_menu_description, "row": 1, "column": 0})
+        types_menu_description = gui_ut.Label(self.main_view.main_area, text="Select OGC entity type of the items\n"
+                                                                      "you are going to create or post\n"
+                                                                      "(mandatory field)")
+        self.view_elements.append({"item": types_menu_description, "row": 1, "column": 0})
 
-        self.selected_type = StringVar(self.main_view.main_area)
-        types = get_ogc_types()
+        self.selected_type = gui_ut.StringVar(self.main_view.main_area)
+        types = gui_ut.get_ogc_types()
         self.selected_type.set("Select an OGC type")
 
         self.selected_type.trace("w", self.show_options)
 
-        types_menu = OptionMenu(self.main_view.main_area, self.selected_type, *types)
-        self.view_elements.append({"item":types_menu, "row": 1, "column" : 1})
+        types_menu = gui_ut.OptionMenu(self.main_view.main_area, self.selected_type, *types)
+        self.view_elements.append({"item": types_menu, "row": 1, "column": 1})
 
-        number_to_create_description = Label(self.main_view.main_area, text="Select how many items create")
+        number_to_create_description = gui_ut.Label(self.main_view.main_area, text="Select how many items create")
 
-        self.view_elements.append({"item":number_to_create_description, "row": 2, "column" : 0})
-        self.number_to_create = Entry(self.main_view.main_area, width=10)
+        self.view_elements.append({"item": number_to_create_description, "row": 2, "column": 0})
+        self.number_to_create = gui_ut.Entry(self.main_view.main_area, width=10)
         self.view_elements.append({"item": self.number_to_create, "row": 2, "column": 1})
 
-        populate(self.view_elements, self.main_view.main_area)
+        gui_ut.populate(self.view_elements, self.main_view.main_area)
 
     def hide(self):
         for i in self.view_elements:
             i["item"].grid_forget()
 
     def show_options(self, a, b, c):  # additional parameters a b c needed because it is called by Trace function
-        if  not ( self.selected_type.get() == "Select an OGC type"):  # needed to avoid the restoring of action
+        if not (self.selected_type.get() == "Select an OGC type"):  # needed to avoid the restoring of action
             # buttons before action execution
             indexes_to_delete = []  # clearing the previously set patch options
             for index, val in enumerate(self.view_elements):
@@ -62,36 +65,36 @@ class CreateView:
                 self.view_elements[i]["item"].grid_forget()
                 del self.view_elements[i]
 
-            field_names = get_fields_names(self.selected_type.get(), needed_for_editing=True)
+            field_names = gui_ut.get_fields_names(self.selected_type.get(), needed_for_editing=True)
 
             row = 11
 
             for item in field_names:
-                temp_label = Label(self.main_view.main_area, text=item)
+                temp_label = gui_ut.Label(self.main_view.main_area, text=item)
                 self.view_elements.append({"item": temp_label, "row": row, "column": 0, "name": "create_field_name"})
-                temp_entry = Entry(self.main_view.main_area, width=50)
+                temp_entry = gui_ut.Entry(self.main_view.main_area, width=50)
                 self.view_elements.append({"item": temp_entry, "row": row, "column": 1, "name": "create_field_value"})
                 row += 1
-                self.create_entries.append({"field_name" : item, "field_entry": temp_entry})
+                self.create_entries.append({"field_name": item, "field_entry": temp_entry})
 
-            self.save_btn = Button(self.main_view.main_area, text="Save to a file",
-                                                            command=lambda: save(self))
+            self.save_btn = gui_ut.Button(self.main_view.main_area, text="Save to a file",
+                                   command=lambda: save(self))
             self.view_elements.append({"item": self.save_btn, "row": 10, "column": 0, "name": "save_button"})
 
-            self.post_btn = Button(self.main_view.main_area, text="Post to GOST",
-                                                            command=lambda: direct_post(self))
+            self.post_btn = gui_ut.Button(self.main_view.main_area, text="Post to GOST",
+                                   command=lambda: direct_post(self))
             self.view_elements.append({"item": self.post_btn, "row": 10, "column": 1, "name": "post_button"})
 
-            self.save_and_post_btn = Button(self.main_view.main_area, text="Save to a file\nand Post to GOST",
-                                   command=lambda: save_and_post(self))
+            self.save_and_post_btn = gui_ut.Button(self.main_view.main_area, text="Save to a file\nand Post to GOST",
+                                            command=lambda: save_and_post(self))
             self.view_elements.append({"item": self.save_and_post_btn, "row": 10, "column": 2,
                                        "name": "save_and_post_button"})
-            self.post_from_file_btn = Button(self.main_view.main_area, text="POST records \ndefined in a file",
-                                            command=lambda: post_from_file(self))
+            self.post_from_file_btn = gui_ut.Button(self.main_view.main_area, text="POST records \ndefined in a file",
+                                             command=lambda: post_from_file(self))
             self.view_elements.append({"item": self.post_from_file_btn, "row": 11, "column": 2,
                                        "name": "post_from_file_button"})
 
-            populate(self.view_elements, self.main_view.main_area)
+            gui_ut.populate(self.view_elements, self.main_view.main_area)
 
 
 def create_command(view):
@@ -104,8 +107,8 @@ def save(self):
     try:
         int(self.number_to_create.get())
     except ValueError:
-        messagebox.showinfo("ERROR", "undefinded number\nof items to create")
-    else :
+        gui_ut.messagebox.showinfo("ERROR", "undefinded number\nof items to create")
+    else:
         self.storage_file = filedialog.asksaveasfilename(defaultextension=".txt",
                                                          initialdir="/", title="Select file",
                                                          filetypes=(
@@ -113,21 +116,20 @@ def save(self):
         if bool(self.storage_file):
             self.created_items = create_items(self)
 
-
             if bool(self.created_items):
 
                 for k in map(str, self.created_items["errors"]):
                     self.error_message += str(k) + " \n"
 
                 if bool(self.error_message):
-                    messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
+                    gui_ut.messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
                 elif len(self.created_items["created_items"]) > 0:
                     file_handler = open(self.storage_file, 'w')
                     for item in self.created_items["created_items"]:
                         file_handler.write(json.dumps(item) + "\n")
-                    messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}")
+                    gui_ut.messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}")
             else:
-                messagebox.showinfo("ERROR","Trying to create multiple items with the same name\nItems not created")
+                gui_ut.messagebox.showinfo("ERROR", "Trying to create multiple items with the same name\nItems not created")
     clear_before_creation(self)
 
 
@@ -137,7 +139,7 @@ def post(self):
         int(self.number_to_create.get())
 
     except ValueError:
-        messagebox.showinfo("ERROR", "undefinded number\nof items to create")
+        gui_ut.messagebox.showinfo("ERROR", "undefinded number\nof items to create")
     else:
 
         if bool(self.created_items):
@@ -146,26 +148,26 @@ def post(self):
                 self.error_message += str(k) + " \n"
 
             if bool(self.error_message):
-                messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
+                gui_ut.messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
             elif len(self.created_items["created_items"]) > 0:
 
                 json_responses = []
                 successful_post = False
 
                 for item in self.created_items["created_items"]:
-                    json_responses.append(send_json(item, ogc_name=self.selected_type.get()))
+                    json_responses.append(ogc_util.send_json(item, ogc_name=self.selected_type.get()))
                 for i in json_responses:
                     if "error" in i.json():
                         self.error_message += json.dumps((i.json())["error"]) + " \n"
                     else:
                         successful_post = True
                 if bool(self.error_message):
-                    messagebox.showinfo("ERROR", self.error_message)
+                    gui_ut.messagebox.showinfo("ERROR", self.error_message)
                 if successful_post:
-                    messagebox.showinfo("", f"Posted new items to GOST")
+                    gui_ut.messagebox.showinfo("", f"Posted new items to GOST")
                 clear_before_creation(self)
         else:
-            messagebox.showinfo("ERROR", "No items to post")
+            gui_ut.messagebox.showinfo("ERROR", "No items to post")
 
     clear_before_creation(self)
 
@@ -175,7 +177,7 @@ def save_and_post(self):
         int(self.number_to_create.get())
 
     except ValueError:
-        messagebox.showinfo("ERROR", "undefinded number\nof items to create")
+        gui_ut.messagebox.showinfo("ERROR", "undefinded number\nof items to create")
     else:
         self.storage_file = filedialog.asksaveasfilename(defaultextension=".txt",
                                                          initialdir="/", title="Select file",
@@ -189,7 +191,7 @@ def save_and_post(self):
                     self.error_message += str(k) + " \n"
 
                 if bool(self.error_message):
-                    messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
+                    gui_ut.messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
                 elif len(self.created_items["created_items"]) > 0:
 
                     file_handler = open(self.storage_file, 'w')
@@ -199,27 +201,27 @@ def save_and_post(self):
 
                     for item in self.created_items["created_items"]:
                         file_handler.write(json.dumps(item) + "\n")
-                        json_responses.append(send_json(item, ogc_name=self.selected_type.get()))
+                        json_responses.append(ogc_util.send_json(item, ogc_name=self.selected_type.get()))
                     for i in json_responses:
                         if "error" in i.json():
                             self.error_message += json.dumps((i.json())["error"]) + " \n"
                         else:
                             successful_post = True
                     if bool(self.error_message):
-                        messagebox.showinfo("ERROR", self.error_message)
+                        gui_ut.messagebox.showinfo("ERROR", self.error_message)
 
                     if successful_post:
-                        messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}\n"
-                                        f"and posted them to GOST")
+                        gui_ut.messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}\n"
+                                                f"and posted them to GOST")
             else:
-                messagebox.showinfo("ERROR","Trying to create multiple items with the same name\nItems not created")
+                gui_ut.messagebox.showinfo("ERROR", "Trying to create multiple items with the same name\nItems not created")
     clear_before_creation(self)
 
 
 def post_from_file(self):
     creation_result = []
     self.upload_file = filedialog.askopenfilename(initialdir="/", title="Select file",
-                                                     filetypes=(("text files", "*.txt"), (".txt", "*.txt")))
+                                                  filetypes=(("text files", "*.txt"), (".txt", "*.txt")))
 
     if bool(self.upload_file):
 
@@ -244,9 +246,9 @@ def post_from_file(self):
             for obj in decode_stacked(json_file.read()):
                 items_list.append(obj)
 
-            if check_duplicates(items_list):
+            if gui_ut.check_duplicates(items_list):
                 for obj in items_list:
-                    result = add_item(obj, self.selected_type.get())
+                    result = ogc_util.add_item(obj, self.selected_type.get())
                     json_result = json.loads((result.data).decode('utf-8'))
                     creation_result.append(json_result)
 
@@ -259,22 +261,21 @@ def post_from_file(self):
                         success = True
 
                 if bool(self.error_message):
-                    messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
+                    gui_ut.messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
 
                 if success:
-                    messagebox.showinfo("", f"Posted new items to GOST")
+                    gui_ut.messagebox.showinfo("", f"Posted new items to GOST")
             else:
-                messagebox.showinfo("ERROR", "Trying to create multiple items with the same name\nItems not created")
+                gui_ut.messagebox.showinfo("ERROR", "Trying to create multiple items with the same name\nItems not created")
     clear_before_creation(self)
 
 
 def direct_post(self):
-
     try:
         int(self.number_to_create.get())
 
     except ValueError:
-        messagebox.showinfo("ERROR", "undefinded number\nof items to create")
+        gui_ut.messagebox.showinfo("ERROR", "undefinded number\nof items to create")
     else:
         self.created_items = create_items(self)
         if bool(self.created_items):
@@ -283,25 +284,25 @@ def direct_post(self):
                 self.error_message += str(k) + " \n"
 
             if bool(self.error_message):
-                messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
+                gui_ut.messagebox.showinfo("ERROR", self.error_message + "\nItems not created")
             elif len(self.created_items["created_items"]) > 0:
 
                 json_responses = []
                 successful_post = False
 
                 for item in self.created_items["created_items"]:
-                    json_responses.append(send_json(item, ogc_name=self.selected_type.get()))
+                    json_responses.append(ogc_util.send_json(item, ogc_name=self.selected_type.get()))
                 for i in json_responses:
                     if "error" in i.json():
                         self.error_message += json.dumps((i.json())["error"]) + " \n"
                     else:
                         successful_post = True
                 if bool(self.error_message):
-                    messagebox.showinfo("ERROR", self.error_message)
+                    gui_ut.messagebox.showinfo("ERROR", self.error_message)
                 if successful_post:
-                    messagebox.showinfo("", f"Posted new items to GOST")
+                    gui_ut.messagebox.showinfo("", f"Posted new items to GOST")
         else:
-            messagebox.showinfo("ERROR", "Trying to create multiple items with the same name\nItems not created")
+            gui_ut.messagebox.showinfo("ERROR", "Trying to create multiple items with the same name\nItems not created")
         clear_before_creation(self)
 
 
@@ -309,9 +310,9 @@ def create_items(self):
     for entry in self.create_entries:
         if bool(entry["field_entry"].get()):
             self.create_values[entry["field_name"]] = entry["field_entry"].get()
-    result=(create_records(self.create_values, int(self.number_to_create.get()), self.selected_type.get()))
+    result = (create_records(self.create_values, int(self.number_to_create.get()), self.selected_type.get()))
     if bool(result["created_items"]):
-        if check_duplicates(result["created_items"]):
+        if gui_ut.check_duplicates(result["created_items"]):
             return result
         else:
             return False
@@ -320,7 +321,6 @@ def create_items(self):
 
 
 def clear_before_creation(self):
-
     self.create_values = {}
     self.error_message = []
     self.create_entries = []
@@ -334,12 +334,12 @@ def clear_before_creation(self):
     for i in sorted(indexes_to_delete, reverse=True):
         self.view_elements[i]["item"].grid_forget()
         del self.view_elements[i]
-    populate(self.view_elements, self.main_view.main_area)
+    gui_ut.populate(self.view_elements, self.main_view.main_area)
     self.selected_type.set("Select an OGC type")
 
 
 def show_preview(self):
-    preview = scrollable_results(self.created_items["created_items"], self.main_view.main_area,
+    preview = gui_ut.scrollable_results(self.created_items["created_items"], self.main_view.main_area,
                                  editable=False)
     self.view_elements.append({"item": preview, "row": 3, "column": 0, "name": "preview"})
-    populate(self.view_elements, self.main_view.main_area)
+    gui_ut.populate(self.view_elements, self.main_view.main_area)

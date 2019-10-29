@@ -1,6 +1,6 @@
 import copy
-
-from evaluator_package.selection_expression_validator import is_value, tokenize_parentheses, S, is_field
+from evaluator_package.Parsing_tools import tokenize_parentheses, is_field
+from evaluator_package.selection_expression_validator import is_value, S
 
 """ Implemented Grammar:
 S    -> (S) S_1 | a_1 S_1 | not (S) S_1

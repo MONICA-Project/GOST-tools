@@ -1,5 +1,4 @@
 import copy
-
 from evaluator_package.Parsing_tools import is_field, tokenize_parentheses
 
 """Implemented Grammar:
@@ -13,6 +12,7 @@ comp -> == | != | > | < | >= | <= | <> | gt | lt | gteq |  lteq | diff
 """
 
 """Methods S, S_1, a_1, a, are used to evaluates the espression"""
+
 
 def select_parser_validator(tokens):
     """Evaluates if the tokens follow the grammar at the beginning of this file

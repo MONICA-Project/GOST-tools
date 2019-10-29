@@ -1,11 +1,13 @@
-from flask import jsonify, make_response, Flask
-from condition_manager import *
-from condition_config import *
-import connection_config
+import requests
 import json
-import shlex
+from flask import jsonify, make_response, Flask
 
-from evaluator_package.evaluating_conditions_decorator import get
+import condition_config as cond_conf
+import connection_config as conn_conf
+import evaluator_package.evaluating_conditions_decorator as eval_cond
+import condition_manager as cond_man
+import checking_functions as check
+
 
 """It contains all the methods of utility for OGC objects"""
 
@@ -34,8 +36,9 @@ def send_json(provided_load=None, ogc_name=None, sending_address=None, request_t
     :param request_type: the type of the request, default is POST
     :return:
     """
+
     if not sending_address:
-        sending_address = connection_config.get_address_from_file() + "/" + ogc_name
+        sending_address = conn_conf.get_address_from_file() + "/" + ogc_name
     if provided_load:
         if isinstance(provided_load, str):
             load = json.dumps(provided_load)
@@ -44,9 +47,10 @@ def send_json(provided_load=None, ogc_name=None, sending_address=None, request_t
     else:
         load = ""
     headers = {'Content-type': 'application/json'}
+    r = None
     if request_type == 'POST':
         if "name" in load:
-            if item_is_already_present(load["name"], ogc_name):
+            if check.item_is_already_present(load["name"], ogc_name):
                 return {"error": f"name 'f{load['name']}' already present in {ogc_name}"}
         r = requests.post(sending_address, json=load, headers=headers)
     if request_type == 'PATCH':
@@ -56,7 +60,7 @@ def send_json(provided_load=None, ogc_name=None, sending_address=None, request_t
     return r
 
 
-def get_item_id_by_name(name, type, environment = None):
+def get_item_id_by_name(name, type, environment=None):
     """finds the id of the item of type "type" with a given name
 
     :param name: name or id of the item
@@ -64,7 +68,7 @@ def get_item_id_by_name(name, type, environment = None):
     :param environment: the current environment
     :return: the item id
     """
-    json_response = get(type, environment, ogc_name=name)
+    json_response = eval_cond.get(ogc_type=type, environment=environment, ogc_name=name)
     for x in json_response:
         if x.get("name") == name:
             return x["@iot.id"]
@@ -89,7 +93,6 @@ def get_item(identifier, ogc_type, environment=None, address=False):
 def add_item(req, type, spec = None):
     """add an item from request "req" of type "type" with specs "spec"
     """
-
     app = Flask(__name__)
     with app.app_context():
         if isinstance(req, dict):
@@ -98,11 +101,11 @@ def add_item(req, type, spec = None):
             content = req.get_json()
 
         if not bool(spec):
-            spec = get_specs(type)
+            spec = cond_conf.get_specs(type)
 
-        conditions_results = checkConditions(spec, content)
+        conditions_results = cond_man.checkConditions(spec, content)
 
-        if error_exists(conditions_results):
+        if check.error_exists(conditions_results):
             return make_response(jsonify(error="missing conditions " + str(conditions_results)), 400)
         else:
             s = send_json(content, type)
@@ -127,7 +130,7 @@ def patch_item(options_dict, identifier, ogc_type, environment = False, address 
         address = environment["GOST_address"] + "/"
     address = f"{address}{ogc_type}({check_id(identifier)})"
     if "name" in options_dict:
-        if item_is_already_present(options_dict["name"], ogc_type):
+        if check.item_is_already_present(options_dict["name"], ogc_type):
             return {"error" : f"Trying to patch "
             f"with name {options_dict['name']} already present in {ogc_type}"}
 
@@ -179,7 +182,7 @@ def delete_all(entity_name, environment):
     :param environment: the current evaluation environment
     :return: the current environment
     """
-    all_list = get_id_list(get(entity_name, environment).json())
+    all_list = get_id_list(eval_cond.get(entity_name, environment).json())
     for x in all_list:
         environment.selected_item.append(delete_by_id(x, entity_name, environment))
     return environment

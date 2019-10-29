@@ -1,6 +1,6 @@
 import argparse
 from evaluator_package.evaluator_utilities import is_ogc
-from evaluator_package.selection_expression_validator import *
+import evaluator_package.selection_expression_validator as expr_val
 import shlex
 
 
@@ -248,14 +248,14 @@ def  ask_missing_value(value_name, value_type, input_request="", values=None,
 
 def check_select(values):
     """check if the espression that the user input is correct"""
-    valid_expression = select_parser_validator(values)
+    valid_expression = expr_val.select_parser_validator(values)
     if not valid_expression:
 
         while not valid_expression:
             user_expression = input("Error: invalid select expression, insert a valid one or 'exit' to exit\n")
             if user_expression == "exit":
                 exit(0)
-            valid_expression = select_parser_validator(shlex.split(user_expression))
+            valid_expression = expr_val.select_parser_validator(shlex.split(user_expression))
 
         values.clear()
         values += shlex.split(user_expression)

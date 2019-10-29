@@ -1,24 +1,24 @@
-from evaluator_package.default_functions import *
-from parser_definitions import *
-from evaluator_package.environments import *
-from evaluator_package.exceptions import *
+import evaluator_package.default_functions as def_func
+import parser_definitions as pars_def
+import evaluator_package.environments as env
+import evaluator_package.exceptions as exc
 import traceback
 
 # all the evaluation functions which are always used and are checked before all other methods
-always_active = [get_info]
+always_active = [def_func.get_info]
 
 # all the evaluation functions which are used when the mode is set on "default"
-first_initialization = [user_defined_address, saved_address, ping, exec_file]
-default_initialization = [user_defined_address, ping, exec_file]
+first_initialization = [def_func.user_defined_address, def_func.saved_address, def_func.ping, def_func.exec_file]
+default_initialization = [def_func.user_defined_address, def_func.ping, def_func.exec_file]
 
-getting_items = [sql_evaluate, get_command_line, related_items]  # select_items_command, related_items]
-create_functions = [template, create_records]
-mod_items = [delete, patch, post]
-show = [select_result_fields, show_results]
-failure_handling = [show_failures]
+getting_items = [def_func.sql_evaluate, def_func.get_command_line, def_func.related_items]  # select_items_command, related_items]
+create_functions = [def_func.template, def_func.create_records]
+mod_items = [def_func.delete, def_func.patch, def_func.post]
+show = [def_func.select_result_fields, def_func.show_results]
+failure_handling = [def_func.show_failures]
 
-first_time_ending = [store, clear_environment, execute_and_exit]
-default_ending = [store, clear_environment, exit_function]
+first_time_ending = [def_func.store, def_func.clear_environment, def_func.execute_and_exit]
+default_ending = [def_func.store, def_func.clear_environment, def_func.exit_function]
 
 # the steps of evaluation
 first_time_steps = [always_active, first_initialization, create_functions, getting_items, mod_items, show,
@@ -33,9 +33,9 @@ class EvaluatorClass:
     def __init__(self, args, reading_file=False, single_command=False):
         """Method to initialize evaluator"""
         self.reading_file = reading_file
-        self.parser = init_default_parser()
+        self.parser = pars_def.init_default_parser()
         self.args = args
-        self.environment = default_env()
+        self.environment = env.default_env()
         self.evaluation_steps = []
         self.first_time = args  # stores the first argument given at creation time
         # AND indicates that it is the first execution
@@ -69,7 +69,7 @@ class EvaluatorClass:
             for function in step:
                 try:
                     function(self)
-                except PassEnvironmentException as e:
+                except exc.PassEnvironmentException as e:
                     if self.single_command:
                         exit(0)
                     if bool(e.passed_environment):
@@ -110,13 +110,13 @@ class EvaluatorClass:
                 self.set_evaluation_steps(first_time_steps)
             elif changed_mode:
                 print("entered default mode")
-                self.environment = default_env(single_command=self.single_command)
+                self.environment = env.default_env(single_command=self.single_command)
                 self.set_evaluation_steps(default_steps)
             elif self.evaluation_steps == first_time_steps:  # necessary to change evaluation steps if
                 # default mode is selected before other modes
-                self.environment = default_env()
+                self.environment = env.default_env()
                 self.set_evaluation_steps(default_steps)
-            self.parser = init_default_parser()
+            self.parser = pars_def.init_default_parser()
 
         if changed_mode:
             if args:

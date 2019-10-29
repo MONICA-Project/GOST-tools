@@ -1,5 +1,6 @@
 import json
-from checking_functions import item_is_already_present
+# from checking_functions import item_is_already_present
+import condition_config as cond_conf
 import random
 
 
@@ -11,7 +12,7 @@ def create_records(values, number, ogc_type=False):
     :param ogc_type: the entity type of the created records
     :return: a dictionary whit two lists, one of the created items and the other of the eventual errors
     """
-    result = {"created_items" : [],"errors" : []}
+    result = {"created_items": [], "errors": []}
 
     for x in range(number):
         item = create_random_item(values, ogc_type)
@@ -70,7 +71,7 @@ def create_random_item(args, ogc_type=False):
         ogc_type = args["type"]
 
     if "name" in args:  # checking for duplicate names
-        if item_is_already_present(args["name"], ogc_type):
+        if cond_conf.check.item_is_already_present(args["name"], ogc_type):
             return {"error": f"name 'f{args['name']}' already present in {ogc_type}"}
 
     if ogc_type == "Sensors":
@@ -187,7 +188,7 @@ def valid_random_name(ogc_type):
     """given an ogc type, checks and returns a valid random name for a new item
     of that type"""
     name = random_name_generator(10, ogc_type)
-    while item_is_already_present(name, ogc_type):
+    while cond_conf.check.item_is_already_present(name, ogc_type):
         name = random_name_generator(10, ogc_type)
     return name
 

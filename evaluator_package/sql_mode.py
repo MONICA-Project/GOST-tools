@@ -1,4 +1,4 @@
-from evaluator_package.sql_parser import *
+import evaluator_package.sql_parser as sql_pars
 import shlex
 
 
@@ -12,7 +12,7 @@ def evaluate(evaluator):
     args = shlex.split(args)
 
     from evaluator_package.evaluator import EvaluatorClass
-    parsed_values = parse_args(args)
+    parsed_values = sql_pars.parse_args(args)
 
     left_result = None
     right_result = None
@@ -45,12 +45,12 @@ def evaluate(evaluator):
         print('Raised exception : ' + str(e))
         exit(1)
 
-    left = append_name_to_key(left_result, parsed_values['left_name'])
+    left = sql_pars.append_name_to_key(left_result, parsed_values['left_name'])
     left_name = parsed_values['left_name']
-    right = append_name_to_key(right_result, parsed_values['right_name'])
+    right = sql_pars.append_name_to_key(right_result, parsed_values['right_name'])
     right_name = parsed_values['right_name']
-    result = join(left, right, parsed_values["join_conditions"], left_ogc, right_ogc, left_name, right_name)
+    result = sql_pars.join(left, right, parsed_values["join_conditions"], left_ogc, right_ogc, left_name, right_name)
 
-    show_result = show_filter(result, parsed_values['show'])
+    show_result = sql_pars.show_filter(result, parsed_values['show'])
 
     return show_result

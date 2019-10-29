@@ -1,7 +1,11 @@
-from checking_functions import *
+import shlex
+import json
+import evaluator_package.evaluator as eval
+# import checking_functions as check
+import evaluator_package.evaluating_conditions_decorator as eval_cond
 from tkinter import *
-from ogc_utility import *
-from evaluator_package import selection_parser
+import ogc_utility as ogc_ut
+import evaluator_package.default_functions as def_func
 import copy
 from tkinter import messagebox
 import tkinter.font as font
@@ -13,18 +17,18 @@ abort_color = '#86f986'
 change_address_color = "#a7cce7"
 action_color = "#86f986"
 
-
 # common text fields
 
-select_id_text = "Insert one or more names or @iot.id\nseparated by a space\nIf no identifier is provided, " \
-                 "all the records of chosen type\nwill be selected"
+select_id_text = "Insert the name(s) or the @iot.id(s)\n separated by a space"
+
+# "If no identifier is provided, all the records of the chosen OGC type will be selected"
 
 select_conditions_text = "Insert a filter for results\n(<,>,==,in,not in)(and or not)"
 
 
-def populate(elements_list, scrollable_area = False):
+def populate(elements_list, scrollable_area=False):
     for i in elements_list:
-        i["item"].grid(column=i["column"], row=i["row"], sticky=N+S+E+W)
+        i["item"].grid(column=i["column"], row=i["row"], sticky=N + S + E + W)
     if scrollable_area:
         scrollable_area.update()
 
@@ -39,7 +43,7 @@ def reset_attribute(item, attributes_list):
 
 
 def restore(self):
-    reset_attribute(self, ["selected_items","selected_type", "selected_boolean_expression", "selected_identifiers",
+    reset_attribute(self, ["selected_items", "selected_type", "selected_boolean_expression", "selected_identifiers",
                            "show_fields", "patch_values", "create_values", "create_entries", "created_items",
                            "storage_file"])
     populate(self.main_view_elements, self.main_view.main_area)
@@ -58,21 +62,21 @@ def clear_results(self):
         del self.view_elements[i]
 
 
-def get_items(self):
+def get_items(self, b=False):
     selected_items = []
     error_message = ""
     if self.selected_type.get() == "Select an OGC type":
         result = Text(self.main_view.window, width=50, height=1)
         result.insert("1.0", "Error: OGC type needed")
         result.grid(column=0, row=9)
-        self.view_elements.append({"item": result, "row": 9, "column": 1, "name" : "result"})
+        self.view_elements.append({"item": result, "row": 9, "column": 1, "name": "result"})
         return "error"
     else:
         if bool(self.selected_identifiers.get()):
             identifiers = shlex.split(self.selected_identifiers.get())
             for i in identifiers:
                 address = self.main_view.model.GOST_address + "/"
-                item = get_item(i, self.selected_type.get(),address=address)
+                item = ogc_ut.get_item(i, self.selected_type.get(), address=address)
                 if "error" in item:
                     if "message" in item["error"]:
                         for k in map(str, item["error"]["message"]):
@@ -86,20 +90,34 @@ def get_items(self):
                 else:
                     selected_items.append(item)
 
-        else:
-            selected_items = get_all(self.selected_type.get())
+        # else:
+        #     selected_items = eval_cond.get(self.selected_type.get())
 
         if bool(self.selected_boolean_expression.get()):  # filtering the results
-            expression = shlex.split(self.selected_boolean_expression.get())
-            for single_item in selected_items.copy():
-                matching = selection_parser.select_parser(expression, single_item)
-                if not matching:
-                    selected_items.remove(single_item)
-                elif isinstance(matching, dict):
-                    if "error" in matching:
-                        selected_items.remove(single_item)
-            if len(selected_items) == 0:
-                error_message += f"\nNo items found with select statement conditions\n"
+            # selected_items = str_to_list(self.selected_type.get(), self.selected_boolean_expression.get(), " ")
+            # expression = shlex.split(self.selected_boolean_expression.get())
+            query = self.selected_boolean_expression.get().split()
+            selected_items = eval_cond.get(ogc_type=self.selected_type.get(), select_query=query)
+            #for single_item in selected_items.copy():
+            #    matching = selection_parser.select_parser(expression, single_item)
+            #    if not matching:
+            #        selected_items.remove(single_item)
+            #    elif isinstance(matching, dict):
+            #        if "error" in matching:
+            #            selected_items.remove(single_item)
+            #if len(selected_items) == 0:
+            #    error_message += f"\nNo items found with select statement conditions\n"
+        if b:
+            if self.related_type.get() != "Select an OGC type":
+                # print(type(self.related_type.get()))
+                # evaluator = eval.EvaluatorClass(args=sys.argv[1:], single_command=True)
+                # evaluator.init()
+                # evaluator.args.ogc = self.selected_type.get()
+                # evaluator.args.related = self.related_type.get()
+                # evaluator.evaluate()
+                partial_items = []
+                partial_items += related_elements(self, selected_items)
+                selected_items = partial_items
 
         if bool(self.show_fields):
 
@@ -121,12 +139,37 @@ def get_items(self):
         return selected_items
 
 
-def get_fields_names(ogc_type, needed_for_editing = False):
+def related_elements(self, items):
+    result = []
+    error_message = "Error: trying to found Datastreams related to Datastreams"
+    if self.selected_type == "Datastreams":
+        if self.related_type.get() == "Datastreams":
+            return error_message
+        else:
+            if items:
+                for i in items:
+                    result += def_func.get_entities_from_datastream(i, self.related_type.get(), self.main_view.model.GOST_address)
+    else:
+        if self.related_type.get() == "Datastreams":
+            for i in items:
+                result += def_func.related_datastreams(i['@iot.id'], self.selected_type.get(), self.main_view.model.GOST_address)
+        else:
+            for i in items:
+                result += def_func.find_related(i, self.selected_type.get(), self.related_type.get(), self.main_view.model.GOST_address)
+    return result
+
+
+def str_to_list(ogc_type, str_query, separator):
+    list_query = str_query.split(separator)
+    return eval_cond.get(ogc_type=ogc_type, select_query=list_query)
+
+
+def get_fields_names(ogc_type, needed_for_editing=False):
     values = []
     if ogc_type == "Sensors":
         values = ["name", "description", "encodingType", "metadata"]
     elif ogc_type == "Things":
-        values = ["name", "description","properties"]
+        values = ["name", "description", "properties"]
 
     elif ogc_type == "ObservedProperties":
         values = ["name", "definition", "description"]
@@ -136,7 +179,7 @@ def get_fields_names(ogc_type, needed_for_editing = False):
                   "phenomenonTime", "resultTime"]
         if needed_for_editing:
             values += ["Thing_id", "ObservedProperty_id", "Sensor_id", "unitOfMeasurement_definition",
-                       "unitOfMeasurement_name",  "unitOfMeasurement_symbol"]
+                       "unitOfMeasurement_name", "unitOfMeasurement_symbol"]
         else:
             values += ["unitOfMeasurement", "Thing", "Sensor", "ObservedProperty"]
 
@@ -161,8 +204,13 @@ def get_fields_names(ogc_type, needed_for_editing = False):
     return values
 
 
-def get_ogc_types():
-    return {"Sensors", "Things", "Datastreams", "Locations", "ObservedProperties", "Observations", "FeaturesOfInterest"}
+def get_ogc_types(b=None):
+    if b:
+        return {"Sensors", "Things", "Datastreams", "Locations", "ObservedProperties", "Observations",
+                "FeaturesOfInterest", "Select an OGC type"}
+    else:
+        return {"Sensors", "Things", "Datastreams", "Locations", "ObservedProperties", "Observations",
+                "FeaturesOfInterest",}
 
 
 def scrollable_results(results_list, root, editable=True):
@@ -217,4 +265,3 @@ def name_in_patch(patch_values):
             else:
                 return False
     return False
-

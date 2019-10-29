@@ -1,21 +1,23 @@
-from ogc_utility import *
+import ogc_utility as ogc_util
 import pprint
+import json
 from json import JSONDecoder, JSONDecodeError
 import re
 from creation_utilities import create_records_file
 from evaluator_package.environments import default_env
 import copy
 from . import evaluating_conditions_decorator as conditions
-from . import selection_parser
+from . import selection_parser as sel_par
 from . import exceptions as exception
 from . import sql_mode as sql
+import connection_config as conn_conf
 
 
 @conditions.needed_fields(at_least_one_field=[], critical_failures_resistant=False)
 def connection_test(evaluator):
     """Tests the connection on the currently defined GOST address"""
 
-    if not connection_config.test_connection(evaluator.environment.GOST_address, False):
+    if not conn_conf.test_connection(evaluator.environment.GOST_address, False):
         print("Network error, failed connection")
         evaluator.environment["critical_failure"].append("failed connection "
                                                          "to " + evaluator.environment["GOST_address"][:-5])
@@ -31,7 +33,7 @@ def delete(evaluator):
 
     if evaluator.environment["selected_items"]:  # deleting selected items
         warning_message = f"You are going to delete the {evaluator.args.ogc} " \
-            f"with the following name (if available) and id:\n"   # creation of warning message
+                          f"with the following name (if available) and id:\n"  # creation of warning message
         for x in evaluator.environment["selected_items"]:
             try:
                 if "error" in x:
@@ -57,7 +59,7 @@ def delete(evaluator):
                         if "error" in x:
                             evaluator.environment["non_critical_failures"].append(x["error"])
                         elif "@iot.id" in x:
-                            result = delete_item(x.get("@iot.id"), evaluator.args.ogc, evaluator.environment)
+                            result = ogc_util.delete_item(x.get("@iot.id"), evaluator.args.ogc, evaluator.environment)
                             conditions.add_result(evaluator, result, "results")
                     except AttributeError as attr:
                         print("missing" + attr)
@@ -124,12 +126,12 @@ def get_command_line(evaluator):
 def patch(evaluator):
     """Patches the selected fields of the selected items with the selected values
     """
-    patches = args_to_dict(evaluator.args.patch)
+    patches = ogc_util.args_to_dict(evaluator.args.patch)
     if bool(evaluator.environment["selected_items"]):
         for x in evaluator.environment["selected_items"]:
             if evaluator.environment["selected_items"]:  # patching selected items
                 warning_message = f"You are going to patch the {evaluator.args.ogc} " \
-                    f"with the following name (if available) and id:\n"  # creation of warning message
+                                  f"with the following name (if available) and id:\n"  # creation of warning message
                 for x in evaluator.environment["selected_items"]:
                     try:
                         if "error" in x:
@@ -174,8 +176,8 @@ def patch(evaluator):
                                             evaluator.environment["critical_failures"].append(
                                                 {"error": f"invalid attribute name: {key}"})
                                             return False
-                                    result = patch_item(patches, str(x.get("@iot.id")), evaluator.args.ogc,
-                                                        evaluator.environment)
+                                    result = ogc_util.patch_item(patches, str(x.get("@iot.id")), evaluator.args.ogc,
+                                                                 evaluator.environment)
                                     conditions.add_result(evaluator, result, "results")
                             except AttributeError as attr:
                                 print("missing" + attr)
@@ -193,7 +195,7 @@ def ping(evaluator):
     """Tests the connection, used for when id is explicitly asked by the user"""
 
     if evaluator.environment["GOST_address"]:
-        connection_config.test_connection(evaluator.environment["GOST_address"][:-5], verbose=True)
+        conn_conf.test_connection(evaluator.environment["GOST_address"][:-5], verbose=True)
     else:
         evaluator.environment["non_critical_failures"].append("GOST address undefined, ping not possible")
 
@@ -222,7 +224,7 @@ def post(evaluator):
                     yield obj
 
             for obj in decode_stacked(json_file.read()):
-                result = add_item(obj, evaluator.args.ogc)
+                result = ogc_util.add_item(obj, evaluator.args.ogc)
                 json_result = json.loads((result.data).decode('utf-8'))
                 conditions.add_result(evaluator, json_result, "results")
 
@@ -233,7 +235,6 @@ def related_items(evaluator):
     If the currently selected item is a datastream, will be found the items of the choosen type related to
     that datastream"""
     result = []
-
     if evaluator.args.ogc == "Datastreams":
         if evaluator.args.related[0] == "Datastreams":
             evaluator.environment["critical_failure"].append({"error": "trying to found "
@@ -266,7 +267,7 @@ def related_items(evaluator):
         # inside "related" command
         selection_rules = evaluator.args.related[2:]
         for item in evaluator.environment["selected_items"]:
-            matching = selection_parser.select_parser(selection_rules, item)
+            matching = sel_par.select_parser(selection_rules, item)
             if not matching:
                 pass
             elif isinstance(matching, dict):
@@ -278,7 +279,7 @@ def related_items(evaluator):
         evaluator.environment["selected_items"] = temp_list
 
     evaluator.args.ogc = evaluator.args.related[0]  # change the selected items type to the result type
-        # for future operations
+    # for future operations
 
 
 @conditions.needed_fields(at_least_one_field=["select"], critical_failures_resistant=False, needed_items=True)
@@ -312,13 +313,13 @@ def select_result_fields(evaluator):
                     x[show_field] = "ERROR: field not available"
 
 
-@conditions.needed_fields(no_fields=["GOSTaddress"],at_least_one_field=[],
+@conditions.needed_fields(no_fields=["GOSTaddress"], at_least_one_field=[],
                           all_mandatory_fields=[], critical_failures_resistant=False)
 def saved_address(evaluator):
     """Checks if there is a saved address, and tries to connect to it.
     This method is intended only for the first evaluation of the session"""
 
-    evaluator.environment["GOST_address"] = connection_config.set_GOST_address()
+    evaluator.environment["GOST_address"] = conn_conf.set_GOST_address()
     if not evaluator.environment["GOST_address"]:
         evaluator.environment["critical_failures"].append("error: GOST address missing or not working")
 
@@ -376,7 +377,7 @@ def template(evaluator):
     for line in template_lines:
         template_string += line + " "
     template_dict = json.loads(template_string)
-    creation_values = args_to_dict(evaluator.args.create)
+    creation_values = ogc_util.args_to_dict(evaluator.args.create)
 
     for key in creation_values:
         template_dict[key] = creation_values[key]
@@ -395,18 +396,18 @@ def user_defined_address(evaluator, verbose=True):
     If it possible, sets the GOST address to the new address, otherwise asks the user if he
     wants to select a different address or wants to keep the non working address"""
 
-    working_conn = connection_config.test_connection((evaluator.args.GOSTaddress)[:-5])
+    working_conn = conn_conf.test_connection((evaluator.args.GOSTaddress)[:-5])
     if working_conn:
-        valid_conn = connection_config.set_GOST_address(evaluator.args.GOSTaddress)
+        valid_conn = conn_conf.set_GOST_address(evaluator.args.GOSTaddress)
         evaluator.environment["GOST_address"] = valid_conn
     else:
         warning_message = f"The selected GOST address is not working, " \
-            f"do you want to set it as your address or want to change it?\n" \
-            f"'y' to set the currently provided address\n'ch' to set a new address\n" \
-            f"'n' to mantain the old address:\n"  # creation of warning message
+                          f"do you want to set it as your address or want to change it?\n" \
+                          f"'y' to set the currently provided address\n'ch' to set a new address\n" \
+                          f"'n' to mantain the old address:\n"  # creation of warning message
         proceed = input(warning_message)
         if proceed == "y":
-            valid_conn = connection_config.set_GOST_address(evaluator.args.GOSTaddress)
+            valid_conn = conn_conf.set_GOST_address(evaluator.args.GOSTaddress)
             evaluator.environment["GOST_address"] = valid_conn
         elif proceed == "ch":
             new_address = input("Insert new address:\n")
@@ -414,7 +415,7 @@ def user_defined_address(evaluator, verbose=True):
             user_defined_address(evaluator)
 
         else:
-            evaluator.environment["GOST_address"] = connection_config.set_GOST_address()
+            evaluator.environment["GOST_address"] = conn_conf.set_GOST_address()
             if not evaluator.environment["GOST_address"]:
                 evaluator.environment["critical_failures"].append("error: GOST address not defined")
 
@@ -439,7 +440,7 @@ def exec_file(evaluator):
 def create(evaluator):
     """Create records in a file"""
 
-    result = create_records_file(args_to_dict(evaluator.args.create))
+    result = create_records_file(ogc_util.args_to_dict(evaluator.args.create))
     if result["errors"]:
         evaluator.environment["non_critical_failures"] += result["errors"]
     if evaluator.args.show:
@@ -474,11 +475,11 @@ def related_datastreams(id, type, base_address):
     """Returns a list of all the datastreams related with the item with id = id and type = type"""
 
     related_datastreams_address = f"{base_address}/{type}({id})/Datastreams"
-    result = get(sending_address=related_datastreams_address)
+    result = conditions.get(sending_address=related_datastreams_address)
     if not bool(result):
         related_datastreams_address = f"{base_address}/{type}({id})/Datastream"  # for some type of entities
-                                                                        # like Observations GOST remove the final 's'
-        result = get(sending_address=related_datastreams_address)
+        # like Observations GOST remove the final 's'
+        result = conditions.get(sending_address=related_datastreams_address)
     return result
 
 
@@ -495,10 +496,10 @@ def match(first_list, second_list, attribute_name):
 def get_entities_from_datastream(datastream, entity_type, base_address):
     """Returns a list of all the entities of type entity_type related to datastream"""
     address = f"{base_address}/Datastreams({datastream['@iot.id']})/{entity_type}"
-    result = get(sending_address=address)
+    result = conditions.get(sending_address=address)
     if not bool(result):
         address = address[:-1]  # for some type if entities the removal of final -s is needed
-        result = get(sending_address=address)
+        result = conditions.get(sending_address=address)
 
     return result
 
@@ -517,7 +518,7 @@ def remove_duplicates_by_key(list_to_clear, key_name):
     return result_list
 
 
-def key_warning(patches_dictionary, item, key, originally_wrong_key = False):
+def key_warning(patches_dictionary, item, key, originally_wrong_key=False):
     """It warns if the key the user is trying to patch doesn't exist"""
     key_user_warning = input(f"You are trying to patch the field {key} but it does not exists,\n "
                              f"do you want to:\n "

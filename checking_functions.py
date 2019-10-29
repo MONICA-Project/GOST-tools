@@ -1,9 +1,8 @@
 import requests
 import connection_config
-import urllib.parse as urlparse
+import evaluator_package.evaluating_conditions_decorator as eval_cond
 
-
-#def get_all(ogc_name=None, environment=None, payload=None, sending_address=False):
+# def get_all(ogc_name=None, environment=None, payload=None, sending_address=False):
 #    """sends a GET request for the list of all OGC items of ogcName type
 #    Returns an array of Ogc items in form of a dictionary
 #    """
@@ -35,7 +34,6 @@ import urllib.parse as urlparse
 #        if any(response):
 #            result.append(response)
 #    return result
-from evaluator_package.evaluating_conditions_decorator import get
 
 
 def get_item_by_name(ogc_name, environment, name, sending_address):
@@ -59,7 +57,7 @@ def get_item_by_name(ogc_name, environment, name, sending_address):
 
 def item_is_already_present(name, type):
     """check if an item with given name is already present"""
-    if get(ogc_type=type, ogc_name=name):
+    if eval_cond.get(ogc_type=type, ogc_name=name):
         return "Item with name " + name + " is already present"
     else:
         return False

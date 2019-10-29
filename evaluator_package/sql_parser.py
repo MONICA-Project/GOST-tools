@@ -1,9 +1,7 @@
 import copy
-
-from jinja2 import environment
-
+# from jinja2 import environment
 from evaluator_package.evaluating_conditions_decorator import get
-from evaluator_package.environments import default_env
+# from evaluator_package.environments import default_env
 
 """Implemented Grammar:
 S    -> (S) S_1 | a_1 S_1 | not (S) S_1
@@ -204,18 +202,35 @@ def join(left_result, right_result, conditions, left_ogc, right_ogc, left_name, 
     """It join the 'left_result' with 'right_result'"""
     final_result = []
     left = []
-    if any("Datastreams" in c for c in conditions):
+    partial_result = []
+    x = any("Datastreams" in c for c in conditions)
+    y = any("Sensors" in c for c in conditions)
+    z = any("Things" in c for c in conditions)
+    if x or y or z:
         i = 0
         for l in left_result:
-            ogc = left_ogc + "(" + str(l["["+left_name+"]"+"@iot.id"]) + ")" + "/Datastreams"
-            left[i] = get(ogc)
+            if x:
+                address = l["["+left_name+"]" + "Datastreams@iot.navigationLink"]
+            elif y:
+                address = l["["+left_name+"]" + "Sensors@iot.navigationLink"]
+            elif z:
+                address = l["["+left_name+"]" + "Things@iot.navigationLink"]
+            left[i] = get(sending_address=address)
+            for r in right_result:
+                j = 0
+                if left[i]["@iot.selfLink"] == r["@iot.selfLink"]:
+                    partial_result[j] += r
+                    if l[i] not in final_result:
+                        final_result += l[i]
+                j += 1
             i += 1
-
-    for l in left_result:
-        comparison = compare(l, right_result, conditions)
-        if bool(comparison):
-            final_result += comparison
+            final_result += partial_result
     return final_result
+    # for l in left_result:
+    #    comparison = compare(l, right_result, conditions)
+    #    if bool(comparison):
+    #        final_result += comparison
+    # return final_result
 
 
 def compare(left_entity, right_results, conditions):

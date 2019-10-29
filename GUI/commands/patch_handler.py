@@ -1,4 +1,6 @@
-from GUI.gui_utilities import *
+import GUI.gui_utilities as gui_ut
+# from checking_functions import item_is_already_present
+import ogc_utility as ogc_util
 
 
 class PatchView:
@@ -19,64 +21,64 @@ class PatchView:
 
         main_view.current_command_view = self
 
-        types_menu_description = Label(main_view.main_area, text="Select OGC entity type (mandatory field)")
+        types_menu_description = gui_ut.Label(main_view.main_area, text="Select OGC entity type (mandatory field)")
         self.view_elements.append({"item":types_menu_description, "row": 0, "column": 0})
 
-        self.selected_type = StringVar(main_view.main_area)
-        types = get_ogc_types()
+        self.selected_type = gui_ut.StringVar(main_view.main_area)
+        types = gui_ut.get_ogc_types()
         self.selected_type.set("Select an OGC type")
 
         self.selected_type.trace("w", self.show_options)
 
-        types_menu = OptionMenu(main_view.main_area, self.selected_type, *types)
+        types_menu = gui_ut.OptionMenu(main_view.main_area, self.selected_type, *types)
         self.view_elements.append({"item":types_menu, "row": 0, "column" : 1})
 
-        select_introduction = Label(main_view.main_area, text="Select the items to Patch")
+        select_introduction = gui_ut.Label(main_view.main_area, text="Select the items to Patch")
         self.view_elements.append({"item": select_introduction, "row": 1, "column" : 1, "name" : "select_introduction"})
 
-        selected_identifiers_description = Label(main_view.main_area, text=select_id_text)
+        selected_identifiers_description = gui_ut.Label(main_view.main_area, text=gui_ut.select_id_text)
 
         self.view_elements.append({"item":selected_identifiers_description, "row": 2, "column" : 0,
                                    "name": "selected_identifiers_description"})
-        self.selected_identifiers = Entry(main_view.main_area, width=10)
+        self.selected_identifiers = gui_ut.Entry(main_view.main_area, width=10)
         self.view_elements.append({"item": self.selected_identifiers, "row": 2, "column" : 1,
                                    "name": "selected_identifiers"})
 
-        selected_boolean_expression_description = Label(main_view.main_area, text=select_conditions_text)
+        selected_boolean_expression_description = gui_ut.Label(main_view.main_area, text=gui_ut.select_conditions_text)
         self.view_elements.append({"item":selected_boolean_expression_description, "row": 3, "column" : 0,
                                    "name" : "selected_boolean_expression_description"})
-        self.selected_boolean_expression = Entry(main_view.main_area, width=50)
+        self.selected_boolean_expression = gui_ut.Entry(main_view.main_area, width=50)
         self.view_elements.append({"item":self.selected_boolean_expression, "row": 3, "column" : 1,
                                    "name": "selected_boolean_expression"})
 
-        populate(self.view_elements, self.main_view.main_area)
+        gui_ut.populate(self.view_elements, self.main_view.main_area)
 
     def hide(self):
         for i in self.view_elements:
             i["item"].grid_forget()
 
     def show_options(self, a, b, c):  # additional parameters a b c needed because it is called by Trace function
-        clear_results(self)
+        gui_ut.clear_results(self)
 
-        self.patch_btn = Button(self.main_view.main_area, text="Patch the selected items\nwith the following values:\n"
-                                                               "(empty fields will be filled with default values)",
-                                                               command=lambda: patch(self), bg=action_color)
+        self.patch_btn = gui_ut.Button(self.main_view.main_area, text="Patch the selected items\nwith the following values:\n"
+                                                               "(empty fields will not be modified)",
+                                                               command=lambda: patch(self), bg=gui_ut.action_color)
         self.view_elements.append({"item": self.patch_btn, "row": 5, "column": 1, "name": "patching_button"})
 
         clear_old_patch_values(self)
 
         set_patches_fields(self)
 
-        populate(self.view_elements, self.main_view.main_area)
+        gui_ut.populate(self.view_elements, self.main_view.main_area)
 
 
 def set_patches_fields(self):
     row = 7
-    field_names = get_fields_names(self.selected_type.get(), needed_for_editing=True)
+    field_names = gui_ut.get_fields_names(self.selected_type.get(), needed_for_editing=True)
     for item in field_names:
-        temp_label = Label(self.main_view.main_area, text=item)
+        temp_label = gui_ut.Label(self.main_view.main_area, text=item)
         self.view_elements.append({"item": temp_label, "row": row, "column": 0, "name": "patch_field_name"})
-        temp_entry = Entry(self.main_view.main_area, width=50)
+        temp_entry = gui_ut.Entry(self.main_view.main_area, width=50)
         self.view_elements.append({"item": temp_entry, "row": row, "column": 1, "name": "patch_field_value"})
         row += 1
         self.patch_values.append({"field_name": item, "field_entry": temp_entry})
@@ -104,24 +106,24 @@ def patch(self):
     if patch_values_not_available(self):
         pass
     else:
-        clear_results(self)
-        self.selected_items = get_items(self)
+        gui_ut.clear_results(self)
+        self.selected_items = gui_ut.get_items(self)
 
-        if len(self.selected_items) > 1 and name_in_patch(self.patch_values):  # control to avoid to patch two items
+        if len(self.selected_items) > 1 and gui_ut.name_in_patch(self.patch_values):  # control to avoid to patch two items
                                                                                # with the same name
-            messagebox.showinfo("ERROR", "Trying to patch multiple items with the same name\nItems not patched")
+            gui_ut.messagebox.showinfo("ERROR", "Trying to patch multiple items with the same name\nItems not patched")
         else:
             if self.selected_items != "error":
-                self.result = scrollable_results(self.selected_items, self.main_view.main_area)
+                self.result = gui_ut.scrollable_results(self.selected_items, self.main_view.main_area)
 
                 self.view_elements.append({"item": self.result, "row": 1, "column": 1, "name" : "result"})
-                self.patch_btn.config(text = "Click here to confirm \nthe Patching of the selected elements",
-                                       command = lambda : confirm_patching(self))
-                self.abort_patch_btn = Button(self.main_view.main_area, text="Click here to abort the patching",
+                self.patch_btn.config(text="Click here to confirm \nthe Patching of the selected elements",
+                                       command=lambda : confirm_patching(self))
+                self.abort_patch_btn = gui_ut.Button(self.main_view.main_area, text="Click here to abort the patching",
                                                   command=lambda: abort_patching(self),  bg='#ff502f')
                 self.view_elements.append({"item": self.abort_patch_btn, "row": 6, "column": 1,
                                            "name": "abort_patching_button"})
-                populate(self.view_elements, self.main_view.main_area)
+                gui_ut.populate(self.view_elements, self.main_view.main_area)
 
                 indexes_to_delete = []  # Deleting select item fields from the view
                 for index, val in enumerate(self.view_elements):
@@ -135,7 +137,7 @@ def patch(self):
 
             for i in self.patch_values:
                 if bool(i["field_entry"].get()):
-                    i["field_entry"].config(state=DISABLED)
+                    i["field_entry"].config(state=gui_ut.DISABLED)
                 else:
                     i["field_entry"].grid_forget()
 
@@ -153,13 +155,13 @@ def confirm_patching(self):
     for i in self.selected_items:
         if "@iot.id" in i:
             if ("name" in patches) \
-                    and bool(item_is_already_present(patches["name"], self.selected_type.get())):  # checking
+                    and bool(ogc_util.check.item_is_already_present(patches["name"], self.selected_type.get())):  # checking
             # for name duplicates
                 self.error_message += f"\nTrying to patch the item with id {i['@iot.id']} name " \
                     f"with {patches['name']}, but that name is already present.\n" \
                     f"patching of the selected item aborted\n"
             else:
-                patch_result = patch_item(patches, str(i.get("@iot.id")), self.selected_type.get(), address=address)
+                patch_result = ogc_util.patch_item(patches, str(i.get("@iot.id")), self.selected_type.get(), address=address)
                 if "error" in patch_result:
                     self.error_message += f"\n{patch_result['error']} \n"
                 else:
@@ -176,11 +178,11 @@ def confirm_patching(self):
         self.view_elements[i]["item"].grid_forget()
         del self.view_elements[i]
 
-    populate(self.view_elements, self.main_view.main_area)
+    gui_ut.populate(self.view_elements, self.main_view.main_area)
     if bool(self.error_message):
-        messagebox.showinfo("ERROR", self.error_message)
+        gui_ut.messagebox.showinfo("ERROR", self.error_message)
     if patched_items:
-        messagebox.showinfo("Patch", "PATCH CONFIRMED")
+        gui_ut.messagebox.showinfo("Patch", "PATCH CONFIRMED")
 
     patch_finished(self)
 
@@ -198,9 +200,9 @@ def abort_patching(self):
         self.view_elements[i]["item"].grid_forget()
         del self.view_elements[i]
 
-    clear_results(self)
-    populate(self.view_elements, self.main_view.main_area)
-    messagebox.showinfo("Patch", "PATCH ABORTED")
+    gui_ut.clear_results(self)
+    gui_ut.populate(self.view_elements, self.main_view.main_area)
+    gui_ut.messagebox.showinfo("Patch", "PATCH ABORTED")
 
     patch_finished(self)
 
@@ -213,7 +215,7 @@ def clear_patches(self):
 
 def patch_finished(self):
     clear_patches(self)
-    clear_results(self)
+    gui_ut.clear_results(self)
     clear_old_patch_values(self)
     set_patches_fields(self)
     self.selected_type.set("Select an OGC type")

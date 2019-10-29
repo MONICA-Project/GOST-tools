@@ -1,15 +1,14 @@
-import ogc_utility
 from evaluator_package import selection_parser
-from evaluator_package.selection_expression_validator import select_parser_validator, is_field
-from evaluator_package.selection_parser import tokenize_parentheses
-from . import evaluator_utilities
-from ogc_utility import *
+from evaluator_package.selection_expression_validator import is_field
+# from evaluator_package.selection_parser import tokenize_parentheses
+from . import evaluator_utilities as eval_util
+import ogc_utility as ogc_util
 import requests
 import shlex
 from evaluator_package.environments import default_env
 from . import selection_expression_validator
 import urllib.parse as urlparse
-import connection_config
+import connection_config as conn_conf
 
 
 def needed_fields(no_fields=None, at_least_one_field=None,
@@ -72,7 +71,7 @@ def needed_fields(no_fields=None, at_least_one_field=None,
 
             if required_at_least_confirmed and required_all_confirmed:
                 if bool(needed_ogc):
-                    if not evaluator_utilities.check_and_fix_ogc(evaluator):
+                    if not eval_util.check_and_fix_ogc(evaluator):
                         evaluator.environment["critical_failures"].append([{"error": "ogc type not defined"}])
                         return False
                 if bool(needed_items):
@@ -104,10 +103,11 @@ def get_items(current_evaluator):
     if not bool(current_evaluator.environment["selected_items"]):  # necessary to avoid getting items more than one time
         if bool(current_evaluator.args.identifier):
             for i in current_evaluator.args.identifier:
-                get_result = get_item(identifier=i, ogc_type=current_evaluator.args.ogc, environment=current_evaluator.environment)
+                get_result = ogc_util.get_item(identifier=i, ogc_type=current_evaluator.args.ogc,
+                                               environment=current_evaluator.environment)
                 add_result(current_evaluator, get_result, field_name="selected_items")
         else:
-            result = evaluator_utilities.check_and_fix_ogc(current_evaluator)
+            result = eval_util.check_and_fix_ogc(current_evaluator)
             if not result:
                 return False
             if current_evaluator.args.select:
@@ -124,7 +124,8 @@ def get_items(current_evaluator):
         #    evaluator_utilities.check_name_duplicates(current_evaluator, "selected_items")
 
 
-def get(ogc_type=None, environment=None, payload=None, sending_address=False, select_query=None, ogc_name=None, show=None):
+def get(ogc_type=None, environment=None, payload=None, sending_address=False, select_query=None, ogc_name=None,
+        show=None):
     result = []
     b = 0  # counter of the element in select_query
     c = 0  # flag to check if the " ' " is open
@@ -136,8 +137,10 @@ def get(ogc_type=None, environment=None, payload=None, sending_address=False, se
         gost_address = environment["GOST_address"]
         sending_address = gost_address + "/" + ogc_type
     elif not sending_address:
-        gost_address = connection_config.get_address_from_file()
+        gost_address = conn_conf.get_address_from_file()
         sending_address = gost_address + "/" + ogc_type
+    if not select_query and not show and ogc_name:
+        sending_address = gost_address + "/" + ogc_type + "?$filter=name eq '" + ogc_name + "'"
     if select_query and not show:
         sending_address = gost_address + "/" + ogc_type + "?$filter="
         for d in select_query:
@@ -145,7 +148,7 @@ def get(ogc_type=None, environment=None, payload=None, sending_address=False, se
                 sending_address += d
                 b += 1
             if is_field(d) and z == 0:
-                if d is '@iot.id':
+                if d == '@iot.id':
                     sending_address += "id"
                     z = 1
                 else:
@@ -196,7 +199,7 @@ def get(ogc_type=None, environment=None, payload=None, sending_address=False, se
         n = 0
         if len(show) > 1:
             for f in show:
-                if n == len(show)-1:
+                if n == len(show) - 1:
                     sending_address += f
                 else:
                     sending_address += f + ","
@@ -283,7 +286,7 @@ def check_user_defined_arguments(evaluator, all_mandatory_fields, at_least_one_f
         at_least_one = []
     # checking options requiring user-provided values
     for i in needed_additional_argument:
-        if evaluator.args.__dict__[i] == ["MISSING_USER_DEFINED_VALUE"] or (not bool(evaluator.args.__dict__[i]) \
+        if evaluator.args.__dict__[i] == ["MISSING_USER_DEFINED_VALUE"] or (not bool(evaluator.args.__dict__[i])\
                                                                             and (
                                                                                     i in mandatory_fields or i in at_least_one or i in needed_additional_argument)):
             help_string = ""
