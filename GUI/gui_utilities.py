@@ -90,7 +90,7 @@ def get_items(self, b=False):
                 else:
                     selected_items.append(item)
 
-        else:
+        elif (not bool(self.selected_boolean_expression.get())) and (not bool(self.selected_identifiers.get())) and (self.related_type.get() == "No related OGC type"):
             selected_items = eval_cond.get(self.selected_type.get())
 
         if bool(self.selected_boolean_expression.get()):  # filtering the results
@@ -107,14 +107,10 @@ def get_items(self, b=False):
             #            selected_items.remove(single_item)
             #if len(selected_items) == 0:
             #    error_message += f"\nNo items found with select statement conditions\n"
+        elif bool(self.selected_type.get()):
+            selected_items = eval_cond.get(self.selected_type.get())
         if b:
-            if self.related_type.get() != "Select an OGC type":
-                # print(type(self.related_type.get()))
-                # evaluator = eval.EvaluatorClass(args=sys.argv[1:], single_command=True)
-                # evaluator.init()
-                # evaluator.args.ogc = self.selected_type.get()
-                # evaluator.args.related = self.related_type.get()
-                # evaluator.evaluate()
+            if self.related_type.get() != "No related OGC type" and bool(self.selected_type.get()):
                 partial_items = []
                 partial_items += related_elements(self, selected_items)
                 selected_items = partial_items
@@ -207,7 +203,7 @@ def get_fields_names(ogc_type, needed_for_editing=False):
 def get_ogc_types(b=None):
     if b:
         return {"Sensors", "Things", "Datastreams", "Locations", "ObservedProperties", "Observations",
-                "FeaturesOfInterest", "Select an OGC type"}
+                "FeaturesOfInterest", "No related OGC type"}
     else:
         return {"Sensors", "Things", "Datastreams", "Locations", "ObservedProperties", "Observations",
                 "FeaturesOfInterest",}

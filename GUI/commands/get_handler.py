@@ -50,7 +50,7 @@ class GetView:
 
         self.related_type = gui_ut.StringVar(main_view.main_area)
         types = gui_ut.get_ogc_types(True)
-        self.related_type.set("Select an OGC type")
+        self.related_type.set("No related OGC type")
 
         self.related_type.trace("w", self.show_options)
 
@@ -70,7 +70,10 @@ class GetView:
     def show_options(self, a, b, c):  # additional parameters a b c needed because it is called by Trace function
         gui_ut.clear_results(self)
 
-        field_names = gui_ut.get_fields_names(self.selected_type.get())
+        if self.related_type.get() != "No related OGC type":
+            field_names = gui_ut.get_fields_names(self.related_type.get())
+        elif self.related_type.get() == "No related OGC type":
+            field_names = gui_ut.get_fields_names(self.selected_type.get())
 
         self.show_fields = gui_ut.Listbox(self.main_view.main_area, selectmode=gui_ut.MULTIPLE)
 

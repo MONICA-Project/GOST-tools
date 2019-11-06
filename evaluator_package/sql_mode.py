@@ -16,12 +16,14 @@ def evaluate(evaluator):
 
     left_result = None
     right_result = None
+    left_ogc = None
+    right_ogc = None
     try:
         left_side = parsed_values["left_side"]
         # left_side += ["--silent"]
-        evaluatorl = EvaluatorClass(left_side)
-        left_result = evaluatorl.evaluate()["results"]
-        left_ogc = evaluatorl.args.ogc
+        left_evaluator = EvaluatorClass(left_side)
+        left_result = left_evaluator.evaluate()["results"]
+        left_ogc = left_evaluator.args.ogc
     except SystemExit as e:
         if e.code == 0:
             pass
@@ -33,9 +35,9 @@ def evaluate(evaluator):
     try:
         right_side = parsed_values["right_side"]
         # right_side += ["--silent"]
-        evaluatorr = EvaluatorClass(right_side)
-        right_result = evaluatorr.evaluate()["results"]
-        right_ogc = evaluatorr.args.ogc
+        right_evaluator = EvaluatorClass(right_side)
+        right_result = right_evaluator.evaluate()["results"]
+        right_ogc = right_evaluator.args.ogc
     except SystemExit as e:
         if e.code == 0:
             pass
@@ -49,8 +51,6 @@ def evaluate(evaluator):
     left_name = parsed_values['left_name']
     right = sql_pars.append_name_to_key(right_result, parsed_values['right_name'])
     right_name = parsed_values['right_name']
-    result = sql_pars.join(left, right, parsed_values["join_conditions"], left_ogc, right_ogc, left_name, right_name)
-
+    result = sql_pars.join(left, right, parsed_values["join_conditions"], left_name, right_name)
     show_result = sql_pars.show_filter(result, parsed_values['show'])
-
     return show_result

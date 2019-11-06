@@ -125,7 +125,7 @@ def get_items(current_evaluator):
 
 
 def get(ogc_type=None, environment=None, payload=None, sending_address=False, select_query=None, ogc_name=None,
-        show=None, username=None, password=None):
+        show=None, username="scral", password="A5_xYY#HqNiao_12#b"):
     result = []
     b = 0  # counter of the element in select_query
     c = 0  # flag to check if the " ' " is open

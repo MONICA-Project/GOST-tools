@@ -352,9 +352,14 @@ def show_results(evaluator):
     if bool(evaluator.environment["selected_items"]):  # final check for selected items not sent to result
         evaluator.environment["results"] = copy.deepcopy(evaluator.environment["selected_items"])
     if evaluator.environment["results"]:
-        pp = pprint.PrettyPrinter(indent=4)
-        for x in evaluator.environment["results"]:
-            pp.pprint(x)
+        if type(evaluator.environment["results"]) == dict:
+            pp = pprint.PrettyPrinter(indent=4)
+            for x in evaluator.environment["results"].items():
+                pp.pprint(x)
+        else:
+            pp = pprint.PrettyPrinter(indent=4)
+            for x in evaluator.environment["results"]:
+                pp.pprint(x)
         print(str(len(evaluator.environment["results"])) + " results found\n")
 
 

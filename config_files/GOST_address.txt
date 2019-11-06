@@ -1,1 +1,1 @@
-http://monappdwp3.monica-cloud.eu:8107/v1.0
+https://portal.monica-cloud.eu/gost_movida/v1.0

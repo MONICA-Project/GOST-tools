@@ -51,12 +51,11 @@ class View:
         self.port_button = gui_ut.Button(self.top_bar, text="Change port number",
                                          command=lambda: change_port_number(self), bg=gui_ut.change_address_color)
         self.ping_button = gui_ut.Button(self.top_bar, text="Ping Connection",
-                                         command=lambda: ping_connection(self, self.model.GOST_address),
+                                         command=lambda: ping_connection(self, self.model.GOST_address, True),
                                          bg=gui_ut.change_address_color)
         self.ping_button.grid(row=0, column=5)
         self.address_preview.grid(row=0, column=0)
         self.port_button.grid(row=0, column=4)
-
 
         button_height = int(int(self.height) / 99)
         button_width = int(int(self.width) / 40)
@@ -201,6 +200,8 @@ def change_port_number(self):
                                "name": "new_port_button"})
     self.new_port_entry.grid(row=0, column=1)
     self.confirm_port_button.grid(row=0, column=2)
+    self.address_preview.configure(text=f"Current GOST address: {self.model.GOST_address} "
+                                        f"\nclick here to change address")
     gui_ut.populate(self.view_elements, self.main_area)
 
 

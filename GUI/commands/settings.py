@@ -17,20 +17,20 @@ class SettingsView:
         else:
             current_address = "[Current GOST address is not working]"
 
-        change_address_description = Label(self.main_view.main_area, text=f"Insert a new address\n"
+        self.change_address_description = Label(self.main_view.main_area, text=f"Insert a new address\n"
                                 f"format: http://x.x.x.x:port_number/v1.0\n{current_address}")
-        self.view_elements.append({"item": change_address_description, "row": 1, "column": 0})
-        change_port_description = Label(self.main_view.main_area, text=f"Insert a new port")
-        self.view_elements.append({"item": change_port_description, "row": 3, "column": 0})
+        self.view_elements.append({"item": self.change_address_description, "row": 1, "column": 0})
+        self.change_port_description = Label(self.main_view.main_area, text=f"Insert a new port")
+        self.view_elements.append({"item": self.change_port_description, "row": 3, "column": 0})
         self.new_port = Entry(self.main_view.main_area, width=40)
         self.new_port.insert(0, conn_conf.try_port(take=1))
         self.new_address = Entry(self.main_view.main_area, width=40)
         self.new_address.insert(0, self.main_view.model.GOST_address)
-        self.view_elements.append({"item": self.new_address, "row": 1, "column" : 2})
+        self.view_elements.append({"item": self.new_address, "row": 1, "column": 2})
         self.view_elements.append({"item": self.new_port, "row": 3, "column": 2})
         self.confirm_address_button = gui_ut.Button(self.main_view.main_area, text="Confirm change",
                                              command=lambda: change_address(self), bg=gui_ut.action_color)
-        self.view_elements.append({"item": self.confirm_address_button, "row": 1, "column" : 3})
+        self.view_elements.append({"item": self.confirm_address_button, "row": 1, "column": 3})
         self.confirm_port_button = gui_ut.Button(self.main_view.main_area, text="Confirm change",
                                              command=lambda: conn_conf.try_port(self, self.new_port.get(), b=1), bg=gui_ut.action_color)
         self.view_elements.append({"item": self.confirm_port_button, "row": 3, "column": 3})
@@ -44,11 +44,17 @@ class SettingsView:
             i["item"].grid_forget()
 
 
-def ping_connection(self, gost_address):
-    if conn_conf.test_connection(gost_address):
-        gui_ut.messagebox.showinfo("OK", "Server is reachable")
+def ping_connection(self, gost_address, b=FALSE):
+    if b:
+        if conn_conf.test_connection(gost_address):
+            gui_ut.messagebox.showinfo("OK", "Server is reachable at " + gost_address)
+        else:
+            gui_ut.messagebox.showinfo("Error", "Address" + gost_address + "is not valid!")
     else:
-        gui_ut.messagebox.showinfo("Error", "invalid Address")
+        if conn_conf.test_connection(gost_address):
+            gui_ut.messagebox.showinfo("OK", "Server is reachable at " + gost_address)
+        else:
+            gui_ut.messagebox.showinfo("Error", "Address" + gost_address + "is not valid!")
 
 
 def change_settings(view):

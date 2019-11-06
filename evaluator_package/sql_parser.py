@@ -198,39 +198,38 @@ def append_name_to_key(entities, name):
     return temp_result
 
 
-def join(left_result, right_result, conditions, left_ogc, right_ogc, left_name, right_name):
+def join(left_result, right_result, conditions, left_name, right_name):
     """It join the 'left_result' with 'right_result'"""
-    final_result = []
 
-    x = any("Datastreams" in c for c in conditions)
-    y = any("Sensors" in c for c in conditions)
-    z = any("Things" in c for c in conditions)
+    final_result = dict()
+    if any("@iot.navigationLink" in c for c in conditions):
+        if "@iot.navigationLink" in conditions[0]:
+            index = 0
+        else:
+            index = 2
 
-    if x or y or z:
-        i = 0
-        partial_result = []
+        if left_name in conditions[index]:
+            result = left_result
+            opposite = right_result
+        else:
+            result = right_result
+            opposite = left_result
+            right_name = left_name
 
-        for l in left_result:
-            address = None
-            if x:
-                address = l["["+left_name+"]" + "Datastreams@iot.navigationLink"]
-            elif y:
-                address = l["["+left_name+"]" + "Sensors@iot.navigationLink"]
-            elif z:
-                address = l["["+left_name+"]" + "Things@iot.navigationLink"]
-
+        for l in result:
+            address = l[conditions[index]]
             left = get(sending_address=address, username="scral", password="A5_xYY#HqNiao_12#b")
-            for r in right_result:
-                j = 0
-                if left[i]["@iot.selfLink"] == r["@iot.selfLink"]:
-                    partial_result.append(r)
-                    if l[i] not in final_result:
-                        final_result.append(l[i])
-                j += 1
-
-            i += 1
-            final_result += partial_result
-
+            if not left:
+                return final_result
+            i = 0
+            for l_result in left:
+                for r in opposite:
+                    partial_result = dict()
+                    if l_result["@iot.selfLink"] == r["[" + right_name+"]" + "@iot.selfLink"]:
+                        partial_result.update(l)
+                        partial_result.update(r)
+                        final_result[i] = partial_result
+                    i += 1
     return final_result
 
     # for l in left_result:
@@ -261,20 +260,18 @@ def single_compare(left, right, conditions):
 
 def show_filter(result, fields):
     """Return the corrispondent value to a key passed on the argument"""
-    show_result = []
-    temp_result_couple = []
-    temp_entity = {}
+    temp_result = dict()
+    i = 0
     for f in fields:
         if f == "all" or f == "*":
             return result
-    for couple in result:
+    for couple in result.values():
+        temp_entity = dict()
         for entity in couple:
-            for key in entity:
-                if key in fields:
-                    temp_entity[key] = entity[key]
-            temp_result_couple.append(copy.deepcopy(temp_entity))
-            temp_entity = {}
-        show_result.append(copy.deepcopy(temp_result_couple))
-        temp_result_couple = []
-    return show_result
+            if entity in fields:
+                temp_entity[entity] = couple[entity]
+        temp_result[i] = temp_entity
+        i += 1
+    return temp_result
+
 
