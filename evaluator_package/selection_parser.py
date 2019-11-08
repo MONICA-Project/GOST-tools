@@ -37,6 +37,52 @@ def select_parser(tokens, record=None):
         return result
 
 
+def S(tokens, record=None):
+    if tokens[0] == "(":
+        tokens.pop(0)
+        temp_result = S(tokens, record)
+        if tokens[0] == ")":
+            tokens.pop(0)
+            return S_1(tokens, temp_result, record)
+        else:
+            return parse_error(tokens[0])
+    elif tokens[0] == "not":
+        tokens.pop(0)
+        if tokens[0] == "(":
+            tokens.pop(0)
+            temp_result = not S(tokens, record)
+            if tokens[0] == ")":
+                tokens.pop(0)
+                return  S_1(tokens, temp_result, record)
+            else:
+                return parse_error(tokens[0])
+
+    elif is_field(tokens[0]) or is_value(tokens[0]) or tokens[0] == "not":
+        temp_result = a_1(tokens, record)
+        return S_1(tokens, temp_result, record)
+
+    else:
+        return parse_error(tokens[0])
+
+
+def S_1(tokens, previous_result, record = None):
+    if not(bool(tokens)):
+        return previous_result
+
+    elif tokens[0] == "and" or tokens[0] == "or":
+        temp_bool = tokens[0]
+        tokens.pop(0)
+        temp_result = S(tokens, record)
+        if temp_bool == "and":
+            temp_result = previous_result and temp_result
+        elif temp_bool == "or":
+            temp_result = previous_result or temp_result
+        return S_1(tokens, temp_result, record)
+    else:
+        return previous_result
+
+
+
 def a_1(tokens, record=None):
     if tokens[0] == "not":
         tokens.pop(0)

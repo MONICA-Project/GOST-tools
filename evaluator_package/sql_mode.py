@@ -16,14 +16,11 @@ def evaluate(evaluator):
 
     left_result = None
     right_result = None
-    left_ogc = None
-    right_ogc = None
     try:
         left_side = parsed_values["left_side"]
         # left_side += ["--silent"]
         left_evaluator = EvaluatorClass(left_side)
         left_result = left_evaluator.evaluate()["results"]
-        left_ogc = left_evaluator.args.ogc
     except SystemExit as e:
         if e.code == 0:
             pass
@@ -37,7 +34,6 @@ def evaluate(evaluator):
         # right_side += ["--silent"]
         right_evaluator = EvaluatorClass(right_side)
         right_result = right_evaluator.evaluate()["results"]
-        right_ogc = right_evaluator.args.ogc
     except SystemExit as e:
         if e.code == 0:
             pass

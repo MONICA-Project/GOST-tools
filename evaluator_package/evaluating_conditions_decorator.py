@@ -125,7 +125,7 @@ def get_items(current_evaluator):
 
 
 def get(ogc_type=None, environment=None, payload=None, sending_address=False, select_query=None, ogc_name=None,
-        show=None, username="scral", password="A5_xYY#HqNiao_12#b"):
+        show=None, username=None, password=None):
     result = []
     b = 0  # counter of the element in select_query
     c = 0  # flag to check if the " ' " is open
@@ -143,57 +143,68 @@ def get(ogc_type=None, environment=None, payload=None, sending_address=False, se
         sending_address = gost_address + "/" + ogc_type + "?$filter=name eq '" + ogc_name + "'"
     if select_query and not show:
         sending_address = gost_address + "/" + ogc_type + "?$filter="
-        for d in select_query:
-            if d is '(':
-                sending_address += d
-                b += 1
-            if is_field(d) and z == 0:
-                if d == '@iot.id':
-                    sending_address += "id"
-                    z = 1
-                else:
+        if "in" in select_query:
+            if "not" in select_query:
+                return select(items=get(ogc_type), select_query=select_query)
+            sending_address += "contains("
+            while select_query:
+                element = select_query.pop()
+                if is_field(element):
+                    sending_address += element + ", '"
+                elif not is_field(element) and element not in ["in", "not"]:
+                    sending_address += element + "')"
+        else:
+            for d in select_query:
+                if d is '(':
                     sending_address += d
-                    z = 1
-                b += 1
-            elif d in ["==", "lt", "le", "gt", "ge", "not", "<", "<=", ">", ">="]:
-                if d in ["=="]:
-                    sending_address += ' eq'
-                elif d in ["lt", "<"]:
-                    sending_address += ' lt'
-                elif d in ["le", "<="]:
-                    sending_address += ' le'
-                elif d in ["gt", ">"]:
-                    sending_address += ' gt'
-                elif d in ["ge", ">="]:
-                    sending_address += ' ge'
-                elif d in ["not"]:
-                    sending_address += ' ne'
-                sending_address += " '"
-                y = 0
-                b += 1
-                c = 1
-            elif d in ["and", "or"] and y == 0:
-                sending_address += "' " + d + " "
-                z = 0
-                b += 1
-            elif d in ["and", "or"] and y == 1:
-                sending_address += d + " "
-                z = 0
-                b += 1
-            elif (d in ")") and (b <= len(select_query) - 1):
-                sending_address += "'" + d + " "
-                b += 1
-                y += 1
-            elif b == len(select_query) - 1:
-                sending_address += str(d) + "'"
-                b += 1
-            elif b != 0 and b < len(select_query) - 1 and c == 0:
-                sending_address += " " + str(d)
-                b += 1
-            elif b != 0 and b < len(select_query) - 1 and c == 1:
-                sending_address += str(d)
-                b += 1
-                c = 0
+                    b += 1
+                if is_field(d) and z == 0:
+                    if d == '@iot.id':
+                        sending_address += "id"
+                        z = 1
+                    else:
+                        sending_address += d
+                        z = 1
+                    b += 1
+                elif d in ["==", "lt", "le", "gt", "ge", "not", "<", "<=", ">", ">="]:
+                    if d in ["=="]:
+                        sending_address += ' eq'
+                    elif d in ["lt", "<"]:
+                        sending_address += ' lt'
+                    elif d in ["le", "<="]:
+                        sending_address += ' le'
+                    elif d in ["gt", ">"]:
+                        sending_address += ' gt'
+                    elif d in ["ge", ">="]:
+                        sending_address += ' ge'
+                    elif d in ["not"]:
+                        sending_address += ' ne'
+                    sending_address += " '"
+                    y = 0
+                    b += 1
+                    c = 1
+                elif d in ["and", "or"] and y == 0:
+                    sending_address += "' " + d + " "
+                    z = 0
+                    b += 1
+                elif d in ["and", "or"] and y == 1:
+                    sending_address += d + " "
+                    z = 0
+                    b += 1
+                elif (d in ")") and (b <= len(select_query) - 1):
+                    sending_address += "'" + d + " "
+                    b += 1
+                    y += 1
+                elif b == len(select_query) - 1:
+                    sending_address += str(d) + "'"
+                    b += 1
+                elif b != 0 and b < len(select_query) - 1 and c == 0:
+                    sending_address += " " + str(d)
+                    b += 1
+                elif b != 0 and b < len(select_query) - 1 and c == 1:
+                    sending_address += str(d)
+                    b += 1
+                    c = 0
     elif show and not select_query:
         sending_address = gost_address + "/" + ogc_type + "?$select="
         n = 0
@@ -224,6 +235,18 @@ def get(ogc_type=None, environment=None, payload=None, sending_address=False, se
         if any(response):
             result.append(response)
     return result
+
+
+def select(items, select_query):
+    if bool(items) and bool(select_query):
+        for single_item in items:
+            matching = selection_parser.select_parser(select_query, single_item)
+            if not matching:
+                items.remove(single_item)
+            elif isinstance(matching, dict):
+                if "error" in matching:
+                    items.remove(single_item)
+    return items
 
 
 def add_result(evaluator, result, field_name="results", failure_type="non_critical_failures"):

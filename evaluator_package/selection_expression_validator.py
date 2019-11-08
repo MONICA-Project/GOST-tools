@@ -39,6 +39,7 @@ def select_parser_validator(tokens):
     except:
         return False
 
+
 def S(tokens, record=None):
     if tokens[0] == "(":
         tokens.pop(0)
@@ -87,9 +88,9 @@ def S_1(tokens, previous_result, record = None):
 def a_1(tokens, record=None):
     if tokens[0] == "not":
         tokens.pop(0)
-        return not a(tokens, record)
+        return not a(tokens)
     else:
-        return a(tokens, record)
+        return a(tokens)
 
 
 def a(tokens):

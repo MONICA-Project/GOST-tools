@@ -33,7 +33,7 @@ def set_GOST_address(address=None):
         return False
 
 
-def test_connection(server_address, server_username="scral", server_password="A5_xYY#HqNiao_12#b", verbose=True):
+def test_connection(server_address, server_username=None, server_password=None, verbose=True):
     """ This function checks if a REST connection is correctly configured.
 
     :param server_address: The address of the OGC server.
@@ -60,47 +60,4 @@ def test_connection(server_address, server_username="scral", server_password="A5
         return False
 
 
-def try_port(self=None, port=None, address=None, b=None, take=None):
-    if not address:
-        address = get_address_from_file()
-    x = address.split(":")
-    y = x[2].split("/")
-    if take:
-        return y[0]
-    y[0] = port
-    first = "/".join(y)
-    x[2] = first
-    complete = ":".join(x)
-    if test_connection(complete):
-        set_GOST_address(complete)
-        if b:
-            self.main_view.model.GOST_address = complete
-            self.change_address_description.configure(text="Insert a new address\n"
-                                                           f"format: http://x.x.x.x:port_number/v1.0\n{complete}")
-            self.new_address.delete(0, "end")
-            self.new_address.insert(0, self.main_view.model.GOST_address)
-            self.main_view.address_preview.configure(text=f"Current GOST address: " + self.main_view.model.GOST_address
-                                                          + "\nclick here to change address")
-        elif not b:
-            self.model.GOST_address = complete
-            indexes_to_delete = []
-            for index, val in enumerate(self.view_elements):
-                if "name" in val:
-                    if val["name"] in ["address_preview", "new_port_entry", "Confirm changes", "new_port_button",
-                                       "Insert a new port number", "address_preview"]:
-                        indexes_to_delete.append(index)
-            for i in sorted(indexes_to_delete, reverse=True):
-                self.view_elements[i]["item"].grid_forget()
-                del self.view_elements[i]
-            # self.address_preview.configure(text="Insert a new address\n(format: http[s]://x.x.x.x:port_number/v1.0)")
-            self.port_button = gui_ut.Button(self.top_bar, text="Change port number",
-                                             command=lambda: gui.change_port_number(self),
-                                             bg=gui_ut.change_address_color)
-            self.port_button.grid(row=0, column=4)
-            self.address_preview.configure(text=f"Current GOST address: {self.model.GOST_address} "
-                                                f"\nclick here to change address")
-        else:
-            self.confirm_port_button.configure(text="To change port, insert a new port\nand click here")
-    else:
-        gui_ut.messagebox.showinfo("Error", "invalid Port number")
-        self.address_preview.configure(text="Invalid port, insert a new port")
+

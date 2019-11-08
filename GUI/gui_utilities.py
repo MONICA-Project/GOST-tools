@@ -12,6 +12,7 @@ import tkinter.font as font
 
 # color names for interface
 
+
 confirm_color = '#ff502f'
 abort_color = '#86f986'
 change_address_color = "#a7cce7"
@@ -90,25 +91,13 @@ def get_items(self, b=False):
                 else:
                     selected_items.append(item)
 
-        elif (not bool(self.selected_boolean_expression.get())) and (not bool(self.selected_identifiers.get())) and (self.related_type.get() == "No related OGC type"):
+        elif (not bool(self.selected_boolean_expression.get())) and (not bool(self.selected_identifiers.get())) and \
+                (self.related_type.get() == "No related OGC type") and bool(self.selected_type.get()):
             selected_items = eval_cond.get(self.selected_type.get())
 
-        if bool(self.selected_boolean_expression.get()):  # filtering the results
-            # selected_items = str_to_list(self.selected_type.get(), self.selected_boolean_expression.get(), " ")
-            # expression = shlex.split(self.selected_boolean_expression.get())
+        if bool(self.selected_boolean_expression.get()) and bool(self.selected_type.get()):  # filtering the results
             query = self.selected_boolean_expression.get().split()
             selected_items = eval_cond.get(ogc_type=self.selected_type.get(), select_query=query)
-            #for single_item in selected_items.copy():
-            #    matching = selection_parser.select_parser(expression, single_item)
-            #    if not matching:
-            #        selected_items.remove(single_item)
-            #    elif isinstance(matching, dict):
-            #        if "error" in matching:
-            #            selected_items.remove(single_item)
-            #if len(selected_items) == 0:
-            #    error_message += f"\nNo items found with select statement conditions\n"
-        elif bool(self.selected_type.get()):
-            selected_items = eval_cond.get(self.selected_type.get())
         if b:
             if self.related_type.get() != "No related OGC type" and bool(self.selected_type.get()):
                 partial_items = []
@@ -130,6 +119,7 @@ def get_items(self, b=False):
                                 temporary_item.pop(key)
                         temporary_selected_items.append(temporary_item)
                 selected_items = temporary_selected_items
+
         if bool(error_message):
             messagebox.showinfo("ERROR", error_message)
         return selected_items

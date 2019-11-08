@@ -123,7 +123,7 @@ optional arguments:
                         10 11 -t Datastreams --related Observations select result > 10
                         
   -s [SELECT [SELECT ...]], --select [SELECT [SELECT ...]]
-                        selection of the items to process,
+                        selection of the items (between " " or ' ') to process,
                         before any further operation like delete or
                         patch. Accepts python-like boolean expressions comparing
                         fields value, with ==, !=, <, >, <=, >=, <>, 
@@ -229,7 +229,7 @@ You need only one step to achieve this result: first of all you have to specify 
 which can be done in several ways:
 ```
 --get <@iot.id value> -t <item's ogc entity type>
---select @iot.id == <@iot.id value> -t <item's ogc entity type> 
+--select @iot.id == '<@iot.id value>' -t <item's ogc entity type> 
 ```
 
 
@@ -237,7 +237,7 @@ which can be done in several ways:
 Different ways of getting the Sensor with @iot.id = 1 
 and name = "test_name":
 ```
---get -t Sensors --select name == test_name and @iot.id == 1
+--get -t Sensors --select name == "test_name" and @iot.id == 1
 1 --get -t Sensors
 --get 1 -t Sensors
 test_name --get -t Sensors
@@ -258,7 +258,7 @@ Getting all the Sensors with name = "test_name" OR @iot.id = 5
 Getting all the Sensors with 
 metadata = "test_metadata" AND description = "test_description"
 ```
---get -t Sensors --select metadata == test_metadata and description == test_description
+--get -t Sensors --select metadata == "test_metadata" and description == "test_description"
 
 ```
 
@@ -266,7 +266,7 @@ metadata = "test_metadata" AND description = "test_description"
 Getting all the Sensors with 
 metadata = "test_metadata" OR description = "test_description"
 ```
---get -t Sensors --select metadata == test_metadata or description == test_description
+--get -t Sensors --select metadata == "test_metadata" or description == "test_description"
 
 ```
 
@@ -274,7 +274,7 @@ Getting all the Sensors with name = "test_name" OR
 with @iot.id between "lower_bound" and "upper_bound", extremes included
 
 ```
--g -t Sensors --select name == test_name or (@iot.id >= lower_bound and @iot.id <= upper_bound)
+-g -t Sensors --select name == "test_name" or (@iot.id >= "lower_bound" and @iot.id <= "upper_bound")
 ```
 
 Getting all the Sensors with the word "test" in name and "2018" not in name
@@ -340,7 +340,7 @@ Format of the stored query:
 <conditions on an entity type> as <name of the first result> join
 <conditions on an entity type> as <name of the second result>
 on <[name of the table]><comparisons between fields of the results>
-show <results to show>
+show <[name of the table]results to show(separated by "and")>
 
 Example:
 --get -t Sensors --select id > '990' as t1 join

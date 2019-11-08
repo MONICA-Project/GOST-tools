@@ -1,1 +1,1 @@
-https://portal.monica-cloud.eu/gost_movida/v1.0
+http://localhost:8080/v1.0
