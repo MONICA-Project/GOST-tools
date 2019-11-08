@@ -219,8 +219,6 @@ def join(left_result, right_result, conditions, left_name, right_name):
         for l in result:
             address = l[conditions[index]]
             left = get(sending_address=address)
-            if not left:
-                return final_result
             i = 0
             for l_result in left:
                 for r in opposite:

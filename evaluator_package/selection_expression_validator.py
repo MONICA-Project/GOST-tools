@@ -90,10 +90,10 @@ def a_1(tokens, record=None):
         tokens.pop(0)
         return not a(tokens)
     else:
-        return a(tokens)
+        return a(tokens, record)
 
 
-def a(tokens):
+def a(tokens, record):
     if is_value(tokens[0]):
         tokens.pop(0)
         if tokens[0] == "not":

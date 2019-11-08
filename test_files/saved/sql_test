@@ -1,6 +1,6 @@
 --get -t Things as t1 join
---get -t Locations as t2
-on [t2]@iot.selfLink == [t1]Locations@iot.navigationLink
+--get -t Datastreams as t2
+on [t2]@iot.selfLink == [t1]Datastreams@iot.navigationLink
 show [t1]name and [t1]description and [t2]name and [t2]description
 
 
