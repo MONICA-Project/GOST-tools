@@ -123,7 +123,6 @@ def restore_main(self):
 
 
 def change_address_main(self):
-    # self.address_preview.configure(text="Insert a new address\n(format: http[s]://x.x.x.x:port_number/v1.0)")
     self.new_address_entry = gui_ut.Entry(self.top_bar, width=40)
     self.new_address_entry.insert(0, string=self.model.GOST_address)
     self.view_elements.append({"item": self.new_address_entry, "row": 0, "column": 1, "name": "new_address_entry"})
@@ -139,7 +138,7 @@ def change_address_main(self):
                                "name": "keep_old_address_button"})
     self.new_address_entry.grid(row=0, column=1)
     self.confirm_address_button.grid(row=0, column=2)
-    self.keep_old_address_button.grid(row=0, column=3)
+    self.keep_old_address_button.grid(row=0, column=4)
     gui_ut.populate(self.view_elements, self.main_area)
 
 
@@ -157,7 +156,8 @@ def try_address(self):
         for index, val in enumerate(self.view_elements):
             if "name" in val:
                 if val["name"] in ["new_address_entry", "new_address_button", "keep_old_address_button",
-                                   "confirm_address_button", "confirm_port_button", "new_port_entry", "new_port_button"]:
+                                   "confirm_address_button", "confirm_port_button", "new_port_entry", "new_port_button",
+                                   "old_port_button"]:
                     indexes_to_delete.append(index)
         for i in sorted(indexes_to_delete, reverse=True):
             self.view_elements[i]["item"].grid_forget()
@@ -186,17 +186,28 @@ def keep_address(self):
     for index, val in enumerate(self.view_elements):
         if "name" in val:
             if val["name"] in ["new_address_entry", "new_address_button", "keep_old_address_button", "new_port_entry",
-                               "confirm_address_button", "confirm_port_button", "Confirm changes"]:
+                               "confirm_address_button", "confirm_port_button", "Confirm changes", "old_port_button",
+                               "keep_old_port_button", "new_port_button"]:
                 indexes_to_delete.append(index)
     for i in sorted(indexes_to_delete, reverse=True):
         self.view_elements[i]["item"].grid_forget()
         del self.view_elements[i]
+    self.port_button = gui_ut.Button(self.top_bar, text="Change port number",
+                                     command=lambda: change_port_number(self),
+                                     bg=gui_ut.change_address_color)
+    self.port_button.grid(row=0, column=4)
 
 
 def change_port_number(self):
     self.port_button.grid_forget()
-    # self.address_preview.configure(text="Insert a new port number")
-
+    indexes_to_delete = []
+    for index, val in enumerate(self.view_elements):
+        if "name" in val:
+            if val["name"] in ["new_address_entry", "new_address_button", "keep_old_address_button"]:
+                indexes_to_delete.append(index)
+    for i in sorted(indexes_to_delete, reverse=True):
+        self.view_elements[i]["item"].grid_forget()
+        del self.view_elements[i]
     self.new_port_entry = gui_ut.Entry(self.top_bar, width=40)
     self.new_port_entry.insert(0, string=try_port(take=1))
     self.view_elements.append({"item": self.new_port_entry, "row": 0, "column": 1, "name": "new_port_entry"})
@@ -205,19 +216,15 @@ def change_port_number(self):
                                              command=lambda: try_port(self, self.new_port_entry.get()))
     self.view_elements.append({"item": self.confirm_port_button, "row": 0, "column": 2,
                                "name": "new_port_button"})
+    self.keep_old_port_button = gui_ut.Button(self.top_bar, text="Keep old port",
+                                              command=lambda: keep_address(self))
+    self.view_elements.append({"item": self.keep_old_port_button, "row": 0, "column": 3,
+                               "name": "old_port_button"})
     self.new_port_entry.grid(row=0, column=1)
     self.confirm_port_button.grid(row=0, column=2)
+    self.keep_old_port_button.grid(row=0, column=3)
     self.address_preview.configure(text=f"Current GOST address: {self.model.GOST_address} "
                                         f"\nclick here to change address")
-    indexes_to_delete = []
-    for index, val in enumerate(self.view_elements):
-        if "name" in val:
-            if val["name"] in ["new_address_entry", "new_address_button", "keep_old_address_button",
-                               "confirm_address_button", "confirm_port_button"]:
-                indexes_to_delete.append(index)
-    for i in sorted(indexes_to_delete, reverse=True):
-        self.view_elements[i]["item"].grid_forget()
-        del self.view_elements[i]
 
 
 def try_port(self=None, port=None, address=None, b=None, take=None):
@@ -248,12 +255,11 @@ def try_port(self=None, port=None, address=None, b=None, take=None):
                 if "name" in val:
                     if val["name"] in ["address_preview", "new_port_entry", "Confirm changes", "new_port_button",
                                        "Insert a new port number", "address_preview", "confirm_port_button",
-                                       "confirm_address_button"]:
+                                       "confirm_address_button", "old_port_button"]:
                         indexes_to_delete.append(index)
             for i in sorted(indexes_to_delete, reverse=True):
                 self.view_elements[i]["item"].grid_forget()
                 del self.view_elements[i]
-            # self.address_preview.configure(text="Insert a new address\n(format: http[s]://x.x.x.x:port_number/v1.0)")
             self.port_button = gui_ut.Button(self.top_bar, text="Change port number",
                                              command=lambda: change_port_number(self),
                                              bg=gui_ut.change_address_color)

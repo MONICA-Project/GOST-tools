@@ -145,7 +145,8 @@ def get(ogc_type=None, environment=None, payload=None, sending_address=False, se
         sending_address = gost_address + "/" + ogc_type + "?$filter="
         if "in" in select_query:
             if "not" in select_query:
-                return select(items=get(ogc_type), select_query=select_query)
+                thing = get(ogc_type)
+                return select(items=thing, select_query=select_query)
             sending_address += "contains("
             while select_query:
                 element = select_query.pop()
@@ -239,13 +240,16 @@ def get(ogc_type=None, environment=None, payload=None, sending_address=False, se
 
 def select(items, select_query):
     if bool(items) and bool(select_query):
-        for single_item in items:
-            matching = selection_parser.select_parser(select_query, single_item)
+        index = 0
+        while items and index < len(items):
+            matching = selection_parser.select_parser(select_query, items[index])
             if not matching:
-                items.remove(single_item)
+                items.remove(items[index])
             elif isinstance(matching, dict):
                 if "error" in matching:
-                    items.remove(single_item)
+                    items.remove(index)
+            else:
+                index += 1
     return items
 
 

@@ -277,7 +277,8 @@ with @iot.id between "lower_bound" and "upper_bound", extremes included
 -g -t Sensors --select name == "test_name" or (@iot.id >= "lower_bound" and @iot.id <= "upper_bound")
 ```
 
-Getting all the Sensors with the word "test" in name and "2018" not in name
+Getting all the Sensors with the word "test" in name and "2018" not in name (it's not possible, at the moment,
+to search multiple words separated by a space, for example: --get -t Sensors --select "test name" in name)
 
 ```
 -g -t Sensors --select test in name and 2018 not in name
