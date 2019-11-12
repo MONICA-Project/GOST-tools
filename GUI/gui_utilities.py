@@ -63,9 +63,23 @@ def clear_results(self):
         del self.view_elements[i]
 
 
+def list_reformat(items, split_type):
+    items_list = items.split()
+    return_list = []
+    for item in items_list:
+        if split_type in item:
+            rearrange = item.split(split_type)
+            for single_item in rearrange:
+                return_list.append(single_item)
+        else:
+            return_list.append(item)
+    return return_list
+
+
 def get_items(self, b=False):
     selected_items = []
     error_message = ""
+    # get_expression = list_reformat(self.selected_boolean_expression.get(), "//")
     if self.selected_type.get() == "Select an OGC type":
         result = Text(self.main_view.window, width=50, height=1)
         result.insert("1.0", "Error: OGC type needed")
@@ -97,6 +111,23 @@ def get_items(self, b=False):
 
         if bool(self.selected_boolean_expression.get()) and bool(self.selected_type.get()):  # filtering the results
             query = self.selected_boolean_expression.get().split()
+            x = query[0].startswith("'")
+            y = query[0].startswith('"')
+            if x or y:
+                if x:
+                    query[0] = query[0].lstrip('\'')
+                    i = 0
+                    while i < len(query):
+                        if query[i].endswith("'"):
+                            query[i] = query[i].rstrip('\'')
+                        i += 1
+                elif y:
+                    query[0] = query[0].lstrip("\"")
+                    i = 0
+                    while i < len(query):
+                        if query[i].endswith('"', 1):
+                            query[i] = query[i].rstrip("\"")
+                        i += 1
             selected_items = eval_cond.get(ogc_type=self.selected_type.get(), select_query=query)
         if b:
             if self.related_type.get() != "No related OGC type" and bool(self.selected_type.get()):
@@ -134,14 +165,17 @@ def related_elements(self, items):
         else:
             if items:
                 for i in items:
-                    result += def_func.get_entities_from_datastream(i, self.related_type.get(), self.main_view.model.GOST_address)
+                    result += def_func.get_entities_from_datastream(i, self.related_type.get(),
+                                                                    self.main_view.model.GOST_address)
     else:
         if self.related_type.get() == "Datastreams":
             for i in items:
-                result += def_func.related_datastreams(i['@iot.id'], self.selected_type.get(), self.main_view.model.GOST_address)
+                result += def_func.related_datastreams(i['@iot.id'], self.selected_type.get(),
+                                                       self.main_view.model.GOST_address)
         else:
             for i in items:
-                result += def_func.find_related(i, self.selected_type.get(), self.related_type.get(), self.main_view.model.GOST_address)
+                result += def_func.find_related(i, self.selected_type.get(), self.related_type.get(),
+                                                self.main_view.model.GOST_address)
     return result
 
 
@@ -196,7 +230,7 @@ def get_ogc_types(b=None):
                 "FeaturesOfInterest", "No related OGC type"}
     else:
         return {"Sensors", "Things", "Datastreams", "Locations", "ObservedProperties", "Observations",
-                "FeaturesOfInterest",}
+                "FeaturesOfInterest", }
 
 
 def scrollable_results(results_list, root, editable=True):

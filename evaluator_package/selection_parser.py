@@ -82,7 +82,6 @@ def S_1(tokens, previous_result, record = None):
         return previous_result
 
 
-
 def a_1(tokens, record=None):
     if tokens[0] == "not":
         tokens.pop(0)

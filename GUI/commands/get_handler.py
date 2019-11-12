@@ -42,6 +42,7 @@ class GetView:
 
         self.view_elements.append({"item": selected_boolean_expression_description, "row": 2, "column": 0})
         self.selected_boolean_expression = gui_ut.Entry(main_view.main_area, width=50)
+
         self.view_elements.append({"item": self.selected_boolean_expression, "row": 2, "column": 1})
 
         types_menu_description = gui_ut.Label(main_view.main_area, borderwidth=2, relief="solid",

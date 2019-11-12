@@ -131,7 +131,6 @@ def get(ogc_type=None, environment=None, payload=None, sending_address=False, se
     c = 0  # flag to check if the " ' " is open
     z = 0  # flag for identifier
     y = 0  # flag to check if it's necessary to close the " ' "
-
     gost_address = None
     if environment:
         gost_address = environment["GOST_address"]
@@ -147,13 +146,31 @@ def get(ogc_type=None, environment=None, payload=None, sending_address=False, se
             if "not" in select_query:
                 thing = get(ogc_type)
                 return select(items=thing, select_query=select_query)
+            index = 0
+            i = 0
+            element_list = []
             sending_address += "contains("
-            while select_query:
-                element = select_query.pop()
-                if is_field(element):
-                    sending_address += element + ", '"
-                elif not is_field(element) and element not in ["in", "not"]:
-                    sending_address += element + "')"
+            element = select_query
+            length = len(element)
+            while i < length:
+                element_list.append(element.pop())
+                i += 1
+            while element_list:
+                if is_field(element_list[0]):
+                    sending_address += element_list[0] + ", '"
+                    element_list.pop(0)
+                elif element_list[0] in ["in"]:
+                    element_list.pop(0)
+                    normal_query = []
+                    while element_list:
+                        normal_query.append(element_list.pop())
+                    for single in normal_query:
+                        if index == len(normal_query)-1:
+                            sending_address += single + "')"
+                        else:
+                            sending_address += single + " "
+                            index += 1
+
         else:
             for d in select_query:
                 if d is '(':
@@ -203,7 +220,7 @@ def get(ogc_type=None, environment=None, payload=None, sending_address=False, se
                     sending_address += " " + str(d)
                     b += 1
                 elif b != 0 and b < len(select_query) - 1 and c == 1:
-                    sending_address += str(d)
+                    sending_address += str(d) + " "
                     b += 1
                     c = 0
     elif show and not select_query:
@@ -247,7 +264,7 @@ def select(items, select_query):
                 items.remove(items[index])
             elif isinstance(matching, dict):
                 if "error" in matching:
-                    items.remove(index)
+                    items.remove(items[index])
             else:
                 index += 1
     return items
