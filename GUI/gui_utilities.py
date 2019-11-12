@@ -105,8 +105,7 @@ def get_items(self, b=False):
                 else:
                     selected_items.append(item)
 
-        elif (not bool(self.selected_boolean_expression.get())) and (not bool(self.selected_identifiers.get())) and \
-                (self.related_type.get() == "No related OGC type") and bool(self.selected_type.get()):
+        else:
             selected_items = eval_cond.get(self.selected_type.get())
 
         if bool(self.selected_boolean_expression.get()) and bool(self.selected_type.get()):  # filtering the results
@@ -134,7 +133,6 @@ def get_items(self, b=False):
                 partial_items = []
                 partial_items += related_elements(self, selected_items)
                 selected_items = partial_items
-
         if bool(self.show_fields):
 
             if len(self.show_fields.curselection()) > 0:
