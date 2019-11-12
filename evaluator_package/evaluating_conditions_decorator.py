@@ -146,6 +146,23 @@ def get(ogc_type=None, environment=None, payload=None, sending_address=False, se
             if "not" in select_query:
                 thing = get(ogc_type)
                 return select(items=thing, select_query=select_query)
+            x = select_query[0].startswith("'")
+            y = select_query[0].startswith('"')
+            if x or y:
+                if x:
+                    select_query[0] = select_query[0].lstrip('\'')
+                    i = 0
+                    while i < len(select_query):
+                        if select_query[i].endswith("'"):
+                            select_query[i] = select_query[i].rstrip('\'')
+                        i += 1
+                elif y:
+                    select_query[0] = select_query[0].lstrip("\"")
+                    i = 0
+                    while i < len(select_query):
+                        if select_query[i].endswith('"', 1):
+                            select_query[i] = select_query[i].rstrip("\"")
+                        i += 1
             index = 0
             i = 0
             element_list = []

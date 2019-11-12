@@ -110,23 +110,6 @@ def get_items(self, b=False):
 
         if bool(self.selected_boolean_expression.get()) and bool(self.selected_type.get()):  # filtering the results
             query = self.selected_boolean_expression.get().split()
-            x = query[0].startswith("'")
-            y = query[0].startswith('"')
-            if x or y:
-                if x:
-                    query[0] = query[0].lstrip('\'')
-                    i = 0
-                    while i < len(query):
-                        if query[i].endswith("'"):
-                            query[i] = query[i].rstrip('\'')
-                        i += 1
-                elif y:
-                    query[0] = query[0].lstrip("\"")
-                    i = 0
-                    while i < len(query):
-                        if query[i].endswith('"', 1):
-                            query[i] = query[i].rstrip("\"")
-                        i += 1
             selected_items = eval_cond.get(ogc_type=self.selected_type.get(), select_query=query)
         if b:
             if self.related_type.get() != "No related OGC type" and bool(self.selected_type.get()):

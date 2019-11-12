@@ -91,7 +91,23 @@ def a_1(tokens, record=None):
 
 
 def a(tokens, record):
-    if is_value(tokens[0]):
+    x = tokens[0].startswith("'")
+    y = tokens[0].startswith('"')
+    if is_value(tokens[0]) or x or y:
+        if x:
+            tokens[0] = tokens[0].lstrip('\'')
+            i = 0
+            while i < len(tokens):
+                if tokens[i].endswith("'"):
+                    tokens[i] = tokens[i].rstrip('\'')
+                i += 1
+        elif y:
+            tokens[0] = tokens[0].lstrip("\"")
+            i = 0
+            while i < len(tokens):
+                if tokens[i].endswith('"', 1):
+                    tokens[i] = tokens[i].rstrip("\"")
+                i += 1
         temp_val = tokens[0]
         tokens.pop(0)
         if tokens[0] == "not":
