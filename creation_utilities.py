@@ -144,7 +144,7 @@ def create_random_item(args, ogc_type=False):
                                 "@iot.id": user_defined_or_default(args, "Sensor_id", "Datastreams"),}}) + "\n"
 
     if ogc_type == "FeaturesOfInterest":
-        return json.dumps({"name": user_defined_or_default(args, "name"),
+        return json.dumps({"name": user_defined_or_default(args, "name", "FeaturesOfInterest"),
                 "description": user_defined_or_default(args, "description"),
                 "encodingType": user_defined_or_default(args, "encodingType"),
                 "feature": user_defined_or_default(args, "feature")}) + "\n"

@@ -53,7 +53,7 @@ def S(tokens, record=None):
             temp_result = not S(tokens, record)
             if tokens[0] == ")":
                 tokens.pop(0)
-                return  S_1(tokens, temp_result, record)
+                return S_1(tokens, temp_result, record)
             else:
                 return parse_error(tokens[0])
 

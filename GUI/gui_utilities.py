@@ -140,7 +140,7 @@ def get_items(self, b=False):
 def related_elements(self, items):
     result = []
     error_message = "Error: trying to found Datastreams related to Datastreams"
-    if self.selected_type == "Datastreams":
+    if self.selected_type.get() == "Datastreams":
         if self.related_type.get() == "Datastreams":
             return error_message
         else:
