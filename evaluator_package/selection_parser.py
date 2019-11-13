@@ -104,12 +104,21 @@ def a(tokens, record):
         elif y:
             tokens[0] = tokens[0].lstrip("\"")
             i = 0
+            temp_val = ""
             while i < len(tokens):
-                if tokens[i].endswith('"', 1):
-                    tokens[i] = tokens[i].rstrip("\"")
+                if tokens[0].endswith('"', 1):
+                    tokens[0] = tokens[0].rstrip("\"")
+                    temp_val += tokens[0]
+                    tokens.pop(0)
+                elif tokens[0] == "not" or tokens[0] == "in":
+                    break
+                else:
+                    temp_val += tokens[0] + " "
+                    tokens.pop(0)
                 i += 1
-        temp_val = tokens[0]
-        tokens.pop(0)
+        else:
+            temp_val = tokens[0]
+            tokens.pop(0)
         if tokens[0] == "not":
             tokens.pop(0)
             if tokens[0] == "in":
