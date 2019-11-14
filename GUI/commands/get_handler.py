@@ -1,3 +1,5 @@
+from tkinter.messagebox import showinfo
+
 import GUI.gui_utilities as gui_ut
 
 
@@ -70,7 +72,6 @@ class GetView:
 
     def show_options(self, a, b, c):  # additional parameters a b c needed because it is called by Trace function
         gui_ut.clear_results(self)
-
         if self.related_type.get() != "No related OGC type":
             field_names = gui_ut.get_fields_names(self.related_type.get())
         elif self.related_type.get() == "No related OGC type":

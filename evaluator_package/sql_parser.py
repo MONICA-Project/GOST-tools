@@ -194,7 +194,7 @@ def append_name_to_key(entities, name):
         temp_item = {}
         for key, value in item.items():
             temp_item[f"[{name}]{key}"] = item[key]
-        temp_result.append((temp_item))
+        temp_result.append(temp_item)
     return temp_result
 
 
@@ -218,7 +218,9 @@ def join(left_result, right_result, conditions, left_name, right_name):
 
         for l in result:
             address = l[conditions[index]]
-            left = get(sending_address=address) # controllare ritorno della get
+            left = get(sending_address=address)
+            if type(left) != list:
+                return left
             i = 0
             for l_result in left:
                 for r in opposite:
