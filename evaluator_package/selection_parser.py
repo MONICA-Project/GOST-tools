@@ -65,7 +65,7 @@ def S(tokens, record=None):
         return parse_error(tokens[0])
 
 
-def S_1(tokens, previous_result, record = None):
+def S_1(tokens, previous_result, record=None):
     if not(bool(tokens)):
         return previous_result
 
@@ -135,7 +135,10 @@ def a(tokens, record):
             return temp_val in temp_field
 
     elif is_field(tokens[0]):
-        temp_field = record[tokens[0]]
+        if tokens[0] == "id":
+            temp_field = record["@iot.id"]
+        else:
+            temp_field = record[tokens[0]]
         tokens.pop(0)
         if tokens[0] == "==":
             tokens.pop(0)

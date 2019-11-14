@@ -8,7 +8,7 @@ import ogc_utility as ogc_ut
 import evaluator_package.default_functions as def_func
 import copy
 from tkinter import messagebox
-import tkinter.font as font
+# import tkinter.font as font
 
 # color names for interface
 

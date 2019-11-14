@@ -143,7 +143,7 @@ def get(ogc_type=None, environment=None, payload=None, sending_address=False, se
     if select_query and not show:
         sending_address = gost_address + "/" + ogc_type + "?$filter="
         if "in" in select_query:
-            if "not" in select_query or "and" in select_query:
+            if "not" in select_query or "and" in select_query or "or" in select_query:
                 thing = get(ogc_type)
                 return select(items=thing, select_query=select_query)
             x = select_query[0].startswith("'")
