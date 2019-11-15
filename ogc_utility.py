@@ -90,7 +90,7 @@ def get_item(identifier, ogc_type, environment=None, address=False):
     return json_response
 
 
-def add_item(req, type, spec = None):
+def add_item(req, type, spec=None):
     """add an item from request "req" of type "type" with specs "spec"
     """
     app = Flask(__name__)
@@ -122,7 +122,7 @@ def add_item(req, type, spec = None):
                                                     + (json.loads(s.text))["error"]["message"][0])), 500)
 
 
-def patch_item(options_dict, identifier, ogc_type, environment = False, address = False):
+def patch_item(options_dict, identifier, ogc_type, environment = False, address=False):
     """patch the item identified by 'identifier' with the fields
     provided with 'options_dict'
     """

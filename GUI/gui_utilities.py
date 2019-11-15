@@ -1,14 +1,12 @@
 import shlex
 import json
 import evaluator_package.evaluator as eval
-# import checking_functions as check
 import evaluator_package.evaluating_conditions_decorator as eval_cond
 from tkinter import *
 import ogc_utility as ogc_ut
 import evaluator_package.default_functions as def_func
 import copy
 from tkinter import messagebox
-# import tkinter.font as font
 
 # color names for interface
 
@@ -79,7 +77,6 @@ def list_reformat(items, split_type):
 def get_items(self, b=False):
     selected_items = []
     error_message = ""
-    # get_expression = list_reformat(self.selected_boolean_expression.get(), "//")
     if self.selected_type.get() == "Select an OGC type":
         result = Text(self.main_view.window, width=50, height=1)
         result.insert("1.0", "Error: OGC type needed")

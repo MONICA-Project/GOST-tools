@@ -76,24 +76,24 @@ def common_commands_parser():
     parser.add_argument("-p", "--patch",
                         action=UserOptionalValue,
                         help="patch the chosen item FIELD with selected VALUE,accepts "
-                        "multiple values at once\n"
-                        "examples:\n--patch id <newId> name <newName>\n--patch description <newDescription>")
+                             "multiple values at once\n"
+                             "examples:\n--patch id <newId> name <newName>\n--patch description <newDescription>")
 
     parser.add_argument("-s", "--select", action=CheckValues,
                         help="selection of the items from those found with --get,"
-                        "before any further operation like delete or patch."
-                        "Chosen items are those in which FIELD "
-                        "has the selected VALUE. It is usable with " 
-                        "multiple values at once, starting with 'and/or' depending " 
-                        "if the user wants ALL fields matching or AT LEAST one"
-                        "\n(ex: -s id <definedId> name <definedName>)"
-                        "\n(ex: -s and id <definedId> name <definedName>)"
-                        "\n(ex: -s or id <definedId> name <definedName>)")
+                             "before any further operation like delete or patch."
+                             "Chosen items are those in which FIELD "
+                             "has the selected VALUE. It is usable with "
+                             "multiple values at once, starting with 'and/or' depending "
+                             "if the user wants ALL fields matching or AT LEAST one"
+                             "\n(ex: -s id <definedId> name <definedName>)"
+                             "\n(ex: -s and id <definedId> name <definedName>)"
+                             "\n(ex: -s or id <definedId> name <definedName>)")
 
     parser.add_argument("--show", action=CheckValues,
                         help="select from the results of the elaboration the fields, to show\n"
-                        "usable with multiple values at once "
-                        "(ex: --show id name)")
+                             "usable with multiple values at once "
+                             "(ex: --show id name)")
 
     parser.add_argument("-G", "--GOSTaddress", "--address",
                         help="sets a new address (IP and port) for GOST")
@@ -102,11 +102,11 @@ def common_commands_parser():
                         help="sends a ping to test the connection", action="store_true")
 
     parser.add_argument("-g", "--get", help="get the items of the currently selected ogc type,if\n"
-                        "one or more item identifiers or name are definited,\n"
-                        "or all the items of selected type if no id or name\n" 
-                        "is provided. The query results are\n"
-                        "saved for successive operations like delete or patch",
-                                            action="store_true")
+                                            "one or more item identifiers or name are definited,\n"
+                                            "or all the items of selected type if no id or name\n"
+                                            "is provided. The query results are\n"
+                                            "saved for successive operations like delete or patch",
+                        action="store_true")
 
     parser.add_argument("--exit", help="exit from the program", action="store_true")
 
@@ -114,8 +114,7 @@ def common_commands_parser():
                                               "shell", action="store_true")
     parser.add_argument("--post", action=UserOptionalValue,
                         help="posts records from user defined file/s to currently selected OGC type\n"
-                        "(ex:'--post <file_name> -t <type>'")
-
+                             "(ex:'--post <file_name> -t <type>'")
 
     return parser
 
@@ -125,10 +124,10 @@ def init_default_parser():
     parser = common_commands_parser()
     parser.add_argument("--create", action=CheckValues,
                         help="Creates n items of type t in created_files/<type>,"
-                        "or in the file defined with 'file <filename>\n"
-                        "you can define field values for created records\n"
-                        "otherwise default value will be used\n"
-                        "(ex: --create num 2 type Sensors file <filename> description new_description)")
+                             "or in the file defined with 'file <filename>\n"
+                             "you can define field values for created records\n"
+                             "otherwise default value will be used\n"
+                             "(ex: --create num 2 type Sensors file <filename> description new_description)")
     parser.description = "Process user-defined GOST operations"
     return parser
 
@@ -137,7 +136,7 @@ class UserOptionalValue(argparse.Action):
     """A custom action for all the values which can be initialized both with or without arguments, but in
     the second case a flag 'MISSING_USER_DEFINED_VALUE' will be setted as value"""
 
-    def __init__(self,option_strings,
+    def __init__(self, option_strings,
                  dest=None,
                  nargs="*",
                  default=False,
@@ -166,7 +165,7 @@ class CheckValues(argparse.Action):
     """A custom action for all the values which can be initialized both with or without arguments, but in
     the second case the user will be asked to provide one"""
 
-    def __init__(self,option_strings,
+    def __init__(self, option_strings,
                  dest=None,
                  nargs="*",
                  default=False,
@@ -183,13 +182,18 @@ class CheckValues(argparse.Action):
             metavar=metavar,
             type=type,
             help=help)
-#call the method 'check_values' if values isn't specified
+
+    # call the method 'check_values' if values isn't specified
+
     def __call__(self, parser, namespace, values, option_string=None):
         if not bool(values):
             check_values(values, self.dest, self.help)
         setattr(namespace, self.dest, values)
 
+
 """Check and call the check's method correspondent"""
+
+
 def check_values(values, destination, help_message):
     if destination == "create":
         check_create(values)
@@ -197,9 +201,12 @@ def check_values(values, destination, help_message):
         check_select(values)
     else:  # default missing value check
         ask_missing_value(destination, str, f"Missing {destination} value/s, insert one or 'exit' to exit\n"
-        f"[help: {help_message}]\n", values)
+                                            f"[help: {help_message}]\n", values)
+
 
 """Check if there are arguments in 'values'"""
+
+
 def check_create(values):
     if "num" not in values:
         ask_missing_value("num", int, "Missing number of items to create, insert one or 'exit' to exit\n", values)
@@ -210,7 +217,7 @@ def check_create(values):
                           optional_check_function=is_ogc, optional_value_type_name="ogc entity type")
 
 
-def  ask_missing_value(value_name, value_type, input_request="", values=None,
+def ask_missing_value(value_name, value_type, input_request="", values=None,
                       optional_check_function=False, optional_value_type_name=False):
     """ask to the user to input the missing value"""
     valid_value = False
@@ -229,7 +236,7 @@ def  ask_missing_value(value_name, value_type, input_request="", values=None,
         while not valid_value:
             if not optional_value_type_name:
                 value = input(f"Invalid input, needed a {value_type}\n "
-                          f"Insert a valid input or 'exit' to exit\n")
+                              f"Insert a valid input or 'exit' to exit\n")
             else:
                 value = input(f"Invalid input, needed a {optional_value_type_name}\n "
                               f"Insert a valid input or 'exit' to exit\n")
@@ -268,4 +275,3 @@ def is_of_type(object_string, type):
         return True
     except ValueError:
         return False
-

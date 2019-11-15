@@ -1,6 +1,5 @@
 from evaluator_package import selection_parser
 from evaluator_package.selection_expression_validator import is_field
-# from evaluator_package.selection_parser import tokenize_parentheses
 from . import evaluator_utilities as eval_util
 import ogc_utility as ogc_util
 import requests
@@ -114,14 +113,10 @@ def get_items(current_evaluator):
                 selection_expression_validator.tokenize_parentheses(current_evaluator.args.select)
             result_all = get(current_evaluator.args.ogc, current_evaluator.environment,
                              select_query=current_evaluator.args.select)
-            # result_all = get_all(current_evaluator.args.ogc, current_evaluator.environment)
             for i in result_all:
                 add_result(current_evaluator, i, field_name="selected_items")
         if not bool(current_evaluator.environment["selected_items"]):
             current_evaluator.environment["non_critical_failures"] += [f"error: no {current_evaluator.args.ogc} found"]
-        # else:
-        #    select_items(current_evaluator)
-        #    evaluator_utilities.check_name_duplicates(current_evaluator, "selected_items")
 
 
 def get(ogc_type=None, environment=None, payload=None, sending_address=False, select_query=None, ogc_name=None,
@@ -182,7 +177,7 @@ def get(ogc_type=None, environment=None, payload=None, sending_address=False, se
                     while element_list:
                         normal_query.append(element_list.pop())
                     for single in normal_query:
-                        if index == len(normal_query)-1:
+                        if index == len(normal_query) - 1:
                             sending_address += single + "')"
                         else:
                             sending_address += single + " "
@@ -347,9 +342,8 @@ def check_user_defined_arguments(evaluator, all_mandatory_fields, at_least_one_f
         at_least_one = []
     # checking options requiring user-provided values
     for i in needed_additional_argument:
-        if evaluator.args.__dict__[i] == ["MISSING_USER_DEFINED_VALUE"] or (not bool(evaluator.args.__dict__[i])\
-                                                                            and (
-                                                                                    i in mandatory_fields or i in at_least_one or i in needed_additional_argument)):
+        if evaluator.args.__dict__[i] == ["MISSING_USER_DEFINED_VALUE"] or (not bool(evaluator.args.__dict__[i]) \
+                and (i in mandatory_fields or i in at_least_one or i in needed_additional_argument)):
             help_string = ""
             for j in evaluator.parser._actions:
                 if ("--" + i) in j.option_strings:

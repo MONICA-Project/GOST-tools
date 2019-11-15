@@ -7,6 +7,7 @@ from json import JSONDecoder, JSONDecodeError
 import json
 import ogc_utility as ogc_util
 
+
 class CreateView:
     def __init__(self, main_view):
         self.view_elements = []
@@ -129,7 +130,8 @@ def save(self):
                         file_handler.write(json.dumps(item) + "\n")
                     gui_ut.messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}")
             else:
-                gui_ut.messagebox.showinfo("ERROR", "Trying to create multiple items with the same name\nItems not created")
+                gui_ut.messagebox.showinfo("ERROR", "Trying to create multiple items with the same name\nItems not "
+                                                    "created")
     clear_before_creation(self)
 
 

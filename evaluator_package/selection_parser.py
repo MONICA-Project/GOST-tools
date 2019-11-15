@@ -23,11 +23,11 @@ def select_parser(tokens, record=None):
     :param record: the record to check
     :return: true if the record satisfy the expression, otherwise false
     """
-    if not(bool(tokens)):
+    if not (bool(tokens)):
         return False
     tokenize_parentheses(tokens)
     local_tokens_copy = copy.deepcopy(tokens)  # necessary because the parser removes all the elements from
-                                               # tokens list during evaluation
+    # tokens list during evaluation
     result = S(local_tokens_copy, record)
     if isinstance(result, dict):  # bad parsing error checking
         return result
@@ -66,7 +66,7 @@ def S(tokens, record=None):
 
 
 def S_1(tokens, previous_result, record=None):
-    if not(bool(tokens)):
+    if not (bool(tokens)):
         return previous_result
 
     elif tokens[0] == "and" or tokens[0] == "or":
@@ -154,7 +154,7 @@ def a(tokens, record):
                 temp_val = int(temp_val)
             tokens.pop(0)
             return temp_val != temp_field
-        elif tokens[0] == "<" or tokens[0] == ">" or tokens[0] == "<=" or tokens[0] == ">=" or tokens[0] == "<>"\
+        elif tokens[0] == "<" or tokens[0] == ">" or tokens[0] == "<=" or tokens[0] == ">=" or tokens[0] == "<>" \
                 or tokens[0] == "gt" or tokens[0] == "lt" or tokens[0] == "gteq" \
                 or tokens[0] == "lteq" or tokens[0] == "diff":
             comparator = tokens[0]
@@ -184,7 +184,3 @@ def parse_error(bad_token):
     """
 
     return {"error": f"parsing error, invalid token [{bad_token}] found"}
-
-
-
-

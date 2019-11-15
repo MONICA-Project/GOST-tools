@@ -1,5 +1,4 @@
 import GUI.gui_utilities as gui_ut
-# from checking_functions import item_is_already_present
 import ogc_utility as ogc_util
 
 
@@ -8,7 +7,7 @@ class PatchView:
         self.view_elements = []
         self.selected_type = None
         self.selected_boolean_expression = None
-        self.selected_identifiers= None
+        self.selected_identifiers = None
         self.result = None
         self.main_view = main_view
         self.show_fields = None
@@ -22,7 +21,7 @@ class PatchView:
         main_view.current_command_view = self
 
         types_menu_description = gui_ut.Label(main_view.main_area, text="Select OGC entity type (mandatory field)")
-        self.view_elements.append({"item":types_menu_description, "row": 0, "column": 0})
+        self.view_elements.append({"item": types_menu_description, "row": 0, "column": 0})
 
         self.selected_type = gui_ut.StringVar(main_view.main_area)
         types = gui_ut.get_ogc_types()
@@ -31,24 +30,24 @@ class PatchView:
         self.selected_type.trace("w", self.show_options)
 
         types_menu = gui_ut.OptionMenu(main_view.main_area, self.selected_type, *types)
-        self.view_elements.append({"item":types_menu, "row": 0, "column" : 1})
+        self.view_elements.append({"item": types_menu, "row": 0, "column": 1})
 
         select_introduction = gui_ut.Label(main_view.main_area, text="Select the items to Patch")
-        self.view_elements.append({"item": select_introduction, "row": 1, "column" : 1, "name" : "select_introduction"})
+        self.view_elements.append({"item": select_introduction, "row": 1, "column": 1, "name": "select_introduction"})
 
         selected_identifiers_description = gui_ut.Label(main_view.main_area, text=gui_ut.select_id_text)
 
-        self.view_elements.append({"item":selected_identifiers_description, "row": 2, "column" : 0,
+        self.view_elements.append({"item": selected_identifiers_description, "row": 2, "column": 0,
                                    "name": "selected_identifiers_description"})
         self.selected_identifiers = gui_ut.Entry(main_view.main_area, width=10)
-        self.view_elements.append({"item": self.selected_identifiers, "row": 2, "column" : 1,
+        self.view_elements.append({"item": self.selected_identifiers, "row": 2, "column": 1,
                                    "name": "selected_identifiers"})
 
         selected_boolean_expression_description = gui_ut.Label(main_view.main_area, text=gui_ut.select_conditions_text)
-        self.view_elements.append({"item":selected_boolean_expression_description, "row": 3, "column" : 0,
-                                   "name" : "selected_boolean_expression_description"})
+        self.view_elements.append({"item": selected_boolean_expression_description, "row": 3, "column": 0,
+                                   "name": "selected_boolean_expression_description"})
         self.selected_boolean_expression = gui_ut.Entry(main_view.main_area, width=50)
-        self.view_elements.append({"item":self.selected_boolean_expression, "row": 3, "column" : 1,
+        self.view_elements.append({"item": self.selected_boolean_expression, "row": 3, "column": 1,
                                    "name": "selected_boolean_expression"})
 
         gui_ut.populate(self.view_elements, self.main_view.main_area)
@@ -60,9 +59,10 @@ class PatchView:
     def show_options(self, a, b, c):  # additional parameters a b c needed because it is called by Trace function
         gui_ut.clear_results(self)
 
-        self.patch_btn = gui_ut.Button(self.main_view.main_area, text="Patch the selected items\nwith the following values:\n"
-                                                               "(empty fields will not be modified)",
-                                                               command=lambda: patch(self), bg=gui_ut.action_color)
+        self.patch_btn = gui_ut.Button(self.main_view.main_area,
+                                       text="Patch the selected items\nwith the following values:\n"
+                                            "(empty fields will not be modified)",
+                                       command=lambda: patch(self), bg=gui_ut.action_color)
         self.view_elements.append({"item": self.patch_btn, "row": 5, "column": 1, "name": "patching_button"})
 
         clear_old_patch_values(self)
@@ -109,18 +109,18 @@ def patch(self):
         gui_ut.clear_results(self)
         self.selected_items = gui_ut.get_items(self)
 
-        if len(self.selected_items) > 1 and gui_ut.name_in_patch(self.patch_values):  # control to avoid to patch two items
-                                                                               # with the same name
+        if len(self.selected_items) > 1 and gui_ut.name_in_patch(self.patch_values):  # control to avoid to patch two
+            # items with the same name
             gui_ut.messagebox.showinfo("ERROR", "Trying to patch multiple items with the same name\nItems not patched")
         else:
             if self.selected_items != "error":
                 self.result = gui_ut.scrollable_results(self.selected_items, self.main_view.main_area)
 
-                self.view_elements.append({"item": self.result, "row": 1, "column": 1, "name" : "result"})
+                self.view_elements.append({"item": self.result, "row": 1, "column": 1, "name": "result"})
                 self.patch_btn.config(text="Click here to confirm \nthe Patching of the selected elements",
-                                       command=lambda : confirm_patching(self))
+                                      command=lambda: confirm_patching(self))
                 self.abort_patch_btn = gui_ut.Button(self.main_view.main_area, text="Click here to abort the patching",
-                                                  command=lambda: abort_patching(self),  bg='#ff502f')
+                                                     command=lambda: abort_patching(self), bg='#ff502f')
                 self.view_elements.append({"item": self.abort_patch_btn, "row": 6, "column": 1,
                                            "name": "abort_patching_button"})
                 gui_ut.populate(self.view_elements, self.main_view.main_area)
@@ -154,14 +154,15 @@ def confirm_patching(self):
 
     for i in self.selected_items:
         if "@iot.id" in i:
-            if ("name" in patches) \
-                    and bool(ogc_util.check.item_is_already_present(patches["name"], self.selected_type.get())):  # checking
-            # for name duplicates
+            if ("name" in patches) and bool(ogc_util.check.item_is_already_present(patches["name"],
+                                                                                self.selected_type.get())):  # checking
+                # for name duplicates
                 self.error_message += f"\nTrying to patch the item with id {i['@iot.id']} name " \
-                    f"with {patches['name']}, but that name is already present.\n" \
-                    f"patching of the selected item aborted\n"
+                                      f"with {patches['name']}, but that name is already present.\n" \
+                                      f"patching of the selected item aborted\n"
             else:
-                patch_result = ogc_util.patch_item(patches, str(i.get("@iot.id")), self.selected_type.get(), address=address)
+                patch_result = ogc_util.patch_item(patches, str(i.get("@iot.id")), self.selected_type.get(),
+                                                   address=address)
                 if "error" in patch_result:
                     self.error_message += f"\n{patch_result['error']} \n"
                 else:
@@ -189,8 +190,8 @@ def confirm_patching(self):
 
 def abort_patching(self):
     self.patch_btn.config(text="Click here to Patch the selected items\nwith the following values:\n"
-                                "(an ogc entity type must be selected)",
-                           command=lambda: patch(self))
+                               "(an ogc entity type must be selected)",
+                          command=lambda: patch(self))
     indexes_to_delete = []
     for index, val in enumerate(self.view_elements):
         if "name" in val:

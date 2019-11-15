@@ -1,5 +1,4 @@
 import json
-# from checking_functions import item_is_already_present
 import condition_config as cond_conf
 import random
 

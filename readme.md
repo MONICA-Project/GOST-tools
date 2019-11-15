@@ -11,7 +11,7 @@
 server
 
 ### Install
-GOST-CLI requires Python 3 or greater (it was tested on Python 3.7 so it is suggested to install at least that version).
+GOST-CLI requires Python 3.7 or greater 
 
 #### Clone the repository
 ```
@@ -338,12 +338,12 @@ Make a sql-like query from a file with path "file_path"
 --sql "file_path"
 
 Format of the stored query:
-<conditions on an entity type> as <name of the first result> join
-<conditions on an entity type> as <name of the second result>
+<conditions on an entity type> as <name of the first table> join
+<conditions on an entity type> as <name of the second table>
 on <[name of the table]><comparisons between fields of the results>
 show <[name of the table]results to show(separated by "and")>
 
-Example:
+Query format example:
 --get -t Sensors --select id > '990' as t1 join
 --get -t Sensors --select id < '3' as t2
 on [t1]description == [t2]description
@@ -355,6 +355,7 @@ adding a <custom description> and storing them in <storing file path>.
 Below the command, an example of the template
 ```
 --template <template file path> --create num 20 type Sensors file <storing file path> description <custom description>
+
 Template file content:
 {"encodingType": "application/pdf",
 "metadata": "default metadata"}

@@ -1,6 +1,7 @@
 import copy
 # from jinja2 import environment
 from evaluator_package.evaluating_conditions_decorator import get
+
 # from evaluator_package.environments import default_env
 
 """Implemented Grammar:
@@ -18,12 +19,12 @@ comp -> == | != | > | < | >= | <= | <> | gt | lt | gteq |  lteq | diff
 
 def parse(left, right, tokens):
     """Call the methods for the parsification of the sql expression"""
-    if not(bool(tokens)):
+    if not (bool(tokens)):
         return False
     tokenize_parentheses(tokens)
     local_tokens_copy = copy.deepcopy(tokens)  # necessary because the parser removes all the elements from
-                                               # tokens list during evaluation
-    return S(left, right,local_tokens_copy)
+    # tokens list during evaluation
+    return S(left, right, local_tokens_copy)
 
 
 def S(left, right, tokens):
@@ -51,7 +52,7 @@ def S(left, right, tokens):
 
 
 def S_1(left, right, tokens, previous_result):
-    if not(bool(tokens)):
+    if not (bool(tokens)):
         return previous_result
 
     elif tokens[0] == "and" or tokens[0] == "or":
@@ -76,7 +77,7 @@ def a_1(left, right, tokens):
 
 
 def a(left, right, tokens):
-    temp_val_1 = get_value(left,right, tokens[0])
+    temp_val_1 = get_value(left, right, tokens[0])
     tokens.pop(0)
     comparator = []
     comparator.append(tokens[0])
@@ -104,7 +105,7 @@ def a(left, right, tokens):
         return temp_val_1 != temp_val_2
 
     elif comparator[0] == "<" or comparator[0] == "lt":
-            return  temp_val_1 < temp_val_2
+        return temp_val_1 < temp_val_2
     elif comparator[0] == "<=" or comparator[0] == "lteq":
         return temp_val_1 <= temp_val_2
     elif comparator[0] == ">" or comparator[0] == "gt":
@@ -126,7 +127,7 @@ def is_field(token):
     """Checks if the token is a valid ogc type field"""
     return token in ["name", "description", "encodingType", "location", "properties", "metadata",
                      "definition", "phenomenonTime", "resultTime", "observedArea", "result", "@iot.id",
-                     "resultQuality","validTime", "time", "parameters", "feature"]
+                     "resultQuality", "validTime", "time", "parameters", "feature"]
 
 
 def is_value(token):
@@ -225,18 +226,12 @@ def join(left_result, right_result, conditions, left_name, right_name):
             for l_result in left:
                 for r in opposite:
                     partial_result = dict()
-                    if l_result["@iot.selfLink"] == r["[" + right_name+"]" + "@iot.selfLink"]:
+                    if l_result["@iot.selfLink"] == r["[" + right_name + "]" + "@iot.selfLink"]:
                         partial_result.update(l)
                         partial_result.update(r)
                         final_result[i] = partial_result
                     i += 1
     return final_result
-
-    # for l in left_result:
-    #    comparison = compare(l, right_result, conditions)
-    #    if bool(comparison):
-    #        final_result += comparison
-    # return final_result
 
 
 def compare(left_entity, right_results, conditions):
@@ -273,5 +268,3 @@ def show_filter(result, fields):
         temp_result[i] = temp_entity
         i += 1
     return temp_result
-
-

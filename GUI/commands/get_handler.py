@@ -1,5 +1,3 @@
-from tkinter.messagebox import showinfo
-
 import GUI.gui_utilities as gui_ut
 
 

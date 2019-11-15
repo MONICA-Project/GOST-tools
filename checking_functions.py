@@ -2,39 +2,6 @@ import requests
 import connection_config
 import evaluator_package.evaluating_conditions_decorator as eval_cond
 
-# def get_all(ogc_name=None, environment=None, payload=None, sending_address=False):
-#    """sends a GET request for the list of all OGC items of ogcName type
-#    Returns an array of Ogc items in form of a dictionary
-#    """
-#    result = []
-#    if environment:
-#        GOST_address = environment["GOST_address"]
-#        sending_address = GOST_address + "/" + ogc_name
-#    elif not sending_address:
-#        GOST_address = connection_config.get_address_from_file()
-#        sending_address = GOST_address + "/" + ogc_name
-#
-#    r = requests.get(sending_address, payload)
-#    response = r.json()
-#    if "value" in response:
-#        result = response["value"]
-#    if "@iot.nextLink" in response:  # iteration for getting results beyond first page
-#        if "GOST_address" not in locals():
-#            GOST_address = sending_address.split("/v1.0")[0]
-#            GOST_address += "/v1.0"
-#        next_page_address = GOST_address + response["@iot.nextLink"].split("/v1.0")[1]
-#        parsed = urlparse.urlparse(next_page_address)
-#        params = urlparse.parse_qsl(parsed.query)
-#        new_payload = {}
-#        for x, y in params:
-#            new_payload[x] = y
-#        partial_result = get_all(payload=new_payload, sending_address=next_page_address)
-#        (result).extend(partial_result)
-#    elif isinstance(response, dict) and "value" not in response :  # condition for when the response is a single item
-#        if any(response):
-#            result.append(response)
-#    return result
-
 
 def get_item_by_name(ogc_name, environment, name, sending_address):
     result = []
