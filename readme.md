@@ -228,18 +228,29 @@ to which post the records. In this case:
 ```
 Then will be showed the outcome of the posting operation
 
+Posting to GOST all the Sensors stored in a txt file with path = "file_path":
+```
+--post file_path -t Sensors
+```
+
+
 #### Modify existing elements (PATCH)
 ##### Patching an item's "description" field to a desired value, knowing the item's @iot.id
 
 You need only one step to achieve this result: first of all you have to specify the item to patch,
 which can be done in several ways:
 ```
+ 15 -t Sensors --p id <newId> name <newName>
+```
+
+
+### Getting elements (GET)
+Get the element with a specific @iot.id:
+```
 --get <@iot.id value> -t <item's ogc entity type>
 --select @iot.id == '<@iot.id value>' -t <item's ogc entity type> 
 ```
 
-
-### Examples of single commands
 Different ways of getting the Sensor with @iot.id = 1 
 and name = "test_name":
 ```
@@ -297,6 +308,7 @@ If you want to delete those Observations, you only need to add the --delete comm
 --select @iot.id < 10 -t Sensors --related Observations select result > 100 --delete
 ```
 
+####Delete an element(Delete)
 Different ways of deleting the Sensor with @iot.id = 1 and name = "test_name":
 ```
 1 --get -t Sensors --delete
@@ -309,7 +321,7 @@ Deleting all the Sensors (a warning message will be displayed before proceeding)
 ```
 -t Sensors --d
 ```
-
+####Create a new elements(Create)
 Creating and storing 5 Sensors with default values to a file with path = "file_path":
 ```
 --create num 5 file "file_path" -t Sensors
@@ -340,10 +352,7 @@ Template file content:
 }
 ```
 
-Posting to GOST all the Sensors stored in a txt file with path = "file_path":
-```
---post file_path -t Sensors
-```
+#### Other instructions:
 Storing all sensor in a file with absolute path = "file_path"
 ```
 --get --type Sensors --store "file_path"
@@ -359,7 +368,7 @@ Executing a list  of commands stored in a file with absolute path = "file_path"
 --file "file_path"
 ```
 
-Make a sql-like query from a file with path "file_path"
+Make a SQL-like query from a file with path "file_path"
 ```
 --sql "file_path"
 
