@@ -29,8 +29,8 @@ class CreateView:
         main_view.current_command_view = self
 
         types_menu_description = gui_ut.Label(self.main_view.main_area, text="Select OGC entity type of the items\n"
-                                                                      "you are going to create or post\n"
-                                                                      "(mandatory field)")
+                                                                             "you are going to create or post\n"
+                                                                             "(mandatory field)")
         self.view_elements.append({"item": types_menu_description, "row": 1, "column": 0})
 
         self.selected_type = gui_ut.StringVar(self.main_view.main_area)
@@ -60,7 +60,7 @@ class CreateView:
             indexes_to_delete = []  # clearing the previously set patch options
             for index, val in enumerate(self.view_elements):
                 if "name" in val:
-                    if val["name"] in ["create_field_name", "create_field_value"]:
+                    if val["name"] in ["create_field_name", "create_field_value", "mandatory_field"]:
                         indexes_to_delete.append(index)
             for i in sorted(indexes_to_delete, reverse=True):
                 self.view_elements[i]["item"].grid_forget()
@@ -79,22 +79,33 @@ class CreateView:
                 self.create_entries.append({"field_name": item, "field_entry": temp_entry})
 
             self.save_btn = gui_ut.Button(self.main_view.main_area, text="Save to a file",
-                                   command=lambda: save(self))
+                                          command=lambda: save(self))
             self.view_elements.append({"item": self.save_btn, "row": 10, "column": 0, "name": "save_button"})
 
             self.post_btn = gui_ut.Button(self.main_view.main_area, text="Post to GOST",
-                                   command=lambda: direct_post(self))
+                                          command=lambda: direct_post(self))
             self.view_elements.append({"item": self.post_btn, "row": 10, "column": 1, "name": "post_button"})
 
             self.save_and_post_btn = gui_ut.Button(self.main_view.main_area, text="Save to a file\nand Post to GOST",
-                                            command=lambda: save_and_post(self))
+                                                   command=lambda: save_and_post(self))
             self.view_elements.append({"item": self.save_and_post_btn, "row": 10, "column": 2,
                                        "name": "save_and_post_button"})
             self.post_from_file_btn = gui_ut.Button(self.main_view.main_area, text="POST records \ndefined in a file",
-                                             command=lambda: post_from_file(self))
+                                                    command=lambda: post_from_file(self))
             self.view_elements.append({"item": self.post_from_file_btn, "row": 11, "column": 2,
                                        "name": "post_from_file_button"})
-
+            if self.selected_type.get() == "Datastreams":
+                red_label = gui_ut.Label(self.main_view.main_area, text="* Fields Things_id, ObservedProperty_id, "
+                                                                        "Sensor_id are mandatory", fg="#FF0000",
+                                         font=(None, 15), width=60)
+                self.view_elements.append(
+                    {"item": red_label, "row": row, "column": 0, "name": "mandatory_field"})
+            elif self.selected_type.get() == "Observations":
+                red_label = gui_ut.Label(self.main_view.main_area, text="* Fields Datastream_id and FeatureOfInterest(id) "
+                                                                        "are mandatory",
+                                         fg="#FF0000", font=(None, 15), width=60)
+                self.view_elements.append(
+                    {"item": red_label, "row": row, "column": 0, "name": "mandatory_field"})
             gui_ut.populate(self.view_elements, self.main_view.main_area)
 
 
@@ -214,9 +225,10 @@ def save_and_post(self):
 
                     if successful_post:
                         gui_ut.messagebox.showinfo("", f"Saved new items in\n{str(self.storage_file)}\n"
-                                                f"and posted them to GOST")
+                                                       f"and posted them to GOST")
             else:
-                gui_ut.messagebox.showinfo("ERROR", "Trying to create multiple items with the same name\nItems not created")
+                gui_ut.messagebox.showinfo("ERROR",
+                                           "Trying to create multiple items with the same name\nItems not created")
     clear_before_creation(self)
 
 
@@ -268,7 +280,8 @@ def post_from_file(self):
                 if success:
                     gui_ut.messagebox.showinfo("", f"Posted new items to GOST")
             else:
-                gui_ut.messagebox.showinfo("ERROR", "Trying to create multiple items with the same name\nItems not created")
+                gui_ut.messagebox.showinfo("ERROR",
+                                           "Trying to create multiple items with the same name\nItems not created")
     clear_before_creation(self)
 
 
@@ -324,14 +337,14 @@ def create_items(self):
 
 def clear_before_creation(self):
     self.create_values = {}
-    self.error_message = []
+    self.error_message = ""
     self.create_entries = []
     self.created_items = []
     indexes_to_delete = []
     for index, val in enumerate(self.view_elements):
         if "name" in val:
             if val["name"] in ["create_field_name", "create_field_value", "save_button",
-                               "post_button", "save_and_post_button", "post_from_file_button"]:
+                               "post_button", "save_and_post_button", "post_from_file_button", "mandatory_field"]:
                 indexes_to_delete.append(index)
     for i in sorted(indexes_to_delete, reverse=True):
         self.view_elements[i]["item"].grid_forget()
@@ -342,6 +355,6 @@ def clear_before_creation(self):
 
 def show_preview(self):
     preview = gui_ut.scrollable_results(self.created_items["created_items"], self.main_view.main_area,
-                                 editable=False)
+                                        editable=False)
     self.view_elements.append({"item": preview, "row": 3, "column": 0, "name": "preview"})
     gui_ut.populate(self.view_elements, self.main_view.main_area)

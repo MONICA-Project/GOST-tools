@@ -1,6 +1,6 @@
 import shlex
 import json
-import evaluator_package.evaluator as eval
+# import evaluator_package.evaluator as eval
 import evaluator_package.evaluating_conditions_decorator as eval_cond
 from tkinter import *
 import ogc_utility as ogc_ut
@@ -22,7 +22,8 @@ select_id_text = "Insert the name(s) or the @iot.id(s)\n separated by a space"
 
 # "If no identifier is provided, all the records of the chosen OGC type will be selected"
 
-select_conditions_text = "Insert a filter for results\n(<,>,==,in,not in)(and or not)"
+select_conditions_text = "Insert a filter for results\n(<,>,==,in,not in)(and or not)\nfields have to be between \" or " \
+                         " ' \n(Example: 'default description' in description)"
 
 
 def populate(elements_list, scrollable_area=False):
@@ -59,19 +60,6 @@ def clear_results(self):
     for i in sorted(indexes_to_delete, reverse=True):
         self.view_elements[i]["item"].grid_forget()
         del self.view_elements[i]
-
-
-def list_reformat(items, split_type):
-    items_list = items.split()
-    return_list = []
-    for item in items_list:
-        if split_type in item:
-            rearrange = item.split(split_type)
-            for single_item in rearrange:
-                return_list.append(single_item)
-        else:
-            return_list.append(item)
-    return return_list
 
 
 def get_items(self, b=False):
@@ -176,8 +164,8 @@ def get_fields_names(ogc_type, needed_for_editing=False):
         values = ["name", "description", "observationType", "unitOfMeasurement", "observedArea",
                   "phenomenonTime", "resultTime"]
         if needed_for_editing:
-            values += ["Thing_id", "ObservedProperty_id", "Sensor_id", "unitOfMeasurement_definition",
-                       "unitOfMeasurement_name", "unitOfMeasurement_symbol"]
+            values += ["unitOfMeasurement_definition", "unitOfMeasurement_name", "unitOfMeasurement_symbol", "Thing_id",
+                       "ObservedProperty_id", "Sensor_id"]
         else:
             values += ["unitOfMeasurement", "Thing", "Sensor", "ObservedProperty"]
 

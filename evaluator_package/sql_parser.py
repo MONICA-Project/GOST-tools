@@ -1,8 +1,6 @@
 import copy
-# from jinja2 import environment
 from evaluator_package.evaluating_conditions_decorator import get
 
-# from evaluator_package.environments import default_env
 
 """Implemented Grammar:
 S    -> (S) S_1 | a_1 S_1 | not (S) S_1

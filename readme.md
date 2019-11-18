@@ -11,7 +11,7 @@
 server
 
 ### Install
-GOST-CLI requires Python 3.7 or greater 
+GOST-CLI requires Python 3 or greater (it was tested on Python 3.7 so it's suggest to use this version) 
 
 #### Clone the repository
 ```
@@ -364,6 +364,7 @@ Getting all the Observations which both share a Datastream with Sensors with @io
 and have a result greater than 100
 ```
 --select @iot.id < 10 -t Sensors --related Observations select result > 100
+
 If you want to delete those Observations, you only need to add the --delete command:
 --select @iot.id < 10 -t Sensors --related Observations select result > 100 --delete
 ```
@@ -383,7 +384,11 @@ statements are available:
 ## Next steps
 GOST-CLI is still under active development. Several extensions will be available soon.
 
-*selective selection of records from file
+* sql function on the GUI
+* dynamic expansion of the GUI elements (especially the result widget) according to the program window
+* Pop-up that appear when the user press the search button and disappear automatically when the query computation is ended
+* display messages when hovering over something with mouse cursor in the GUI
+* selective selection of records from file
 * implementing a test mode
 * storing custom commands and settings and tying them to a user account
 

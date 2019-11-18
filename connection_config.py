@@ -1,8 +1,8 @@
 import os
-import subprocess
+# import subprocess
 import requests
-import GUI.gui_utilities as gui_ut
-import GUI.start_gui as gui
+# import GUI.gui_utilities as gui_ut
+# import GUI.start_gui as gui
 
 address_file_path = './config_files/GOST_address.txt'
 

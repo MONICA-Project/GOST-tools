@@ -113,9 +113,9 @@ def create_random_item(args, ogc_type=False):
                                         "type": user_defined_or_default(args, "type")}}) + "\n"
 
     if ogc_type == "ObservedProperties":
-        missing_fields = needed_user_defined_fields(args, ["Definition", "Description"])
-        if bool(missing_fields):
-            return missing_fields
+        # missing_fields = needed_user_defined_fields(args, ["Definition", "Description"])
+        # if bool(missing_fields):
+        #   return missing_fields
         return json.dumps({"name": user_defined_or_default(args, "name", "ObservedProperties"), "description":
                           user_defined_or_default(args, "description", "ObservedProperties"), "definition":
                           user_defined_or_default(args, "definition", "ObservedProperties")}) + "\n"
@@ -225,7 +225,7 @@ def user_defined_or_default(args, field_name, ogc_type=None):
         return "application/vnd.geo+json"
 
     elif field_name == "parameters":
-        return {"parameter" : "default_parameter"}
+        return {"parameter": "default_parameter"}
 
     elif field_name == "coordinates":
         return [4.9132, 52.34227]

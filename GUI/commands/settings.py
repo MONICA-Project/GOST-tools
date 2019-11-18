@@ -1,6 +1,6 @@
 from tkinter import *
 import GUI.gui_utilities as gui_ut
-import shlex
+# import shlex
 import connection_config as conn_conf
 
 

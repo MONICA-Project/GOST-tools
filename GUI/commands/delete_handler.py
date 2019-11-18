@@ -1,7 +1,7 @@
 from tkinter import *
 import GUI.gui_utilities as gui_ut
 import ogc_utility as ogc_ut
-import shlex
+# import shlex
 
 
 class DeleteView:
