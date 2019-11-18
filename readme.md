@@ -19,7 +19,7 @@ git clone https://git.pertforge.ismb.it/Students-Projects/gost-cli.git
 ```
 
 
-### How to use GOST-CLI
+## How to use GOST-CLI
 ```
 
 usage: interface.py [-h] [-f FILE] [-t OGC] [-m MODE] [-d] [-i]
@@ -156,36 +156,41 @@ optional arguments:
                         value] as --create additional arguments
 ```
 
-#### Use Cases
-#####Posting to the GOST server n new items of entity type t with a specific field value
+### Use Cases
+
+#### Create Elements (POST)
+
+##### Posting to the GOST server *"n"* new items of entity type *"t"* with a specific field value
 
 This is a two-step operation: first of all, you need to create a local file with 
 the representation of the items that you want to create, then you have to upload the
 represented items to the server
 
-######First step: creating a file with the records
+###### First step: creating a file with the records
 
 There are two ways of getting this done: using a pre-defined template,
 or without it.
 
 Posting with a template:
 
-The template is a .txt file which should have the following format:
+The template is a .txt file JSON-like formatted as you can see in the following example:
 ```
-{"field 1 name" : "value 1",
-"field 2 name" : "value 2",
-...
+{
+    "field 1 name" : "value 1",
+    "field 2 name" : "value 2",
+    ...
 }
 ```
 In this case:
 ```
-{"field_name" : "chosen field's value",
+{
+    "field_name" : "chosen field's value",
 }
 ```
 Then, when you use the --template command followed by this file path, that template 
 will be used as a base for the new created items, in this case the Sensors
 
-In addition to the --template command, one must use the -create command, to specify:
+In addition to the --template command, one must use the --create command, to specify:
 
 
 * how many items create
@@ -198,7 +203,7 @@ according to it)
 * other custom field values, if needed (this will override the value definition given in template
 or in default implementation)
 
-Those specifications are preceded respectively by "num", "file", "type" and by < field name >  < field value >
+Those specifications are preceded respectively by "num", "file", "type" and by < field_name > and < field_value >
 
 
 So our final command will be:
@@ -214,7 +219,7 @@ So the command of this use case will be
 ```
 --create num n file <storing_file_path> metadata "chosen metadata value" type t
 ```
-######Second step: posting the created records to the server
+###### Second step: posting the created records to the server
 To post a file of records to the GOST server, you have to use the --post command
 followed by the file path, and the --type command to specify the ogc entity type
 to which post the records. In this case:
@@ -223,7 +228,8 @@ to which post the records. In this case:
 ```
 Then will be showed the outcome of the posting operation
 
-#####Patching an item's "description" field to a desired value, knowing the item's @iot.id
+#### Modify existing elements (PATCH)
+##### Patching an item's "description" field to a desired value, knowing the item's @iot.id
 
 You need only one step to achieve this result: first of all you have to specify the item to patch,
 which can be done in several ways:
@@ -259,15 +265,12 @@ Getting all the Sensors with
 metadata = "test_metadata" AND description = "test_description"
 ```
 --get -t Sensors --select metadata == "test_metadata" and description == "test_description"
-
 ```
-
 
 Getting all the Sensors with 
 metadata = "test_metadata" OR description = "test_description"
 ```
 --get -t Sensors --select metadata == "test_metadata" or description == "test_description"
-
 ```
 
 Getting all the Sensors with name = "test_name" OR 
@@ -277,18 +280,28 @@ with @iot.id between "lower_bound" and "upper_bound", extremes included
 -g -t Sensors --select name == "test_name" or (@iot.id >= "lower_bound" and @iot.id <= "upper_bound")
 ```
 
-Getting all the Sensors with the word "test" in name and "2018" not in name (it's not possible, at the moment,
-to search multiple words separated by a space, for example: --get -t Sensors --select "test name" in name)
+Getting all the Sensors with the word "test" in name and "2018" not in name
+(to search multiple words separated by a space, is necessary to use quotes).
 
 ```
 -g -t Sensors --select test in name and 2018 not in name
+--get -t Sensors --select "test name" in name
 ```
 
-Different ways of deleting the Sensor with @iot.id = 1 
-and name = "test_name":
+[NOT SUPPORTED] Getting all the Observations which both share a Datastream with Sensors with @iot.id < 10 
+and have a result greater than 100
+```
+--select @iot.id < 10 -t Sensors --related Observations select result > 100
+
+If you want to delete those Observations, you only need to add the --delete command:
+--select @iot.id < 10 -t Sensors --related Observations select result > 100 --delete
+```
+
+Different ways of deleting the Sensor with @iot.id = 1 and name = "test_name":
 ```
 1 --get -t Sensors --delete
 --get 1 -t Sensors -d
+-g "test_name" -t Sensors -d
 1 -t Sensors -d 
 ```
 
@@ -314,9 +327,26 @@ Missing Ogc Type, insert one: <-- System response
 Sensors
 Created a file in created_files/Sensors with 2 Sensors
 ```
+Creating 20 Sensors from the template stored in < template_file_path >,
+adding a < custom_description > and storing them in < storing_file_path >.
+Below the command, an example of the template
+```
+--template <template file path> --create num 20 type Sensors file <storing file path> description <custom description>
+
+Template file content:
+{
+    "encodingType": "application/pdf",
+    "metadata": "default metadata"
+}
+```
+
 Posting to GOST all the Sensors stored in a txt file with path = "file_path":
 ```
 --post file_path -t Sensors
+```
+Storing all sensor in a file with absolute path = "file_path"
+```
+--get --type Sensors --store "file_path"
 ```
 
 Setting the GOST address to which send requests to http://x.x.x.x:port_number/v1.0
@@ -328,10 +358,6 @@ Executing a list  of commands stored in a file with absolute path = "file_path"
 ```
 --file "file_path"
 ```
-Storing all sensor in a file with absolute path = "file_path"
-```
---get --type Sensors --store "file_path"
-```
 
 Make a sql-like query from a file with path "file_path"
 ```
@@ -340,7 +366,7 @@ Make a sql-like query from a file with path "file_path"
 Format of the stored query:
 <conditions on an entity type> as <name of the first table> join
 <conditions on an entity type> as <name of the second table>
-on <[name of the table]><comparisons between fields of the results>
+on <[name of the table]><comparisons between fields of the results> (join condition)
 show <[name of the table]results to show(separated by "and")>
 
 Query format example:
@@ -350,27 +376,9 @@ on [t1]description == [t2]description
 show [t1]name and [t2]description
 ```
 
-Creating 20 Sensors from the template stored in <template file path>,
-adding a <custom description> and storing them in <storing file path>.
-Below the command, an example of the template
-```
---template <template file path> --create num 20 type Sensors file <storing file path> description <custom description>
+## More details about GOST-CLI implementation:
 
-Template file content:
-{"encodingType": "application/pdf",
-"metadata": "default metadata"}
-```
-Getting all the Observations which both share a Datastream with Sensors with @iot.id < 10 
-and have a result greater than 100
-```
---select @iot.id < 10 -t Sensors --related Observations select result > 100
-
-If you want to delete those Observations, you only need to add the --delete command:
---select @iot.id < 10 -t Sensors --related Observations select result > 100 --delete
-```
-More details about GOST-CLI implementation:
-
-SPECIAL CHARACTERS
+#####SPECIAL CHARACTERS
 
 Some systems do not accept "<" and ">" characters, so those alternatives in conditional
 statements are available:
@@ -384,9 +392,9 @@ statements are available:
 ## Next steps
 GOST-CLI is still under active development. Several extensions will be available soon.
 
-* sql function on the GUI
-* dynamic expansion of the GUI elements (especially the result widget) according to the program window
-* Pop-up that appear when the user press the search button and disappear automatically when the query computation is ended
+* SQL functionality on the GUI
+* dynamic expansion of the GUI elements (especially the result widget) according to the program application window
+* Pop-up that appears when the user presses the search button and disappear automatically when the query computation is ended
 * display messages when hovering over something with mouse cursor in the GUI
 * selective selection of records from file
 * implementing a test mode
@@ -394,12 +402,12 @@ GOST-CLI is still under active development. Several extensions will be available
 
 
 ## Contacts
-Feel free to contact [Giacomo Robino](http://giacomo.robino.it), [Luca Mannella](http://ismb.it/luca.mannella) or [Jacopo Foglietti](http://ismb.it/jacopo.foglietti/)
+Feel free to contact Giacomo Robino, Emanuel Frulla, [Luca Mannella](http://ismb.it/luca.mannella) or [Jacopo Foglietti](http://ismb.it/jacopo.foglietti/)
 for any ideas, improvements, and questions.
 
 
 ## Licensing
-**Copyright © 2019 [Giacomo Robino](http://ismb.it/giacomo.robino/), [Luca Mannella](http://ismb.it/luca.mannella) 
+**Copyright © 2019 Giacomo Robino, Emanuel Frulla, [Luca Mannella](http://ismb.it/luca.mannella) 
  and [Jacopo Foglietti](http://ismb.it/jacopo.foglietti/)
  for [LINKS Foundation](http://linksfoundation.com/).**
 
