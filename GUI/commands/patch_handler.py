@@ -152,6 +152,7 @@ def confirm_patching(self):
 
     patched_items = False  # flag for the final success message
 
+    # FixMe: There is an error if you try to patch a JSON element like "observedArea" because it is stringed
     for i in self.selected_items:
         if "@iot.id" in i:
             if ("name" in patches) and bool(ogc_util.check.item_is_already_present(patches["name"],
